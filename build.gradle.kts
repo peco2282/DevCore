@@ -18,7 +18,6 @@ dependencies {
   compileOnly(libs.adventure)
   testImplementation(libs.adventure)
   testImplementation(libs.serializer.plugin)
-  compileOnly("com.peco2282:adventure:1.0")
 }
 
 kotlin {
