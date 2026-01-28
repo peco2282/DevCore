@@ -1,5 +1,6 @@
 package com.peco2282.adventure.builder
 
+import com.peco2282.adventure.StyleDsl
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
@@ -14,6 +15,7 @@ import net.kyori.adventure.text.format.TextDecoration
  *
  * Provides methods to apply colors, decorations, fonts, and merge styles to text components.
  */
+@StyleDsl
 interface Styler {
   /**
    * Merges the given style with the current style.

@@ -1,5 +1,6 @@
 package com.peco2282.adventure.builder
 
+import com.peco2282.adventure.ComponentDsl
 import com.peco2282.adventure.withStyle
 import net.kyori.adventure.text.BlockNBTComponent
 import net.kyori.adventure.text.Component
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.ApiStatus
  * A builder interface for creating and manipulating Adventure text components.
  * Provides fluent API methods for appending content, styling, and collecting components.
  */
+@ComponentDsl
 interface Componenter {
   /**
    * Appends a string content to this componenter.
@@ -38,14 +40,6 @@ interface Componenter {
    * @return this componenter for chaining
    */
   infix fun create(consumer: Componenter.() -> Unit): Componenter
-
-//  /**
-//   * Applies styling to this componenter using a styler consumer.
-//   *
-//   * @param consumer the consumer lambda that operates on a styler
-//   * @return this componenter for chaining
-//   */
-//  infix fun withStyle(consumer: Styler.() -> Unit): Componenter /// Moved to infixer.kt
 
   /**
    * Joins all appended components into a single component without a separator.
@@ -173,6 +167,45 @@ interface Componenter {
    * @return this componenter for chaining
    */
   fun translatable(key: String, consumer: Componenter.() -> Unit): Componenter
+
+  /**
+   * Appends a translatable component with the specified translation key and style.
+   *
+   * @param key the translation key
+   * @param style the style to apply to the translatable component
+   * @return this componenter for chaining
+   */
+  fun translatable(key: String, style: Style): Componenter
+
+  /**
+   * Appends a translatable component with the specified translation key, style, and component arguments.
+   *
+   * @param key the translation key
+   * @param style the style to apply to the translatable component
+   * @param args the component arguments for the translation
+   * @return this componenter for chaining
+   */
+  fun translatable(key: String, style: Style, vararg args: Component): Componenter
+
+  /**
+   * Appends a translatable component with the specified translation key, style, and list of arguments.
+   *
+   * @param key the translation key
+   * @param styler the style builder to apply to the translatable component
+   * @param args the list of component arguments for the translation
+   * @return this componenter for chaining
+   */
+  fun translatable(key: String, styler: Styler.() -> Unit, args: List<Component>): Componenter
+
+  /**
+   * Appends a styled translatable component with arguments built using a nested componenter scope.
+   *
+   * @param key the translation key
+   * @param styler the style builder to apply to the translatable component
+   * @param consumer the consumer lambda that builds component arguments
+   * @return this componenter for chaining
+   */
+  fun translatable(key: String, styler: Styler.() -> Unit, consumer: Componenter.() -> Unit): Componenter
 
   /**
    * Appends a keybind component with the specified keybind key.

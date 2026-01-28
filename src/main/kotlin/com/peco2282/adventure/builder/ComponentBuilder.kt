@@ -2,6 +2,7 @@ package com.peco2282.adventure.builder
 
 import com.peco2282.adventure.ComponentDsl
 import com.peco2282.adventure.component
+import com.peco2282.adventure.style
 import com.peco2282.adventure.updateLast
 import net.kyori.adventure.text.BlockNBTComponent
 import net.kyori.adventure.text.Component
@@ -106,6 +107,44 @@ internal class ComponentBuilder : Componenter {
     apply {
       val builder = ComponentBuilder().apply(consumer)
       append(Component.translatable(key, builder.components))
+    }
+
+  override fun translatable(
+    key: String,
+    style: Style
+  ): Componenter =
+    apply {
+    append(Component.translatable(key, style))
+  }
+
+  override fun translatable(
+    key: String,
+    style: Style,
+    vararg args: Component
+  ): Componenter =
+    apply {
+      append(Component.translatable(key, style, *args))
+  }
+
+  override fun translatable(
+    key: String,
+    styler: Styler.() -> Unit,
+    args: List<Component>
+  ): Componenter =
+    apply {
+      val style = style(styler)
+      append(Component.translatable(key, style, args))
+    }
+
+  override fun translatable(
+    key: String,
+    styler: Styler.() -> Unit,
+    consumer: Componenter.() -> Unit
+  ): Componenter =
+    apply {
+      val style = style(styler)
+      val builder = ComponentBuilder().apply(consumer)
+      append(Component.translatable(key, style, builder.components))
     }
 
   override fun keybind(key: String): Componenter =
