@@ -3,26 +3,69 @@ package com.peco2282.devcore.config.reflection
 import com.peco2282.devcore.config.serializers.Serializer
 import kotlin.reflect.KClass
 
+/**
+ * Registry for type serializers.
+ *
+ * This singleton manages a mapping between classes and their corresponding [Serializer]s,
+ * allowing for custom serialization and deserialization logic in the configuration system.
+ */
 object TypeSerializers {
 
   private val serializers = mutableMapOf<KClass<*>, Serializer<*>>()
 
+  /**
+   * Registers a [serializer] for the specified [type].
+   *
+   * @param T the type to register a serializer for
+   * @param type the [KClass] of type [T]
+   * @param serializer the [Serializer] instance to handle type [T]
+   */
   fun <T : Any> register(type: KClass<T>, serializer: Serializer<T>) {
     serializers[type] = serializer
   }
 
+  /**
+   * Returns whether a serializer is registered for the specified [type].
+   *
+   * @param type the [KClass] to check
+   * @return true if a serializer is registered, false otherwise
+   */
   fun has(type: KClass<*>) = serializers.containsKey(type)
 
+  /**
+   * Deserializes the [value] to type [T] using the registered serializer.
+   *
+   * @param T the target type
+   * @param type the [KClass] of type [T]
+   * @param value the raw value to deserialize
+   * @return the deserialized instance of type [T]
+   * @throws NoSuchElementException if no serializer is registered for [type]
+   * @throws ClassCastException if the registered serializer is not for type [T]
+   */
   @Suppress("UNCHECKED_CAST")
   fun <T : Any> deserialize(type: KClass<T>, value: Any?): T {
     return (serializers[type] as Serializer<T>).deserialize(value)
   }
 
+  /**
+   * Gets the registered serializer for the specified [kClass].
+   *
+   * @param T the type of the serializer
+   * @param kClass the [KClass] to get the serializer for
+   * @return the [Serializer] instance, or null if none is registered
+   */
   @Suppress("UNCHECKED_CAST")
   fun <T : Any> get(kClass: KClass<T>): Serializer<T>? {
     return serializers[kClass] as? Serializer<T>
   }
 
+  /**
+   * Deserializes the [value] to type [T] if a serializer is registered, otherwise returns the raw [value].
+   *
+   * @param type the [KClass] of the expected type
+   * @param value the raw value to deserialize
+   * @return the deserialized value if a serializer exists, otherwise the raw [value]
+   */
   fun deserializeOrRaw(type: KClass<*>, value: Any?): Any? {
     return if (has(type)) {
       deserialize(type as KClass<Any>, value)

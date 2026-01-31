@@ -4,8 +4,24 @@ import com.peco2282.devcore.config.validations.annotations.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
+/**
+ * Engine for validating configuration objects based on annotations.
+ *
+ * This singleton scans the properties of a data class and applies validation
+ * logic according to the annotations present on those properties.
+ */
 object ValidatorEngine {
 
+  /**
+   * Validates the specified [obj] based on its annotations.
+   *
+   * Supported annotations include [Range], [NotBlank], [Size], [Regex], [Min], [Max],
+   * [Positive], [URL], and [FileExists]. This method also recursively validates
+   * nested data classes, lists, and maps.
+   *
+   * @param obj the configuration object to validate
+   * @throws IllegalArgumentException if any validation rule is violated
+   */
   fun validate(obj: Any) {
     if (!obj::class.isData) return
 

@@ -10,8 +10,26 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
+/**
+ * Utility for mapping configuration sections to Kotlin classes.
+ *
+ * This singleton provides methods to instantiate Kotlin classes from Bukkit's
+ * [ConfigurationSection] and to write object properties back to a section.
+ */
 object ClassMapper {
 
+  /**
+   * Creates an instance of type [T] from the [section].
+   *
+   * This method uses the primary constructor of the class and resolves each parameter
+   * using [FieldResolver]. It also performs validation using [ValidatorEngine] and
+   * writes the final state back to the section using [writeFully].
+   *
+   * @param T the type of the class to instantiate
+   * @param clazz the [KClass] of type [T]
+   * @param section the [ConfigurationSection] to read data from
+   * @return a new instance of type [T]
+   */
   fun <T : Any> create(clazz: KClass<T>, section: ConfigurationSection): T {
     val ctor = clazz.primaryConstructor!!
     val args = mutableMapOf<KParameter, Any?>()

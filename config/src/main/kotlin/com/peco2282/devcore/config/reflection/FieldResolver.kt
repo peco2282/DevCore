@@ -6,8 +6,22 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
+/**
+ * Utility for resolving fields from configuration sections.
+ *
+ * This singleton provides logic for extracting values of various types (primitives,
+ * lists, maps, enums, and data classes) from a [ConfigurationSection].
+ */
 object FieldResolver {
 
+  /**
+   * Resolves the value at the specified [path] from the [section] as the given [type].
+   *
+   * @param section the [ConfigurationSection] to read from
+   * @param path the configuration path to the value
+   * @param type the [KType] of the value to resolve
+   * @return the resolved value, or null if it cannot be resolved
+   */
   fun resolve(section: ConfigurationSection, path: String, type: KType): Any? {
     val classifier = type.classifier as KClass<*>
 

@@ -14,7 +14,11 @@ import org.bukkit.plugin.Plugin
 /**
  * Creates and manages Minecraft commands using a DSL-style builder pattern.
  *
- * @property parent The parent command creator, if this is a subcommand
+ * This class wraps a Brigadier [ArgumentBuilder] and provides a Kotlin-friendly DSL
+ * for defining command structures, including literals, arguments, requirements, and execution logic.
+ *
+ * @param T the type of Brigadier [ArgumentBuilder] being wrapped
+ * @property builder the underlying Brigadier [ArgumentBuilder]
  */
 @Suppress("UnstableApiUsage")
 @CommandDsl
@@ -24,9 +28,9 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Adds a literal argument to the command.
    *
-   * @param literal The literal string to match
-   * @param creator The configuration block for this command
-   * @return This command creator instance
+   * @param literal the literal string to match in the command
+   * @param creator the configuration block for the subcommand identified by the [literal]
+   * @return this [CommandCreator] instance for chaining
    */
   fun literal(
     literal: String,
@@ -41,10 +45,11 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Adds a required argument to the command.
    *
-   * @param argument The name of the argument
-   * @param type The argument type
-   * @param creator The configuration block for this command
-   * @return This command creator instance
+   * @param V the type of the argument value
+   * @param argument the name of the argument
+   * @param type the Brigadier [ArgumentType] for this argument
+   * @param creator the configuration block for the command structure following this argument
+   * @return this [CommandCreator] instance for chaining
    */
   fun <V> argument(
     argument: String,
@@ -60,8 +65,11 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Sets a requirement predicate for this command.
    *
-   * @param predicate The predicate that must be satisfied to execute this command
-   * @return This command creator instance
+   * The command or subcommand will only be available and executable if the predicate returns true
+   * for the given [CommandSourceStack].
+   *
+   * @param predicate a function that takes a [CommandSourceStack] and returns a [Boolean]
+   * @return this [CommandCreator] instance for chaining
    */
   infix fun requires(predicate: (CommandSourceStack) -> Boolean) =
     apply {
@@ -71,8 +79,10 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Sets the execution handler for this command.
    *
-   * @param block The code to execute when this command is run
-   * @return This command creator instance
+   * This logic is executed when the command or subcommand is invoked.
+   *
+   * @param block the code to execute, taking a [CommandContext] and returning an integer result (usually 1 for success)
+   * @return this [CommandCreator] instance for chaining
    */
   infix fun executes(block: (CommandContext<CommandSourceStack>) -> Int) =
     apply {
@@ -82,8 +92,8 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Adds static suggestions for this command argument.
    *
-   * @param suggestions List of suggestion strings
-   * @return This command creator instance
+   * @param suggestions a list of strings to be suggested to the user
+   * @return this [CommandCreator] instance for chaining
    */
   fun suggestion(suggestions: List<String>) =
     suggestion { _, builder ->
@@ -94,8 +104,8 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Adds dynamic suggestions for this command argument.
    *
-   * @param provider The suggestion provider
-   * @return This command creator instance
+   * @param provider the Brigadier [SuggestionProvider] that generates suggestions
+   * @return this [CommandCreator] instance for chaining
    */
   fun suggestion(provider: SuggestionProvider<CommandSourceStack>) =
     apply {
@@ -109,7 +119,10 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Registers this command with the given plugin.
    *
-   * @param plugin The plugin to register the command with
+   * This method must be called on the top-level [CommandCreator] (which should wrap a [LiteralArgumentBuilder])
+   * to actually register the command with the Minecraft server.
+   *
+   * @param plugin the [Plugin] instance to register the command under
    */
   fun register(plugin: Plugin) {
     val currentBuilder = builder
