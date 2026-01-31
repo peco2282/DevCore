@@ -8,5 +8,6 @@ include(":config")
 include(":scheduler")
 include(":core")
 include(":bom")
+include(":cooldown")
 
 include("command")
