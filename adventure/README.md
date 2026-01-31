@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.peco2282:adventure:1.0")
+    implementation("com.peco2282.devcore:adventure:1.0")
 }
 ```
 

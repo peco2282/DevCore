@@ -2,7 +2,7 @@ plugins {
   kotlin("jvm") version "2.2.21" apply false
 }
 
-group = "com.peco2282"
+group = "com.peco2282.devcore"
 version = "1.0-SNAPSHOT"
 
 subprojects {

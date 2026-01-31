@@ -21,7 +21,7 @@ Consume the unified dependency:
 
 ```kotlin
 dependencies {
-  implementation("com.peco2282:core:<version>")
+  implementation("com.peco2282.devcore:core:<version>")
 }
 ```
 
@@ -29,9 +29,9 @@ Or use the BOM and pick modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("com.peco2282:bom:<version>"))
-  implementation("com.peco2282:command")
-  implementation("com.peco2282:config")
+  implementation(platform("com.peco2282.devcore:bom:<version>"))
+  implementation("com.peco2282.devcore:command")
+  implementation("com.peco2282.devcore:config")
 }
 ```
 
