@@ -35,5 +35,14 @@ dependencies {
 }
 ```
 
+## Modules
+- [`core`](core/README.md): Umbrella artifact (pulls in all modules)
+- [`bom`](bom/README.md): BOM for aligning module versions
+- [`adventure`](adventure/README.md): Adventure `Component` / `Style` DSL helpers
+- [`command`](command/README.md): Paper Brigadier command DSL
+- [`config`](config/README.md): YAML config mapping + validation
+- [`scheduler`](scheduler/README.md): Bukkit scheduler DSL + coroutine dispatcher
+- [`cooldown`](cooldown/README.md): Cooldown / debounce utilities
+
 ## License
 Apache License 2.0. See `LICENSE`.
