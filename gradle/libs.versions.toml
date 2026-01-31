@@ -1,0 +1,16 @@
+[versions]
+adventure = "4.25.0"
+kotlin = "2.2.21"
+paper = "1.21.4-R0.1-20250925.065901-231"
+kotlinx-coroutine = "1.10.2"
+
+[libraries]
+adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+serializer-plugin = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure" }
+serializer-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutine" }
+
+[plugins]
+idea = { id = "idea" }
