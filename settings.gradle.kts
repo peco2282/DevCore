@@ -6,5 +6,7 @@ rootProject.name = "DevCore"
 include(":adventure")
 include(":config")
 include(":scheduler")
+include(":core")
+include(":bom")
 
 include("command")
