@@ -11,3 +11,4 @@ include(":bom")
 include(":cooldown")
 
 include("command")
+include("TestPlugin")

@@ -1,0 +1,4 @@
+name: TestPlugin
+version: '1.0-SNAPSHOT'
+main: com.peco2282.testplugin.TestPlugin
+api-version: '1.21'

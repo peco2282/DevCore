@@ -1,0 +1,11 @@
+# Gradle
+.gradle/
+build/
+gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin/Java
+*.class
+out/
+
+# Minecraft/Paper Server Runtime
+run/
