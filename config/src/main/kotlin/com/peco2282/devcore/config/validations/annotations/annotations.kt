@@ -1,6 +1,15 @@
 package com.peco2282.devcore.config.validations.annotations
 
 /**
+ * Specifies an alias for the configuration property.
+ *
+ * @property oldName the alias name of the property
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Alias(val oldName: String)
+
+/**
  * Adds a comment to the configuration property.
  *
  * @property text the text of the comment to be added above the property in the YAML file

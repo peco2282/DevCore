@@ -1,9 +1,11 @@
 package com.peco2282.devcore.config.reflection
 
+import com.peco2282.devcore.config.validations.annotations.Alias
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
 
 /**
@@ -22,22 +24,23 @@ object FieldResolver {
    * @param type the [KType] of the value to resolve
    * @return the resolved value, or null if it cannot be resolved
    */
-  fun resolve(section: ConfigurationSection, path: String, type: KType): Any? {
-    val classifier = type.classifier as? KClass<*> ?: return section.get(path)
+  fun resolve(section: ConfigurationSection, path: String, type: KType, alias: String? = null): Any? {
+    val actualPath = if (!section.contains(path) && alias != null && section.contains(alias)) alias else path
+    val classifier = type.classifier as? KClass<*> ?: return section.get(actualPath)
 
     if (TypeSerializers.has(classifier)) {
-      return TypeSerializers.deserialize(classifier as KClass<Any>, section.get(path))
+      return TypeSerializers.deserialize(classifier as KClass<Any>, section.get(actualPath))
     }
 
     return when {
-      classifier == String::class -> section.getString(path)
-      classifier == Int::class -> section.getInt(path)
-      classifier == Boolean::class -> section.getBoolean(path)
-      classifier == Double::class -> section.getDouble(path)
+      classifier == String::class -> section.getString(actualPath)
+      classifier == Int::class -> section.getInt(actualPath)
+      classifier == Boolean::class -> section.getBoolean(actualPath)
+      classifier == Double::class -> section.getDouble(actualPath)
 
       classifier == List::class -> {
         val argType = type.arguments.first().type!!
-        val list = section.getList(path) ?: return emptyList<Any>()
+        val list = section.getList(actualPath) ?: return emptyList<Any>()
 
         @Suppress("UNCHECKED_CAST")
         list.map { element ->
@@ -49,7 +52,7 @@ object FieldResolver {
         val valueType = type.arguments[1].type!!
         val valueClass = valueType.classifier as KClass<*>
 
-        val sectionMap = section.getConfigurationSection(path) ?: return emptyMap<String, Any>()
+        val sectionMap = section.getConfigurationSection(actualPath) ?: return emptyMap<String, Any>()
 
         sectionMap.getKeys(false).associateWith { key ->
           if (valueClass.isData) {
@@ -63,23 +66,23 @@ object FieldResolver {
       }
 
       classifier.java.isEnum ->{
-        val raw = section.get(path) ?: return null
+        val raw = section.get(actualPath) ?: return null
         val name = raw.toString().uppercase()
         java.lang.Enum.valueOf(classifier.java as Class<out Enum<*>>, name)
       }
 
 
       classifier.isData -> {
-        val sub = section.getConfigurationSection(path) ?: return null
+        val sub = section.getConfigurationSection(actualPath) ?: return null
         mapSectionToDataClass(classifier, sub)
       }
 
-      type.isMarkedNullable && !section.contains(path) -> {
+      type.isMarkedNullable && !section.contains(actualPath) -> {
         null
       }
 
 
-      else -> section.get(path)
+      else -> section.get(actualPath)
     }
   }
 
@@ -112,10 +115,11 @@ object FieldResolver {
 
     for (param in ctor.parameters) {
       val name = param.name!!
+      val alias = param.findAnnotation<Alias>()?.oldName
 
-      if (!section.contains(name)) continue
+      if (!section.contains(name) && (alias == null || !section.contains(alias))) continue
 
-      val value = resolve(section, name, param.type)
+      val value = resolve(section, name, param.type, alias)
       if (value != null || param.type.isMarkedNullable) {
         args[param] = value
       }

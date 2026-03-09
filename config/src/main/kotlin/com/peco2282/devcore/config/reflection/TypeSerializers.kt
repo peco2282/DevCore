@@ -56,7 +56,17 @@ object TypeSerializers {
    */
   @Suppress("UNCHECKED_CAST")
   fun <T : Any> get(kClass: KClass<T>): Serializer<T>? {
-    return serializers[kClass] as? Serializer<T>
+    val serializer = serializers[kClass]
+    if (serializer != null) return serializer as? Serializer<T>
+
+    // 継承関係を遡って検索
+    for (entry in serializers) {
+      if (entry.key.java.isAssignableFrom(kClass.java)) {
+        return entry.value as? Serializer<T>
+      }
+    }
+
+    return null
   }
 
   /**

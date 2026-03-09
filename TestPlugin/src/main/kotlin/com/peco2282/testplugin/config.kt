@@ -45,8 +45,8 @@ data class Config(
   @NotBlank
   val message: String = "Hello, DevCore Config!",
 
-//  @Comment("リッチテキストメッセージ (MiniMessage形式)")
-//  val formattedMessage: Component = Component.text("<green>Hello <yellow>DevCore <red>Config!"),
+  @Comment("リッチテキストメッセージ (MiniMessage形式)")
+  val formattedMessage: Component = Component.text("<green>Hello <yellow>DevCore <red>Config!"),
 
   @Comment("列挙型の設定")
   val type: TestEnum = TestEnum.FIRST,

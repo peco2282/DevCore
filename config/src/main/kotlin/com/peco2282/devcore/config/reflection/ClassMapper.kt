@@ -1,6 +1,7 @@
 package com.peco2282.devcore.config.reflection
 
 import com.peco2282.devcore.config.validations.ValidatorEngine
+import com.peco2282.devcore.config.validations.annotations.Alias
 import com.peco2282.devcore.config.validations.annotations.Comment
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
@@ -37,9 +38,10 @@ object ClassMapper {
     for (param in ctor.parameters) {
       val name = param.name!!
       val type = param.type
+      val alias = param.findAnnotation<Alias>()?.oldName
 
-      if (section.contains(name)) {
-        val value = FieldResolver.resolve(section, name, type)
+      if (section.contains(name) || (alias != null && section.contains(alias))) {
+        val value = FieldResolver.resolve(section, name, type, alias)
         if (value != null || type.isMarkedNullable) {
           args[param] = value
         }
