@@ -10,12 +10,12 @@ repositories {
 }
 
 dependencies {
-  compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+  compileOnly(libs.paper.api)
   testImplementation(kotlin("test"))
 }
 
 kotlin {
-  jvmToolchain(23)
+  jvmToolchain(21)
 }
 
 tasks.test {
