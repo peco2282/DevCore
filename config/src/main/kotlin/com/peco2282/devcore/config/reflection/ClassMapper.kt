@@ -23,7 +23,7 @@ object ClassMapper {
    *
    * This method uses the primary constructor of the class and resolves each parameter
    * using [FieldResolver]. It also performs validation using [ValidatorEngine] and
-   * writes the final state back to the section using [writeFully].
+   * writes the final state back to the section using [write].
    *
    * @param T the type of the class to instantiate
    * @param clazz the [KClass] of type [T]
@@ -50,13 +50,25 @@ object ClassMapper {
     ValidatorEngine.validate(instance)
 
     // 🔥 常に現在の正しい状態を書き出す
-    writeFully(instance, section)
+    write(instance, section)
 
     return instance
   }
 
-  private fun writeFully(obj: Any, section: ConfigurationSection) {
-    obj::class.memberProperties.forEach { prop ->
+  /**
+   * Writes the properties of the [obj] back to the [section].
+   *
+   * @param obj the object to write
+   * @param section the [ConfigurationSection] to write to
+   */
+  fun write(obj: Any, section: ConfigurationSection) {
+    val clazz = obj::class
+    val comment = clazz.findAnnotation<Comment>()?.text
+    if (comment != null) {
+      section.setComments("", listOf(comment))
+    }
+
+    clazz.memberProperties.forEach { prop ->
       val value = prop.getter.call(obj) ?: return@forEach
 
       val comment = prop.findAnnotation<Comment>()?.text
@@ -79,7 +91,7 @@ object ClassMapper {
         value::class.isData -> {
           val sub = section.getConfigurationSection(prop.name)
             ?: section.createSection(prop.name)
-          writeFully(value, sub)
+          write(value, sub)
         }
 
         value is Map<*, *> -> {
@@ -93,7 +105,7 @@ object ClassMapper {
 
             if (v::class.isData) {
               val sub = section.getConfigurationSection(path) ?: section.createSection(path)
-              writeFully(v, sub)
+              write(v, sub)
             } else {
               if (!section.contains(path)) {
                 section.set(path, v)
@@ -103,7 +115,10 @@ object ClassMapper {
         }
 
 
-        else -> section.set(prop.name, value)
+        else -> {
+          val serialized = TypeSerializers.serializeOrRaw(value)
+          section.set(prop.name, serialized)
+        }
       }
     }
   }
@@ -113,8 +128,10 @@ object ClassMapper {
     obj::class.memberProperties.forEach { prop ->
       val value = prop.getter.call(obj)
       map[prop.name] =
-        if (value != null && value::class.isData) dataClassToMap(value)
-        else value
+        if (value != null) {
+          if (value::class.isData) dataClassToMap(value)
+          else TypeSerializers.serializeOrRaw(value)
+        } else null
     }
     return map
   }

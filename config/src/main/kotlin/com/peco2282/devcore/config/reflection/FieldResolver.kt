@@ -25,6 +25,10 @@ object FieldResolver {
   fun resolve(section: ConfigurationSection, path: String, type: KType): Any? {
     val classifier = type.classifier as KClass<*>
 
+    if (TypeSerializers.has(classifier)) {
+      return TypeSerializers.deserialize(classifier as KClass<Any>, section.get(path))
+    }
+
     return when {
       classifier == String::class -> section.getString(path)
       classifier == Int::class -> section.getInt(path)

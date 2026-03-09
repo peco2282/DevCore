@@ -71,5 +71,28 @@ object Configs {
   fun reload() {
     cache.clear()
   }
+
+  /**
+   * Saves the [config] object to the "config.yml" file in the [plugin]'s data folder.
+   *
+   * @param plugin the [Plugin] instance
+   * @param config the configuration object to save
+   */
+  fun save(plugin: Plugin, config: Any) {
+    val file = File(plugin.dataFolder, "config.yml")
+    save(file, config)
+  }
+
+  /**
+   * Saves the [config] object to the specified [file].
+   *
+   * @param file the configuration [File]
+   * @param config the configuration object to save
+   */
+  fun save(file: File, config: Any) {
+    val yaml = YamlConfiguration()
+    ClassMapper.write(config, yaml)
+    yaml.save(file)
+  }
 }
 

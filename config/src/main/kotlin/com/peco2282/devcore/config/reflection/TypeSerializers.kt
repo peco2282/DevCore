@@ -67,11 +67,20 @@ object TypeSerializers {
    * @return the deserialized value if a serializer exists, otherwise the raw [value]
    */
   fun deserializeOrRaw(type: KClass<*>, value: Any?): Any? {
-    return if (has(type)) {
-      deserialize(type as KClass<Any>, value)
-    } else {
-      value
-    }
+    val serializer = get(type as KClass<Any>)
+    return serializer?.deserialize(value) ?: value
+  }
+
+  /**
+   * Serializes the [value] if a serializer is registered, otherwise returns the raw [value].
+   *
+   * @param value the value to serialize
+   * @return the serialized value if a serializer exists, otherwise the raw [value]
+   */
+  fun serializeOrRaw(value: Any): Any? {
+    val type = value::class as KClass<Any>
+    val serializer = get(type)
+    return serializer?.serialize(value) ?: value
   }
 
 }
