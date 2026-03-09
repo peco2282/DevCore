@@ -45,3 +45,6 @@ bin/
 .DS_Store
 
 .idea
+
+# Secrets
+secrets.properties
