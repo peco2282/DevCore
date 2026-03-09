@@ -14,7 +14,7 @@ dependencies {
 
 ## Usage
 ```kotlin
-import com.peco2282.adventure.component
+import com.peco2282.devcore.adventure.component
 
 val msg = component {
   text("Hello")
