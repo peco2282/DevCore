@@ -37,12 +37,3 @@ inline fun Plugin.command(
  */
 inline fun <reified T> CommandContext<CommandSourceStack>.getArg(name: String): T =
   getArgument(name, T::class.java)
-
-fun main() {
-  val plugin = object : JavaPlugin() {}
-
-  plugin.command("test") {
-    requires { it.sender.isOp }
-    executes { 1 }
-  }
-}
