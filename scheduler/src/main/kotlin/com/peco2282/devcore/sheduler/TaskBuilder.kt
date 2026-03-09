@@ -30,7 +30,7 @@ class TaskBuilder(
    * @param task the block of code to execute
    * @return a [TaskHandle] that can be used to cancel the task
    */
-  fun now(task: () -> Unit) = scheduler.sync(task)
+  infix fun now(task: () -> Unit) = scheduler.sync(task)
 
   /**
    * Runs the [task] asynchronously.
@@ -38,7 +38,7 @@ class TaskBuilder(
    * @param task the block of code to execute
    * @return a [TaskHandle] that can be used to cancel the task
    */
-  fun async(task: () -> Unit) = scheduler.async(task)
+  infix fun async(task: () -> Unit) = scheduler.async(task)
 
   /**
    * Represents a task that is set to run after a certain delay.

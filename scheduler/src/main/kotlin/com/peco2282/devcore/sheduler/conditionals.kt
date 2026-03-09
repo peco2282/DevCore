@@ -70,8 +70,8 @@ class TimeLimit(duration: Ticks) : Condition {
  */
 class ConditionalRepeating(
   private val scheduler: Scheduler,
-  private val delay: Ticks,
-  private val period: Ticks
+  private val delay: Ticks = ZERO,
+  private val period: Ticks = ZERO,
 ): Runner {
   private var condition: Condition = Always
 

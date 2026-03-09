@@ -1,5 +1,7 @@
 package com.peco2282.devcore.sheduler
 
+internal const val TICKS: Long = 20.toLong()
+
 /**
  * Represents a duration in Minecraft ticks.
  *
@@ -7,6 +9,8 @@ package com.peco2282.devcore.sheduler
  */
 @JvmInline
 value class Ticks(val value: Long)
+
+val ZERO = 0.ticks
 
 /**
  * Converts this [Int] to [Ticks].
@@ -22,6 +26,10 @@ val Int.ticks get() = Ticks(this.toLong())
  */
 val Long.ticks get() = Ticks(this)
 
+val Float.seconds get() = Ticks((this * TICKS).toLong())
+
+val Double.seconds get() = Ticks((this * TICKS).toLong())
+
 /**
  * Converts this [Int] seconds to [Ticks].
  *
@@ -29,7 +37,7 @@ val Long.ticks get() = Ticks(this)
  *
  * @return a [Ticks] instance representing the equivalent of this many seconds
  */
-val Int.seconds get() = Ticks(this * 20L)
+val Int.seconds get() = Ticks(this * TICKS)
 
 /**
  * Converts this [Int] minutes to [Ticks].
@@ -38,4 +46,4 @@ val Int.seconds get() = Ticks(this * 20L)
  *
  * @return a [Ticks] instance representing the equivalent of this many minutes
  */
-val Int.minutes get() = Ticks(this * 20L * 60)
+val Int.minutes get() = Ticks(this * TICKS * 60)
