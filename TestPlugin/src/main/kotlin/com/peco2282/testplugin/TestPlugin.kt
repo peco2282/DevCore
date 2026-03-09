@@ -2,6 +2,7 @@ package com.peco2282.testplugin
 
 import com.peco2282.devcore.command.command
 import com.peco2282.devcore.config.Configs
+import com.peco2282.devcore.config.getConfigInstance
 import com.peco2282.devcore.config.reflection.TypeSerializers
 import com.peco2282.devcore.config.serializers.ComponentSerializer
 import net.kyori.adventure.text.Component
@@ -21,7 +22,7 @@ class TestPlugin : JavaPlugin() {
         TypeSerializers.register(Component::class, ComponentSerializer())
 
         saveDefaultConfig()
-        pluginConfig = Configs.load(this)
+        pluginConfig = getConfigInstance()
         Configs.save(this, pluginConfig)
 
         @Suppress("UnusedExpression")
@@ -32,7 +33,7 @@ class TestPlugin : JavaPlugin() {
                 requireOp()
                 executesPlayer { player, _ ->
                     player.sendMessage(pluginConfig.message)
-//                    player.sendMessage(pluginConfig.formattedMessage)
+                    player.sendMessage(pluginConfig.formattedMessage)
                     1
                 }
             }

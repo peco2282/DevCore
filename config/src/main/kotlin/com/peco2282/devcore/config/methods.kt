@@ -2,6 +2,7 @@ package com.peco2282.devcore.config
 
 import com.peco2282.devcore.config.reflection.ClassMapper
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.plugin.Plugin
 
 /**
  * Converts this [ConfigurationSection] to an instance of type [T].
@@ -50,3 +51,36 @@ inline operator fun <reified T : Any> ConfigurationSection.get(key: String, runn
   return cnv
 }
 
+/**
+ * Loads and returns the plugin's configuration as an instance of type [C].
+ *
+ * This extension function is a convenient shorthand for calling [Configs.load] with this plugin instance.
+ * It automatically loads the "config.yml" file from the plugin's data folder and maps it to the specified
+ * configuration class type using reflection.
+ *
+ * The configuration class [C] should be a data class with properties matching the structure of the YAML file.
+ * Default values in the data class constructor will be used for any missing fields in the config.
+ *
+ * @param C the type of the configuration class to load
+ * @return an instance of type [C] populated with data from the plugin's config.yml
+ *
+ * @see Configs.load
+ * @see convert
+ *
+ * Example usage:
+ * ```kotlin
+ * data class MyConfig(val enabled: Boolean = true, val message: String = "Hello")
+ *
+ * class MyPlugin : JavaPlugin() {
+ *     lateinit var config: MyConfig
+ *
+ *     override fun onEnable() {
+ *         saveDefaultConfig()
+ *         config = getConfigInstance()
+ *     }
+ * }
+ * ```
+ */
+inline fun <reified C: Any> Plugin.getConfigInstance(): C {
+  return Configs.load<C>(this)
+}
