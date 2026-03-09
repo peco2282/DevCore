@@ -113,11 +113,12 @@ object FieldResolver {
     for (param in ctor.parameters) {
       val name = param.name!!
 
-      // 🔥 ここが重要
       if (!section.contains(name)) continue
 
       val value = resolve(section, name, param.type)
-      args[param] = value
+      if (value != null || param.type.isMarkedNullable) {
+        args[param] = value
+      }
     }
 
     return ctor.callBy(args)

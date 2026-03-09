@@ -40,7 +40,7 @@ object ClassMapper {
 
       if (section.contains(name)) {
         val value = FieldResolver.resolve(section, name, type)
-        if (value != null) {
+        if (value != null || type.isMarkedNullable) {
           args[param] = value
         }
       }
