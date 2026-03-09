@@ -26,7 +26,10 @@ class CommandDslTest {
                 }
             }
             
-            literal("another") executes { 1 }
+            literal("another") executes { 
+                it.sendSuccess { text("Done!") }
+                1 
+            }
         }
 
         val node = builder.build()

@@ -1,12 +1,6 @@
 package com.peco2282.devcore.command
 
-import com.mojang.brigadier.arguments.ArgumentType
-import com.mojang.brigadier.arguments.BoolArgumentType
-import com.mojang.brigadier.arguments.DoubleArgumentType
-import com.mojang.brigadier.arguments.FloatArgumentType
-import com.mojang.brigadier.arguments.IntegerArgumentType
-import com.mojang.brigadier.arguments.LongArgumentType
-import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
@@ -15,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.Componenter
 import com.peco2282.devcore.adventure.component
 import io.papermc.paper.command.brigadier.CommandSourceStack
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
@@ -38,7 +33,6 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * Adds a literal argument to the command.
    *
    * @param literal the literal string to match in the command
-   * @param creator the configuration block for the subcommand identified by the [literal]
    * @return this [CommandCreator] instance for chaining
    */
   infix fun literal(
@@ -175,6 +169,61 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   ) = argument(name, LongArgumentType.longArg(min, max), creator)
 
   /**
+   * Adds a player argument to the command.
+   */
+  fun player(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.player()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a players argument to the command.
+   */
+  fun players(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.players()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds an entity argument to the command.
+   */
+  fun entity(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.entity()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds an entities argument to the command.
+   */
+  fun entities(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.entities()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a world argument to the command.
+   */
+  fun world(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.world()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
    * Sets a requirement predicate for this command.
    *
    * The command or subcommand will only be available and executable if the predicate returns true
@@ -219,6 +268,26 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   }
 
   /**
+   * Sends a success message to the command sender.
+   */
+  fun CommandContext<CommandSourceStack>.sendSuccess(consumer: Componenter.() -> Unit) {
+    sendMessage {
+      text("✔ ") { green() }
+      create(consumer)
+    }
+  }
+
+  /**
+   * Sends an error message to the command sender.
+   */
+  fun CommandContext<CommandSourceStack>.sendError(consumer: Componenter.() -> Unit) {
+    sendMessage {
+      text("✘ ") { red() }
+      create(consumer)
+    }
+  }
+
+  /**
    * Sends a message to the command sender.
    *
    * @param component the component to send
@@ -235,7 +304,12 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    */
   fun suggestion(suggestions: List<String>) =
     suggestion { _, builder ->
-      suggestions.forEach { builder.suggest(it) }
+      val remaining = builder.remaining.lowercase()
+      suggestions.forEach {
+        if (it.lowercase().startsWith(remaining)) {
+          builder.suggest(it)
+        }
+      }
       builder.buildFuture()
     }
 
