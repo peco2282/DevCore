@@ -1,7 +1,7 @@
 package com.peco2282.testplugin
 
-import com.peco2282.adventure.component
-import com.peco2282.adventure.withStyle
+import com.peco2282.devcore.adventure.component
+import com.peco2282.devcore.adventure.withStyle
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.nbt.api.BinaryTagHolder
 import net.kyori.adventure.text.Component
