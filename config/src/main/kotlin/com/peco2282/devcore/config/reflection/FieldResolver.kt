@@ -23,7 +23,7 @@ object FieldResolver {
    * @return the resolved value, or null if it cannot be resolved
    */
   fun resolve(section: ConfigurationSection, path: String, type: KType): Any? {
-    val classifier = type.classifier as KClass<*>
+    val classifier = type.classifier as? KClass<*> ?: return section.get(path)
 
     if (TypeSerializers.has(classifier)) {
       return TypeSerializers.deserialize(classifier as KClass<Any>, section.get(path))
@@ -41,15 +41,11 @@ object FieldResolver {
 
         @Suppress("UNCHECKED_CAST")
         list.map { element ->
-          if (argType.classifier is KClass<*> && (argType.classifier as KClass<*>).isData) {
-            val map = element as Map<String, Any?>
-            mapToDataClass(argType.classifier as KClass<Any>, map)
-          } else element
+          resolveElement(element, argType)
         }
       }
 
       classifier == Map::class -> {
-        val keyType = type.arguments[0].type!!
         val valueType = type.arguments[1].type!!
         val valueClass = valueType.classifier as KClass<*>
 
@@ -60,14 +56,16 @@ object FieldResolver {
             val sub = sectionMap.getConfigurationSection(key)!!
             mapSectionToDataClass(valueClass, sub)
           } else {
-            sectionMap.get(key)
+            val element = sectionMap.get(key)
+            resolveElement(element, valueType)
           }
         }
       }
 
       classifier.java.isEnum ->{
-        val raw = section.getString(path) ?: return null
-        java.lang.Enum.valueOf(classifier.java as Class<out Enum<*>>, raw.uppercase())
+        val raw = section.get(path) ?: return null
+        val name = raw.toString().uppercase()
+        java.lang.Enum.valueOf(classifier.java as Class<out Enum<*>>, name)
       }
 
 
@@ -82,6 +80,29 @@ object FieldResolver {
 
 
       else -> section.get(path)
+    }
+  }
+
+  private fun resolveElement(element: Any?, type: KType): Any? {
+    if (element == null) return null
+    val classifier = type.classifier as? KClass<*> ?: return element
+
+    return when {
+      classifier.isData -> {
+        val map = element as? Map<String, Any?> ?: return element
+        mapToDataClass(classifier as KClass<Any>, map)
+      }
+      classifier == List::class -> {
+        val argType = type.arguments.first().type!!
+        val list = element as? List<*> ?: return element
+        list.map { resolveElement(it, argType) }
+      }
+      classifier == Map::class -> {
+        val valueType = type.arguments[1].type!!
+        val map = element as? Map<String, Any?> ?: return element
+        map.mapValues { resolveElement(it.value, valueType) }
+      }
+      else -> TypeSerializers.deserializeOrRaw(classifier as KClass<Any>, element)
     }
   }
 

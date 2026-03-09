@@ -82,7 +82,9 @@ object ClassMapper {
             when {
               element == null -> null
               element::class.isData -> dataClassToMap(element)
-              else -> element
+              element is List<*> -> serializeList(element)
+              element is Map<*, *> -> serializeMap(element)
+              else -> TypeSerializers.serializeOrRaw(element)
             }
           }
           section.set(prop.name, listToSave)
@@ -103,12 +105,19 @@ object ClassMapper {
             if (k !is String || v == null) return@forEach
             val path = "${prop.name}.$k"
 
-            if (v::class.isData) {
-              val sub = section.getConfigurationSection(path) ?: section.createSection(path)
-              write(v, sub)
-            } else {
-              if (!section.contains(path)) {
-                section.set(path, v)
+            when {
+              v::class.isData -> {
+                val sub = section.getConfigurationSection(path) ?: section.createSection(path)
+                write(v, sub)
+              }
+              v is List<*> -> {
+                section.set(path, serializeList(v))
+              }
+              v is Map<*, *> -> {
+                section.set(path, serializeMap(v))
+              }
+              else -> {
+                section.set(path, TypeSerializers.serializeOrRaw(v))
               }
             }
           }
@@ -125,14 +134,45 @@ object ClassMapper {
 
   private fun dataClassToMap(obj: Any): Map<String, Any?> {
     val map = mutableMapOf<String, Any?>()
-    obj::class.memberProperties.forEach { prop ->
+    val clazz = obj::class
+    clazz.memberProperties.forEach { prop ->
       val value = prop.getter.call(obj)
       map[prop.name] =
         if (value != null) {
-          if (value::class.isData) dataClassToMap(value)
-          else TypeSerializers.serializeOrRaw(value)
+          when {
+            value::class.isData -> dataClassToMap(value)
+            value is List<*> -> serializeList(value)
+            value is Map<*, *> -> serializeMap(value)
+            else -> TypeSerializers.serializeOrRaw(value)
+          }
         } else null
     }
     return map
+  }
+
+  private fun serializeList(list: List<*>): List<Any?> {
+    return list.map { element ->
+      if (element == null) return@map null
+      when {
+        element::class.isData -> dataClassToMap(element)
+        element is List<*> -> serializeList(element)
+        element is Map<*, *> -> serializeMap(element)
+        else -> TypeSerializers.serializeOrRaw(element)
+      }
+    }
+  }
+
+  private fun serializeMap(map: Map<*, *>): Map<String, Any?> {
+    val result = mutableMapOf<String, Any?>()
+    map.forEach { (k, v) ->
+      if (k !is String || v == null) return@forEach
+      result[k] = when {
+        v::class.isData -> dataClassToMap(v)
+        v is List<*> -> serializeList(v)
+        v is Map<*, *> -> serializeMap(v)
+        else -> TypeSerializers.serializeOrRaw(v)
+      }
+    }
+    return result
   }
 }

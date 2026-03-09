@@ -5,7 +5,7 @@ package com.peco2282.devcore.config.validations.annotations
  *
  * @property text the text of the comment to be added above the property in the YAML file
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Comment(val text: String)
 

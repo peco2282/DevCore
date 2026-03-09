@@ -80,7 +80,12 @@ object TypeSerializers {
   fun serializeOrRaw(value: Any): Any? {
     val type = value::class as KClass<Any>
     val serializer = get(type)
-    return serializer?.serialize(value) ?: value
+    if (serializer != null) return serializer.serialize(value)
+
+    return when {
+      value is Enum<*> -> value.name
+      else -> value
+    }
   }
 
 }
