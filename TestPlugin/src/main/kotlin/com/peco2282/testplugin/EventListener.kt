@@ -14,14 +14,11 @@ object EventListener {
     plugin.on<PlayerJoinEvent> {
       val msg = component {
         text("Hello,") withStyle { yellow() }; space();
-        text(player.name) withStyle {
+        +player.name withStyle {
           green()
           hoverEvent(HoverEvent.showText(Component.text("Click to teleport to spawn!")))
           val loc = player.world.spawnLocation
           clickEvent(ClickEvent.runCommand("/tp ${player.name} ${loc.x} ${loc.y} ${loc.z}"))
-        }
-        +player.name withStyle {
-          bold(); red()
         }
       }
       player.sendMessage(msg)
