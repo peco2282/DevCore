@@ -23,7 +23,7 @@ annotation class CommandDsl
  * @param block the DSL configuration block for the command
  */
 inline fun Plugin.command(
-  name: String,
+  name: String = this.name.lowercase(),
   block: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit
 ) {
   val builder = LiteralArgumentBuilder.literal<CommandSourceStack>(name)
