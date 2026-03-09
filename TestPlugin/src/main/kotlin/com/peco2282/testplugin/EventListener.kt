@@ -12,6 +12,7 @@ object EventListener {
 
   init {
     plugin.on<PlayerJoinEvent> {
+      // devcore-adventure
       val msg = component {
         text("Hello,") withStyle { yellow() }; space();
         +player.name withStyle {
