@@ -1,9 +1,9 @@
-package com.peco2282.adventure.builder
+package com.peco2282.devcore.adventure.builder
 
-import com.peco2282.adventure.ComponentDsl
-import com.peco2282.adventure.component
-import com.peco2282.adventure.style
-import com.peco2282.adventure.updateLast
+import com.peco2282.devcore.adventure.ComponentDsl
+import com.peco2282.devcore.adventure.component
+import com.peco2282.devcore.adventure.style
+import com.peco2282.devcore.adventure.updateLast
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.BlockNBTComponent
 import net.kyori.adventure.text.Component

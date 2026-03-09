@@ -1,4 +1,4 @@
-package com.peco2282.adventure
+package com.peco2282.devcore.adventure
 
 /**
  * DSL marker annotation for component builder scopes.

@@ -1,6 +1,6 @@
-package com.peco2282.adventure.builder
+package com.peco2282.devcore.adventure.builder
 
-import com.peco2282.adventure.StyleDsl
+import com.peco2282.devcore.adventure.StyleDsl
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.nbt.api.BinaryTagHolder
 import net.kyori.adventure.text.Component
