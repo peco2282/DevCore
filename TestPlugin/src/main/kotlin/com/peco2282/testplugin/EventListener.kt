@@ -20,23 +20,12 @@ object EventListener {
         text("Hello,") withStyle { yellow() }; space();
         +player.name withStyle {
           green()
-//          hoverEvent(HoverEvent.showText(Component.text("Click to teleport to spawn!")))
-//          hoverEvent(
-//            HoverEvent.showEntity(
-//              Key.key("minecraft", "pig"),
-//              UUID.randomUUID(),
-//              Component.text(player.name)
-//            )
-//          )
-          hoverEvent(
-            HoverEvent.showItem(
-              Key.key("minecraft", "pig_spawn_egg"),
-              5,
-              BinaryTagHolder.binaryTagHolder("{}")
-            )
+          showItem(
+            Key.key("minecraft", "pig_spawn_egg"),
+            1
           )
-//          val loc = player.world.spawnLocation
-//          clickEvent(ClickEvent.runCommand("/tp ${player.name} ${loc.x} ${loc.y} ${loc.z}"))
+          val loc = player.world.spawnLocation
+          runCommand("/tp ${player.name} ${loc.x} ${loc.y} ${loc.z}")
         }
       }
       Component.text("")
