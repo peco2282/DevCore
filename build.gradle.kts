@@ -16,13 +16,23 @@ subprojects {
     }
   }
 
-  if (name != "bom") {
+  if (name != "bom" && name != "TestPlugin") {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "java-library")
-  } else {
+    apply(plugin = "idea")
+  } else if (name == "bom") {
     apply(plugin = "java-platform")
   }
   apply(plugin = "maven-publish")
+
+  plugins.withId("idea") {
+    extensions.configure<org.gradle.plugins.ide.idea.model.IdeaModel>("idea") {
+      module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+      }
+    }
+  }
 
   plugins.withId("org.jetbrains.kotlin.jvm") {
     extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>("kotlin") {
@@ -61,7 +71,7 @@ subprojects {
 
           if (project.plugins.hasPlugin("java-platform")) {
             from(project.components["javaPlatform"])
-          } else {
+          } else if (project.plugins.hasPlugin("java-library") || project.plugins.hasPlugin("java")) {
             from(project.components["java"])
           }
 

@@ -1,7 +1,3 @@
-plugins {
-  `java-library`
-}
-
 dependencies {
   api(project(":adventure"))
   api(project(":command"))
