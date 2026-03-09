@@ -35,14 +35,15 @@ dependencies {
 }
 ```
 
-## Modules
-- [`core`](core/README.md): Umbrella artifact (pulls in all modules)
-- [`bom`](bom/README.md): BOM for aligning module versions
-- [`adventure`](adventure/README.md): Adventure `Component` / `Style` DSL helpers
-- [`command`](command/README.md): Paper Brigadier command DSL
-- [`config`](config/README.md): YAML config mapping + validation
-- [`scheduler`](scheduler/README.md): Bukkit scheduler DSL + coroutine dispatcher
-- [`cooldown`](cooldown/README.md): Cooldown / debounce utilities
+## モジュール一覧
+
+各モジュールは個別に導入することも、`core` を通じて一括で導入することも可能です。
+
+- [**adventure**](adventure/README.md): AdventureライブラリをKotlinから使いやすくするためのDSL。直感的なテキスト構築とスタイリングが可能です。
+- [**command**](command/README.md): Paper (Brigadier) コマンドを型安全なDSLで定義。引数定義や権限設定、サジェスチョンを簡潔に記述できます。
+- [**config**](config/README.md): YAML設定をKotlinデータクラスへ自動マッピング。アノテーションによるバリデーションとコメントの自動挿入をサポートします。
+- [**scheduler**](scheduler/README.md): Bukkit schedulerの薄いラッパー。Tickベースの時間指定や、プレイヤー/ワールドのライフサイクルに紐付いたタスク管理を提供します。
+- [**cooldown**](cooldown/README.md): プレイヤーやシステム全般のクールダウンおよびデバウンス（連打防止）を管理するための汎用ユーティリティ。
 
 ## License
 Apache License 2.0. See `LICENSE`.

@@ -1,6 +1,14 @@
 # DevCore Config
 
-`config.yml` 等の YAML を Kotlin のクラスへマッピングし、デフォルト値の書き戻しや簡単なバリデーションを行うモジュールです。
+`config.yml` 等の YAML を Kotlin のデータクラスへマッピングし、バリデーションを行うモジュールです。
+
+## 特徴
+
+- Kotlinのデータクラスによる型安全な設定管理
+- YAMLファイルへのコメントの自動挿入
+- アノテーションベースのバリデーション
+- ネストされたクラス、リスト、マップのサポート
+- 自動的なロード/セーブ/再読み込み
 
 ## Install (Gradle Kotlin DSL)
 ```kotlin
@@ -12,15 +20,48 @@ dependencies {
 }
 ```
 
-## Usage
+## 使用方法
+
+### 設定クラスの定義
+
 ```kotlin
-import com.peco2282.devcore.config.Configs
-
+@Comment("プラグインのメイン設定")
 data class MyConfig(
+  @Comment("プレイヤーの名前")
+  @NotBlank
   val name: String = "Steve",
-  val level: Int = 1,
-)
 
-val cfg: MyConfig = Configs.load<MyConfig>(plugin)
+  @Comment("レベル (1-100)")
+  @Range(min = 1, max = 100)
+  val level: Int = 1,
+
+  @Comment("有効かどうか")
+  val enabled: Boolean = true
+)
 ```
+
+### 設定のロードとセーブ
+
+```kotlin
+// ロード (config.yml)
+val config = Configs.load<MyConfig>(plugin)
+
+// 特定のファイルからロード
+val otherConfig = Configs.load<OtherConfig>(File(plugin.dataFolder, "other.yml"))
+
+// セーブ
+Configs.save(plugin, config)
+```
+
+### バリデーションアノテーション
+
+- `@Comment(text)`: YAMLに出力されるコメントを指定します。
+- `@NotBlank`: 文字列が空または空白でないことを検証します。
+- `@Range(min, max)`: 数値が指定範囲内であることを検証します。
+- `@Size(min, max)`: コレクションの要素数が範囲内であることを検証します。
+- `@Regex(pattern)`: 文字列が正規表現にマッチするか検証します。
+- `@Min(value)`, `@Max(value)`: 数値の最小値、最大値を指定します。
+- `@Positive`: 数値が正（0より大きい）であることを検証します。
+- `@URL`: 有効なURL形式であることを検証します。
+- `@FileExists`: 指定されたパスのファイルが存在することを検証します。
 
