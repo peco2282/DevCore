@@ -1,13 +1,22 @@
 package com.peco2282.devcore.command
 
 import com.mojang.brigadier.arguments.ArgumentType
+import com.mojang.brigadier.arguments.BoolArgumentType
+import com.mojang.brigadier.arguments.DoubleArgumentType
+import com.mojang.brigadier.arguments.FloatArgumentType
+import com.mojang.brigadier.arguments.IntegerArgumentType
+import com.mojang.brigadier.arguments.LongArgumentType
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
+import com.peco2282.devcore.adventure.builder.Componenter
+import com.peco2282.devcore.adventure.component
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
+import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
 
@@ -32,6 +41,17 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * @param creator the configuration block for the subcommand identified by the [literal]
    * @return this [CommandCreator] instance for chaining
    */
+  infix fun literal(
+    literal: String
+  ) = literal(literal) {}
+
+  /**
+   * Adds a literal argument to the command.
+   *
+   * @param literal the literal string to match in the command
+   * @param creator the configuration block for the subcommand identified by the [literal]
+   * @return this [CommandCreator] instance for chaining
+   */
   fun literal(
     literal: String,
     creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
@@ -40,6 +60,25 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     val c = CommandCreator(command)
     c.creator()
     builder.then(c.builder)
+  }
+
+  /**
+   * Adds multiple literal aliases to the command that all execute the same block.
+   *
+   * @param aliases the literal strings to match as aliases
+   * @param creator the configuration block for the subcommand identified by the [aliases]
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun aliases(
+    vararg aliases: String,
+    creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
+  ) = apply {
+    aliases.forEach { 
+      val command = LiteralArgumentBuilder.literal<CommandSourceStack>(it)
+      val c = CommandCreator(command)
+      c.creator()
+      builder.then(c.builder)
+    }
   }
 
   /**
@@ -63,6 +102,79 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   }
 
   /**
+   * Adds a string argument to the command.
+   */
+  fun string(
+    name: String,
+    type: StringArgumentType = StringArgumentType.string(),
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, String>>.() -> Unit = {}
+  ) = argument(name, type, creator)
+
+  /**
+   * Adds a greedy string argument to the command.
+   */
+  fun greedyString(
+    name: String,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, String>>.() -> Unit = {}
+  ) = string(name, StringArgumentType.greedyString(), creator)
+
+  /**
+   * Adds a word argument to the command.
+   */
+  fun word(
+    name: String,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, String>>.() -> Unit = {}
+  ) = string(name, StringArgumentType.word(), creator)
+
+  /**
+   * Adds an integer argument to the command.
+   */
+  fun integer(
+    name: String,
+    min: Int = Int.MIN_VALUE,
+    max: Int = Int.MAX_VALUE,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Int>>.() -> Unit = {}
+  ) = argument(name, IntegerArgumentType.integer(min, max), creator)
+
+  /**
+   * Adds a boolean argument to the command.
+   */
+  fun boolean(
+    name: String,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Boolean>>.() -> Unit = {}
+  ) = argument(name, BoolArgumentType.bool(), creator)
+
+  /**
+   * Adds a double argument to the command.
+   */
+  fun double(
+    name: String,
+    min: Double = -Double.MAX_VALUE,
+    max: Double = Double.MAX_VALUE,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Double>>.() -> Unit = {}
+  ) = argument(name, DoubleArgumentType.doubleArg(min, max), creator)
+
+  /**
+   * Adds a float argument to the command.
+   */
+  fun float(
+    name: String,
+    min: Float = -Float.MAX_VALUE,
+    max: Float = Float.MAX_VALUE,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Float>>.() -> Unit = {}
+  ) = argument(name, FloatArgumentType.floatArg(min, max), creator)
+
+  /**
+   * Adds a long argument to the command.
+   */
+  fun long(
+    name: String,
+    min: Long = Long.MIN_VALUE,
+    max: Long = Long.MAX_VALUE,
+    creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Long>>.() -> Unit = {}
+  ) = argument(name, LongArgumentType.longArg(min, max), creator)
+
+  /**
    * Sets a requirement predicate for this command.
    *
    * The command or subcommand will only be available and executable if the predicate returns true
@@ -77,6 +189,14 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     }
 
   /**
+   * Sets a permission requirement for this command.
+   *
+   * @param permission the permission string required to execute this command
+   * @return this [CommandCreator] instance for chaining
+   */
+  infix fun permission(permission: String) = requires { it.sender.hasPermission(permission) }
+
+  /**
    * Sets the execution handler for this command.
    *
    * This logic is executed when the command or subcommand is invoked.
@@ -88,6 +208,24 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     apply {
       builder = builder.executes(block)
     }
+
+  /**
+   * Sends a message to the command sender using Adventure component DSL.
+   *
+   * @param consumer the configuration block for the component
+   */
+  fun CommandContext<CommandSourceStack>.sendMessage(consumer: Componenter.() -> Unit) {
+    source.sender.sendMessage(component(consumer = consumer))
+  }
+
+  /**
+   * Sends a message to the command sender.
+   *
+   * @param component the component to send
+   */
+  fun CommandContext<CommandSourceStack>.sendMessage(component: Component) {
+    source.sender.sendMessage(component)
+  }
 
   /**
    * Adds static suggestions for this command argument.
