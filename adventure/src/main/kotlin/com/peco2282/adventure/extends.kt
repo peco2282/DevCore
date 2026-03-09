@@ -302,6 +302,86 @@ fun Style.yellow(): Style = apply { color(NamedTextColor.YELLOW) }
  */
 fun Style.white(): Style = apply { color(NamedTextColor.WHITE) }
 
+/**
+ * Sets the text color to red.
+ */
+fun Componenter.red(): Componenter = withColor(NamedTextColor.RED)
+
+/**
+ * Sets the text color to green.
+ */
+fun Componenter.green(): Componenter = withColor(NamedTextColor.GREEN)
+
+/**
+ * Sets the text color to yellow.
+ */
+fun Componenter.yellow(): Componenter = withColor(NamedTextColor.YELLOW)
+
+/**
+ * Sets the text color to blue.
+ */
+fun Componenter.blue(): Componenter = withColor(NamedTextColor.BLUE)
+
+/**
+ * Sets the text color to dark blue.
+ */
+fun Componenter.darkBlue(): Componenter = withColor(NamedTextColor.DARK_BLUE)
+
+/**
+ * Sets the text color to light purple.
+ */
+fun Componenter.purple(): Componenter = withColor(NamedTextColor.LIGHT_PURPLE)
+
+/**
+ * Sets the text color to dark purple.
+ */
+fun Componenter.darkPurple(): Componenter = withColor(NamedTextColor.DARK_PURPLE)
+
+/**
+ * Sets the text color to aqua.
+ */
+fun Componenter.aqua(): Componenter = withColor(NamedTextColor.AQUA)
+
+/**
+ * Sets the text color to gray.
+ */
+fun Componenter.gray(): Componenter = withColor(NamedTextColor.GRAY)
+
+/**
+ * Sets the text color to dark gray.
+ */
+fun Componenter.darkGray(): Componenter = withColor(NamedTextColor.DARK_GRAY)
+
+/**
+ * Sets the text color to white.
+ */
+fun Componenter.white(): Componenter = withColor(NamedTextColor.WHITE)
+
+/**
+ * Sets the text color to black.
+ */
+fun Componenter.black(): Componenter = withColor(NamedTextColor.BLACK)
+
+/**
+ * Sets the text color to gold.
+ */
+fun Componenter.gold(): Componenter = withColor(NamedTextColor.GOLD)
+
+/**
+ * Sets the text color to dark red.
+ */
+fun Componenter.darkRed(): Componenter = withColor(NamedTextColor.DARK_RED)
+
+/**
+ * Sets the text color to dark green.
+ */
+fun Componenter.darkGreen(): Componenter = withColor(NamedTextColor.DARK_GREEN)
+
+/**
+ * Sets the text color to dark aqua.
+ */
+fun Componenter.darkAqua(): Componenter = withColor(NamedTextColor.DARK_AQUA)
+
 /// library
 
 fun Componenter.errorMessage(text: String) {

@@ -2,13 +2,17 @@ package com.peco2282.adventure.builder
 
 import com.peco2282.adventure.StyleDsl
 import net.kyori.adventure.key.Key
+import net.kyori.adventure.nbt.api.BinaryTagHolder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.DataComponentValue
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import java.net.URL
+import java.util.UUID
 
 /**
  * Interface for styling text components with various text formatting options.
@@ -80,6 +84,7 @@ interface Styler {
    * @return this Styler instance for chaining
    */
   infix fun colorIfAbsent(hex: String): Styler
+
   /**
    * Applies a text decoration.
    *
@@ -137,6 +142,30 @@ interface Styler {
   infix fun suggestCommand(command: String): Styler
 
   /**
+   * Applies a click event that opens a URL when clicked.
+   *
+   * @param url the URL as a string to open
+   * @return this Styler instance for chaining
+   */
+  infix fun openUrl(url: String): Styler
+
+  /**
+   * Applies a click event that opens a URL when clicked.
+   *
+   * @param url the URL to open
+   * @return this Styler instance for chaining
+   */
+  infix fun openUrl(url: URL): Styler
+
+  /**
+   * Applies a click event that copies text to the clipboard.
+   *
+   * @param text the text to copy
+   * @return this Styler instance for chaining
+   */
+  infix fun copyToClipboard(text: String): Styler
+
+  /**
    * Applies a click event that opens a file when clicked.
    *
    * @param file the file path to open
@@ -145,12 +174,98 @@ interface Styler {
   infix fun openFile(file: String): Styler
 
   /**
+   * Applies a click event that changes the page of a book.
+   *
+   * @param page the page number to change to
+   * @return this Styler instance for chaining
+   */
+  fun changePage(page: Int): Styler = clickEvent(ClickEvent.changePage(page))
+
+  /**
+   * Applies a click event that changes the page of a book.
+   *
+   * @param page the page number as a string
+   * @return this Styler instance for chaining
+   */
+  fun changePage(page: String): Styler = clickEvent(ClickEvent.changePage(page))
+
+  /**
    * Applies a click event to the text.
    *
    * @param event the click event to apply
    * @return this Styler instance for chaining
    */
   infix fun clickEvent(event: ClickEvent): Styler
+
+  /**
+   * Applies a hover event that shows the given component.
+   *
+   * @param component the component to show
+   * @return this Styler instance for chaining
+   */
+  infix fun showText(component: Component): Styler
+
+  /**
+   * Applies a hover event that shows the given text.
+   *
+   * @param text the text to show
+   * @return this Styler instance for chaining
+   */
+  infix fun showText(text: String): Styler = showText(Component.text(text))
+
+  /**
+   * Applies a hover event that shows a component built with a DSL.
+   *
+   * @param consumer the function to build the hover text component
+   * @return this Styler instance for chaining
+   */
+  fun showText(consumer: Componenter.() -> Unit): Styler
+
+  /**
+   * Applies a hover event that shows an entity.
+   *
+   * @param key the show entity hover event to apply
+   * @return this Styler instance for chaining
+   */
+  infix fun showEntity(key: HoverEvent.ShowEntity): Styler
+
+  /**
+   * Applies a hover event that shows an entity with the given key, UUID, and name.
+   *
+   * @param key the entity type key
+   * @param uuid the entity UUID
+   * @param name the entity name (defaults to empty component)
+   * @return this Styler instance for chaining
+   */
+  fun showEntity(key: Key, uuid: UUID, name: Component = Component.empty()): Styler =
+    showEntity(HoverEvent.ShowEntity.showEntity(key, uuid, name))
+
+  /**
+   * Applies a hover event that shows an item.
+   *
+   * @param key the show item hover event to apply
+   * @return this Styler instance for chaining
+   */
+  infix fun showItem(key: HoverEvent.ShowItem): Styler
+
+  /**
+   * Applies a hover event that shows an item with the given key and count.
+   *
+   * @param key the item type key
+   * @param count the item count
+   * @return this Styler instance for chaining
+   */
+  fun showItem(key: Key, count: Int): Styler = showItem(HoverEvent.ShowItem.showItem(key, count))
+
+  /**
+   * Applies a hover event that shows an item with the given key, count, and data components.
+   *
+   * @param key the item type key
+   * @param count the item count
+   * @param data the item data components
+   * @return this Styler instance for chaining
+   */
+  fun showItem(key: Key, count: Int, data: Map<Key, DataComponentValue>): Styler = showItem(HoverEvent.ShowItem.showItem(key, count, data))
 
   /**
    * Applies a hover event to the text.
@@ -186,16 +301,6 @@ interface Styler {
    */
   fun whenFalse(condition: Boolean, overrider: Styler.() -> Unit): Styler =
     whenTrue(!condition, overrider)
-
-  /**
-   * Applies a hover event that shows text when hovered.
-   *
-   * @param consumer the function to build the hover text component
-   * @return this Styler instance for chaining
-   */
-  fun showText(consumer: Componenter.() -> Unit): Styler
-
-  /// defaults
 
   /**
    * Applies red color to the text.
@@ -315,7 +420,6 @@ interface Styler {
    * @return this Styler instance for chaining
    */
   fun underline(): Styler = decoration(TextDecoration.UNDERLINED)
-
 
   /**
    * Removes obfuscated text decoration.

@@ -2,10 +2,13 @@ package com.peco2282.adventure.builder
 
 import com.peco2282.adventure.ComponentDsl
 import com.peco2282.adventure.withStyle
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.BlockNBTComponent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.EntityNBTComponent
 import net.kyori.adventure.text.JoinConfiguration
+import net.kyori.adventure.text.StorageNBTComponent
+import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
 import org.intellij.lang.annotations.Language
@@ -142,13 +145,22 @@ interface Componenter {
   infix fun translatable(key: String): Componenter = append(Component.translatable(key))
 
   /**
-   * Appends a translatable component with the specified translation key and component arguments.
+   * Appends a translatable component with arguments.
    *
-   * @param key the translation key
-   * @param args the component arguments for the translation
-   * @return this componenter for chaining
+   * @param key The translation key
+   * @param args The translation arguments
+   * @return This [Componenter] instance
    */
   fun translatable(key: String, vararg args: Component): Componenter
+
+  /**
+   * Appends a translatable component with arguments.
+   *
+   * @param key The translation key
+   * @param args The translation arguments (can be String, Number, Component, etc.)
+   * @return This [Componenter] instance
+   */
+  fun translatableAny(key: String, vararg args: Any): Componenter
 
   /**
    * Appends a translatable component with the specified translation key and a list of component arguments.
@@ -208,12 +220,30 @@ interface Componenter {
   fun translatable(key: String, styler: Styler.() -> Unit, consumer: Componenter.() -> Unit): Componenter
 
   /**
+   * Appends a selector component with the specified selector pattern and applies additional configuration.
+   *
+   * @param key the selector pattern
+   * @param styler the styler to apply
+   * @return this componenter for chaining
+   */
+  fun selector(key: String, styler: Styler.() -> Unit): Componenter = selector(key).withStyle(styler)
+
+  /**
    * Appends a keybind component with the specified keybind key.
    *
    * @param key the keybind key
    * @return this componenter for chaining
    */
   infix fun keybind(key: String): Componenter
+
+  /**
+   * Appends a keybind component with the specified keybind key and applies additional configuration.
+   *
+   * @param key the keybind key
+   * @param styler the styler to apply
+   * @return this componenter for chaining
+   */
+  fun keybind(key: String, styler: Styler.() -> Unit): Componenter = keybind(key).withStyle(styler)
 
   /**
    * Appends a score component with the specified player name and objective.
@@ -224,6 +254,16 @@ interface Componenter {
    */
   fun score(name: String, objective: String): Componenter
 
+
+  /**
+   * Appends a score component with the specified player name and objective and applies additional configuration.
+   *
+   * @param name the player name whose score to display
+   * @param objective the scoreboard objective name
+   * @param styler the styler to apply
+   * @return this componenter for chaining
+   */
+  fun score(name: String, objective: String, styler: Styler.() -> Unit): Componenter = score(name, objective).withStyle(styler)
 
   /**
    * Appends a block NBT component with the specified NBT path and builder configuration.
@@ -244,6 +284,26 @@ interface Componenter {
    */
   @ApiStatus.Experimental
   fun entityNbt(@Language("NBTPath") nbt: String, consumer: EntityNBTComponent.Builder.() -> Unit): Componenter
+
+  /**
+   * Appends a storage NBT component.
+   *
+   * @param nbt The NBT path
+   * @param storage The storage key
+   * @param consumer A lambda with receiver that configures the storage NBT component builder
+   * @return This [Componenter] instance
+   */
+  fun storageNbt(@Language("NBTPath") nbt: String, storage: Key, consumer: StorageNBTComponent.Builder.() -> Unit): Componenter
+
+  /**
+   * Appends a storage NBT component.
+   *
+   * @param nbt The NBT path
+   * @param storage The storage key as string
+   * @param consumer A lambda with receiver that configures the storage NBT component builder
+   * @return This [Componenter] instance
+   */
+  fun storageNbt(@Language("NBTPath") nbt: String, storage: String, consumer: StorageNBTComponent.Builder.() -> Unit): Componenter
 
   /**
    * Operator function to append a string to this componenter using the unary + operator.

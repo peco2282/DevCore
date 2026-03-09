@@ -224,3 +224,57 @@ infix fun Style.withDecoration(decoration: Collection<TextDecoration>) =
  */
 inline infix fun Componenter.withStyle(crossinline consumer: Styler.() -> Unit): Componenter =
   styleLast(style(consumer))
+
+/**
+ * Sets the color of the last component added to this Componenter.
+ */
+infix fun Componenter.withColor(color: TextColor): Componenter =
+  styleLast(Style.style(color))
+
+/**
+ * Sets the color of the last component added to this Componenter using an integer RGB value.
+ */
+infix fun Componenter.withColor(color: Int): Componenter =
+  styleLast(Style.style(TextColor.color(color)))
+
+/**
+ * Sets the font of the last component added to this Componenter.
+ */
+infix fun Componenter.withFont(font: Key): Componenter =
+  styleLast(Style.style().font(font).build())
+
+/**
+ * Sets the font of the last component added to this Componenter using a font key string.
+ */
+infix fun Componenter.withFont(font: String): Componenter =
+  withFont(Key.key(font))
+
+/**
+ * Sets the bold decoration of the last component added to this Componenter.
+ */
+fun Componenter.bold(): Componenter =
+  styleLast(Style.style(TextDecoration.BOLD))
+
+/**
+ * Sets the italic decoration of the last component added to this Componenter.
+ */
+fun Componenter.italic(): Componenter =
+  styleLast(Style.style(TextDecoration.ITALIC))
+
+/**
+ * Sets the underline decoration of the last component added to this Componenter.
+ */
+fun Componenter.underline(): Componenter =
+  styleLast(Style.style(TextDecoration.UNDERLINED))
+
+/**
+ * Sets the strikethrough decoration of the last component added to this Componenter.
+ */
+fun Componenter.strikethrough(): Componenter =
+  styleLast(Style.style(TextDecoration.STRIKETHROUGH))
+
+/**
+ * Sets the obfuscated decoration of the last component added to this Componenter.
+ */
+fun Componenter.obfuscated(): Componenter =
+  styleLast(Style.style(TextDecoration.OBFUSCATED))

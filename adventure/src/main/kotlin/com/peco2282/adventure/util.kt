@@ -1,6 +1,15 @@
 package com.peco2282.adventure
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+
 internal fun <T> MutableList<T>.updateLast(transformer: (T) -> T) {
   if (isEmpty()) return
   this[lastIndex] = transformer(this[lastIndex])
 }
+
+fun String.component(): Component = Component.text(this)
+fun Component.text(): String = LegacyComponentSerializer.legacyAmpersand().serialize(this)
+
+val String.component get() = Component.text(this)
+val Component.text: String get() = LegacyComponentSerializer.legacyAmpersand().serialize(this)

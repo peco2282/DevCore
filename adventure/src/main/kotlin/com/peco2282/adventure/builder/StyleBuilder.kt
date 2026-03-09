@@ -2,7 +2,6 @@ package com.peco2282.adventure.builder
 
 import com.peco2282.adventure.StyleDsl
 import com.peco2282.adventure.component
-import com.peco2282.adventure.obfuscated
 import com.peco2282.adventure.style
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
@@ -11,6 +10,7 @@ import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import java.net.URL
 
 
 @StyleDsl
@@ -63,11 +63,38 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
   override fun suggestCommand(command: String): Styler =
     apply { builder = builder.clickEvent(ClickEvent.suggestCommand(command)) }
 
+  override fun openUrl(url: String): Styler =
+    apply { builder = builder.clickEvent(ClickEvent.openUrl(url)) }
+
+  override fun openUrl(url: URL): Styler =
+    apply { builder = builder.clickEvent(ClickEvent.openUrl(url)) }
+
+  override fun copyToClipboard(text: String): Styler =
+    apply { builder = builder.clickEvent(ClickEvent.copyToClipboard(text)) }
+
   override fun openFile(file: String): Styler =
     apply { builder = builder.clickEvent(ClickEvent.openFile(file)) }
 
+  override fun changePage(page: Int): Styler =
+    apply { builder = builder.clickEvent(ClickEvent.changePage(page)) }
+
+  override fun changePage(page: String): Styler =
+    apply { builder = builder.clickEvent(ClickEvent.changePage(page)) }
+
   override fun clickEvent(event: ClickEvent): Styler =
     apply { builder = builder.clickEvent(event) }
+
+  override fun showText(component: Component): Styler =
+    apply { builder = builder.hoverEvent(HoverEvent.showText(component)) }
+
+  override fun showText(consumer: Componenter.() -> Unit): Styler =
+    apply { builder = builder.hoverEvent(HoverEvent.showText(component(consumer))) }
+
+  override fun showEntity(key: HoverEvent.ShowEntity): Styler =
+    apply { builder = builder.hoverEvent(HoverEvent.showEntity(key)) }
+
+  override fun showItem(key: HoverEvent.ShowItem): Styler =
+    apply { builder = builder.hoverEvent(HoverEvent.showItem(key)) }
 
   override fun hoverEvent(event: HoverEvent<*>): Styler =
     apply { builder = builder.hoverEvent(event) }
@@ -80,9 +107,6 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
     overrider: Styler.() -> Unit
   ): Styler =
     apply { if (condition) mergeStyle(style(overrider)) }
-
-  override fun showText(consumer: Componenter.() -> Unit): Styler =
-    apply { builder = builder.hoverEvent(HoverEvent.showText(component(consumer))) }
 
   override fun noObfuscated(): Styler =
     apply { builder = builder.decoration(TextDecoration.OBFUSCATED, false) }

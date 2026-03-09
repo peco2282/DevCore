@@ -4,10 +4,12 @@ import com.peco2282.adventure.ComponentDsl
 import com.peco2282.adventure.component
 import com.peco2282.adventure.style
 import com.peco2282.adventure.updateLast
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.BlockNBTComponent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.EntityNBTComponent
 import net.kyori.adventure.text.JoinConfiguration
+import net.kyori.adventure.text.StorageNBTComponent
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
 import org.intellij.lang.annotations.Language
@@ -94,6 +96,17 @@ internal class ComponentBuilder : Componenter {
   ): Componenter =
     apply { append(Component.translatable(key, *args)) }
 
+  override fun translatableAny(key: String, vararg args: Any): Componenter =
+    apply {
+      val components = args.map {
+        when (it) {
+          is Component -> it
+          else -> Component.text(it.toString())
+        }
+      }
+      append(Component.translatable(key, components))
+    }
+
   override fun translatable(
     key: String,
     args: List<Component>
@@ -169,4 +182,20 @@ internal class ComponentBuilder : Componenter {
     consumer: EntityNBTComponent.Builder.() -> Unit
   ): Componenter =
     apply { append(Component.entityNBT().nbtPath(nbt).apply(consumer).build()) }
+
+  @ApiStatus.Experimental
+  override fun storageNbt(
+    @Language("NBTPath") nbt: String,
+    storage: Key,
+    consumer: StorageNBTComponent.Builder.() -> Unit
+  ): Componenter =
+    apply { append(Component.storageNBT().nbtPath(nbt).storage(storage).apply(consumer).build()) }
+
+  @ApiStatus.Experimental
+  override fun storageNbt(
+    @Language("NBTPath") nbt: String,
+    storage: String,
+    consumer: StorageNBTComponent.Builder.() -> Unit
+  ): Componenter =
+    storageNbt(nbt, Key.key(storage), consumer)
 }
