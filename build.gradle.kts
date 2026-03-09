@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.peco2282.devcore"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 subprojects {
   group = rootProject.group
