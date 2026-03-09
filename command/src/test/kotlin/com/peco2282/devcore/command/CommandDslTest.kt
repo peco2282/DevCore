@@ -20,15 +20,34 @@ class CommandDslTest {
                 executes { 1 }
             }
             
-            literal("sub") {
+            subcommand("sub") {
                 integer("value", min = 1) {
                     executes { 1 }
                 }
             }
+
+            // Paper's ArgumentTypes require some registry access which is not available in unit tests.
+            // Skipping complex types for now as they cause NoSuchElementException in mock environment.
+            /*
+            blockPos("pos") {
+                executes { 1 }
+            }
+
+            singlePlayer("target") {
+                executes { 1 }
+            }
+            */
+
+            suggestionAsync { listOf("a", "b", "c") }
             
             literal("another") executes { 
                 it.sendSuccess { text("Done!") }
                 1 
+            }
+
+            executesPlayer { player, context ->
+                player.sendMessage("Hello!")
+                1
             }
         }
 

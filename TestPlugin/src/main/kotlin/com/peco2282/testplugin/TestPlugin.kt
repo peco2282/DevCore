@@ -16,11 +16,11 @@ class TestPlugin : JavaPlugin() {
         @Suppress("UnusedExpression")
         EventListener
 
-        command("testplugin") {
+        command {
             literal("cmd") {
-                requires { it.sender.isOp }
-                executes {
-                    it.source.sender.sendMessage("Hello, World!")
+                requireOp()
+                executesPlayer { player, _ ->
+                    player.sendMessage("Hello, World!")
                     1
                 }
             }

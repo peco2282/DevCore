@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.Componenter
 import com.peco2282.devcore.adventure.component
+import io.papermc.paper.block.BlockPredicate.predicate
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
@@ -224,6 +225,83 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   }
 
   /**
+   * Adds a block position argument to the command.
+   */
+  fun blockPos(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.blockPosition()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a fine position argument (with decimals) to the command.
+   */
+  fun finePos(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.finePosition()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a rotation argument (yaw and pitch) to the command.
+   */
+  fun rotation(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.rotation()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a single player argument to the command.
+   */
+  fun singlePlayer(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.player()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a multiple players argument to the command.
+   */
+  fun multiplePlayers(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.players()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a single entity argument to the command.
+   */
+  fun singleEntity(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.entity()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
+   * Adds a multiple entities argument to the command.
+   */
+  fun multipleEntities(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, ArgumentTypes.entities()) {
+    @Suppress("UNCHECKED_CAST")
+    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
+  }
+
+  /**
    * Sets a requirement predicate for this command.
    *
    * The command or subcommand will only be available and executable if the predicate returns true
@@ -238,12 +316,50 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     }
 
   /**
+   * Sets a requirement that the command sender must be an operator.
+   *
+   * The command or subcommand will only be available and executable if the sender has operator status.
+   *
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun requireOp() =
+    apply {
+      builder = builder.requires { it.sender.isOp }
+    }
+
+  /**
+   * Sets a requirement that the command sender must be an operator and satisfy an additional condition.
+   *
+   * The command or subcommand will only be available and executable if the sender has operator status
+   * and the provided predicate returns true.
+   *
+   * @param predicate a function that takes a [CommandSourceStack] and returns a [Boolean]
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun requireOpAnd(predicate: (CommandSourceStack) -> Boolean) =
+    apply {
+      builder = builder.requires { it.sender.isOp && predicate(it) }
+    }
+
+  /**
    * Sets a permission requirement for this command.
    *
    * @param permission the permission string required to execute this command
    * @return this [CommandCreator] instance for chaining
    */
   infix fun permission(permission: String) = requires { it.sender.hasPermission(permission) }
+
+  /**
+   * Sets a permission requirement combined with an additional condition for this command.
+   *
+   * The command or subcommand will only be available and executable if the sender has the specified
+   * permission and the provided predicate returns true.
+   *
+   * @param permission the permission string required to execute this command
+   * @param predicate a function that takes a [CommandSourceStack] and returns a [Boolean]
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun permissionAnd(permission: String, predicate: (CommandSourceStack) -> Boolean) = requires { it.sender.hasPermission(permission) && predicate(it) }
 
   /**
    * Sets the execution handler for this command.
@@ -257,6 +373,58 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     apply {
       builder = builder.executes(block)
     }
+
+  /**
+   * Sets the execution handler for this command, limited to players only.
+   *
+   * @param block the code to execute, taking the player and [CommandContext]
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun executesPlayer(block: (org.bukkit.entity.Player, CommandContext<CommandSourceStack>) -> Int) =
+    apply {
+      builder = builder.executes { context ->
+        val player = context.source.sender as? org.bukkit.entity.Player
+        if (player == null) {
+          context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
+          0
+        } else {
+          block(player, context)
+        }
+      }
+    }
+
+  /**
+   * Sets the execution handler for this command, limited to console only.
+   *
+   * @param block the code to execute, taking the console sender and [CommandContext]
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun executesConsole(block: (org.bukkit.command.ConsoleCommandSender, CommandContext<CommandSourceStack>) -> Int) =
+    apply {
+      builder = builder.executes { context ->
+        val console = context.source.sender as? org.bukkit.command.ConsoleCommandSender
+        if (console == null) {
+          context.sendError { text("このコマンドはコンソールのみ実行可能です。") }
+          0
+        } else {
+          block(console, context)
+        }
+      }
+    }
+
+  /**
+   * Adds a subcommand to this command.
+   *
+   * This is an alias for [literal] to improve readability in complex command trees.
+   *
+   * @param name the name of the subcommand
+   * @param creator the configuration block for the subcommand
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun subcommand(
+    name: String,
+    creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
+  ) = literal(name, creator)
 
   /**
    * Sends a message to the command sender using Adventure component DSL.
@@ -288,6 +456,28 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   }
 
   /**
+   * Guards the command execution with a condition.
+   * If the condition is false, sends an error message and returns 0.
+   *
+   * @param condition the condition to check
+   * @param errorMessage the error message to send if condition is false
+   * @param block the code to execute if condition is true
+   * @return 1 if successful, 0 otherwise
+   */
+  fun CommandContext<CommandSourceStack>.guard(
+    condition: Boolean,
+    errorMessage: Componenter.() -> Unit,
+    block: () -> Int
+  ): Int {
+    return if (condition) {
+      block()
+    } else {
+      sendError(errorMessage)
+      0
+    }
+  }
+
+  /**
    * Sends a message to the command sender.
    *
    * @param component the component to send
@@ -306,6 +496,23 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     suggestion { _, builder ->
       val remaining = builder.remaining.lowercase()
       suggestions.forEach {
+        if (it.lowercase().startsWith(remaining)) {
+          builder.suggest(it)
+        }
+      }
+      builder.buildFuture()
+    }
+
+  /**
+   * Adds asynchronous suggestions for this command argument.
+   *
+   * @param provider a function that returns a list of strings to be suggested
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun suggestionAsync(provider: (CommandContext<CommandSourceStack>) -> List<String>) =
+    suggestion { context, builder ->
+      val remaining = builder.remaining.lowercase()
+      provider(context).forEach {
         if (it.lowercase().startsWith(remaining)) {
           builder.suggest(it)
         }
@@ -341,7 +548,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     if (currentBuilder is LiteralArgumentBuilder<*>) {
       @Suppress("UNCHECKED_CAST")
       plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) {
-        it.registrar().register((currentBuilder as LiteralArgumentBuilder<CommandSourceStack>).build())
+        it.registrar().register((currentBuilder as LiteralArgumentBuilder<CommandSourceStack>).build(), null)
       }
     } else {
       plugin.logger.warning("コマンドのトップレベルは LiteralArgumentBuilder である必要があります。")

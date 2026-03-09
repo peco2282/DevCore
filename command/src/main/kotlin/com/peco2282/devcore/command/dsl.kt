@@ -37,3 +37,51 @@ inline fun Plugin.command(
  */
 inline fun <reified T> CommandContext<CommandSourceStack>.getArg(name: String): T =
   getArgument(name, T::class.java)
+
+/**
+ * Retrieves a [org.bukkit.entity.Player] from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getPlayer(name: String): org.bukkit.entity.Player? =
+  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver>(name)
+    .resolve(source).firstOrNull()
+
+/**
+ * Retrieves a list of [org.bukkit.entity.Player]s from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getPlayers(name: String): List<org.bukkit.entity.Player> =
+  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver>(name)
+    .resolve(source)
+
+/**
+ * Retrieves a [org.bukkit.entity.Entity] from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getEntity(name: String): org.bukkit.entity.Entity? =
+  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver>(name)
+    .resolve(source).firstOrNull()
+
+/**
+ * Retrieves a list of [org.bukkit.entity.Entity]s from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getEntities(name: String): List<org.bukkit.entity.Entity> =
+  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver>(name)
+    .resolve(source)
+
+/**
+ * Retrieves a [org.bukkit.Location] (Block Position) from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getLocation(name: String): org.bukkit.Location =
+  getArg<io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver>(name)
+    .resolve(source).toLocation(source.location.world)
+
+/**
+ * Retrieves a [org.bukkit.Location] (Fine Position) from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getFineLocation(name: String): org.bukkit.Location =
+  getArg<io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver>(name)
+    .resolve(source).toLocation(source.location.world)
+
+/**
+ * Retrieves a [org.bukkit.World] from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getWorld(name: String): org.bukkit.World =
+  getArg(name)
