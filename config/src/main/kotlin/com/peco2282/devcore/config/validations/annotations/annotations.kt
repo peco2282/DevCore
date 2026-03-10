@@ -63,6 +63,34 @@ annotation class Regex(
 )
 
 /**
+ * Validates that the numeric property value is negative (less than zero).
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Negative
+
+/**
+ * Validates that the numeric property value is non-negative (greater than or equal to zero).
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class NonNegative
+
+/**
+ * Validates that the string or collection property value is not empty.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class NotEmpty
+
+/**
+ * Validates that the string property value is a valid email address.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Email
+
+/**
  * Validates that the numeric property value is at least [value].
  *
  * @property value the minimum allowed value (inclusive)

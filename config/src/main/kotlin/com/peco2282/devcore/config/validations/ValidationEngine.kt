@@ -16,8 +16,8 @@ object ValidatorEngine {
    * Validates the specified [obj] based on its annotations.
    *
    * Supported annotations include [Range], [NotBlank], [Size], [Regex], [Min], [Max],
-   * [Positive], [URL], and [FileExists]. This method also recursively validates
-   * nested data classes, lists, and maps.
+   * [Positive], [Negative], [NonNegative], [NotEmpty], [Email], [URL], and [FileExists].
+   * This method also recursively validates nested data classes, lists, and maps.
    *
    * @param obj the configuration object to validate
    * @throws IllegalArgumentException if any validation rule is violated
@@ -47,6 +47,21 @@ object ValidatorEngine {
         }
       }
 
+      // 🧪 NotEmpty
+      prop.findAnnotation<NotEmpty>()?.let {
+        when (value) {
+          is String -> require(value.isNotEmpty()) {
+            "Config validation failed: ${prop.name} must not be empty"
+          }
+          is Collection<*> -> require(value.isNotEmpty()) {
+            "Config validation failed: ${prop.name} must not be empty"
+          }
+          is Map<*, *> -> require(value.isNotEmpty()) {
+            "Config validation failed: ${prop.name} must not be empty"
+          }
+        }
+      }
+
       // 🧪 Size
       prop.findAnnotation<Size>()?.let { ann ->
         if (value is Collection<*>) {
@@ -65,29 +80,80 @@ object ValidatorEngine {
         }
       }
 
-      prop.findAnnotation<Min>()?.let {
-        require((value as Number).toLong() >= it.value)
+      // 🧪 Email
+      prop.findAnnotation<Email>()?.let {
+        if (value is String) {
+          val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+          require(emailRegex.matches(value)) {
+            "Config validation failed: ${prop.name} must be a valid email address (actual=$value)"
+          }
+        }
       }
 
-      prop.findAnnotation<Max>()?.let {
-        require((value as Number).toLong() <= it.value)
+      prop.findAnnotation<Min>()?.let { ann ->
+        if (value is Number) {
+          val v = value.toLong()
+          require(v >= ann.value) {
+            "Config validation failed: ${prop.name} must be at least ${ann.value} (actual=$v)"
+          }
+        }
+      }
+
+      prop.findAnnotation<Max>()?.let { ann ->
+        if (value is Number) {
+          val v = value.toLong()
+          require(v <= ann.value) {
+            "Config validation failed: ${prop.name} must be at most ${ann.value} (actual=$v)"
+          }
+        }
       }
 
       prop.findAnnotation<Positive>()?.let {
-        require((value as Number).toLong() > 0)
+        if (value is Number) {
+          val v = value.toLong()
+          require(v > 0) {
+            "Config validation failed: ${prop.name} must be positive (actual=$v)"
+          }
+        }
+      }
+
+      prop.findAnnotation<Negative>()?.let {
+        if (value is Number) {
+          val v = value.toLong()
+          require(v < 0) {
+            "Config validation failed: ${prop.name} must be negative (actual=$v)"
+          }
+        }
+      }
+
+      prop.findAnnotation<NonNegative>()?.let {
+        if (value is Number) {
+          val v = value.toLong()
+          require(v >= 0) {
+            "Config validation failed: ${prop.name} must be non-negative (actual=$v)"
+          }
+        }
       }
 
       prop.findAnnotation<URL>()?.let {
-        val url = try {
-          java.net.URI(value as String).toURL()
-        } catch (_: Exception) {
-          null
+        if (value is String) {
+          val url = try {
+            java.net.URI(value).toURL()
+          } catch (_: Exception) {
+            null
+          }
+          require(url != null) {
+            "Config validation failed: ${prop.name} must be a valid URL (actual=$value)"
+          }
         }
-        require(url != null)
       }
 
       prop.findAnnotation<FileExists>()?.let {
-        require(java.io.File(value as String).exists())
+        if (value is String) {
+          require(java.io.File(value).exists()) {
+            "Config validation failed: file ${value} for ${prop.name} does not exist"
+          }
+        }
       }
 
 
