@@ -142,8 +142,8 @@ subprojects {
 
               licenses {
                 license {
-                  name.set("The MIT License")
-                  url.set("https://opensource.org/licenses/MIT")
+                  name.set("Apache License, Version 2.0")
+                  url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
                 }
               }
 
