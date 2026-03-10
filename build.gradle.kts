@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.peco2282.devcore"
-version = "1.0"
+version = properties["devcore.version"] ?: "1.0"
 
 // Dokka マルチモジュール設定
 dependencies {
@@ -51,6 +51,7 @@ subprojects {
   if (name != "TestPlugin") {
     apply(plugin = "maven-publish")
   }
+
 
   plugins.withId("org.jetbrains.dokka") {
     tasks.register<Jar>("dokkaJar") {
@@ -108,42 +109,44 @@ subprojects {
   plugins.withId("maven-publish") {
     extensions.configure<PublishingExtension>("publishing") {
       publications {
-        create<MavenPublication>("maven") {
-          artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
+        afterEvaluate {
+          create<MavenPublication>("maven") {
+            artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
 
-          // 各モジュールで個別に version が定義される
-          version = project.version.toString()
+            // 各モジュールで個別に version が定義される
+            version = project.version.toString()
 
-          if (project.plugins.hasPlugin("java-platform")) {
-            from(project.components["javaPlatform"])
-          } else if (project.plugins.hasPlugin("java-library") || project.plugins.hasPlugin("java")) {
-            from(project.components["java"])
-            artifact(tasks.named("dokkaJar"))
-          }
-
-          pom {
-            name.set(artifactId)
-            description.set("DevCore Minecraft plugin library module: ${project.name}")
-            url.set("https://github.com/peco2282/DevCore")
-
-            licenses {
-              license {
-                name.set("The MIT License")
-                url.set("https://opensource.org/licenses/MIT")
-              }
+            if (project.plugins.hasPlugin("java-platform")) {
+              from(project.components["javaPlatform"])
+            } else if (project.plugins.hasPlugin("java-library") || project.plugins.hasPlugin("java")) {
+              from(project.components["java"])
+              artifact(tasks.named("dokkaJar"))
             }
 
-            developers {
-              developer {
-                id.set("peco2282")
-                name.set("peco2282")
-              }
-            }
+            pom {
+              name.set(artifactId)
+              description.set("DevCore Minecraft plugin library module: ${project.name}")
+              url.set("https://github.com/peco2282/DevCore")
 
-            scm {
-              connection.set("scm:git:github.com/peco2282/DevCore.git")
-              developerConnection.set("scm:git:ssh://github.com/peco2282/DevCore.git")
-              url.set("https://github.com/peco2282/DevCore/tree/main")
+              licenses {
+                license {
+                  name.set("The MIT License")
+                  url.set("https://opensource.org/licenses/MIT")
+                }
+              }
+
+              developers {
+                developer {
+                  id.set("peco2282")
+                  name.set("peco2282")
+                }
+              }
+
+              scm {
+                connection.set("scm:git:github.com/peco2282/DevCore.git")
+                developerConnection.set("scm:git:ssh://github.com/peco2282/DevCore.git")
+                url.set("https://github.com/peco2282/DevCore/tree/main")
+              }
             }
           }
         }
