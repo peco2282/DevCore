@@ -15,7 +15,7 @@ Bukkit scheduler を扱うための Kotlin DSL と、自動的なライフサイ
 dependencies {
   implementation("com.peco2282.devcore:scheduler:<version>")
   // または:
-  // implementation(platform("com.peco2282.devcore:bom:<version>"))
+  // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:scheduler")
 }
 ```

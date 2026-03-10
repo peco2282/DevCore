@@ -16,7 +16,7 @@ Module for mapping YAML (e.g., `config.yml`) to Kotlin data classes and performi
 dependencies {
   implementation("com.peco2282.devcore:config:<version>")
   // or:
-  // implementation(platform("com.peco2282.devcore:bom:<version>"))
+  // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:config")
 }
 ```

@@ -15,7 +15,7 @@ Provides a DSL for making the Adventure library (KyoriPowered) easier to use fro
 dependencies {
   implementation("com.peco2282.devcore:adventure:<version>")
   // or:
-  // implementation(platform("com.peco2282.devcore:bom:<version>"))
+  // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:adventure")
 }
 ```

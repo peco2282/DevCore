@@ -42,7 +42,7 @@ BOMを使用してモジュールを選択する場合:
 
 ```kotlin
 dependencies {
-  implementation(platform("com.peco2282.devcore:bom:1.0.0"))
+  implementation(platform("com.peco2282.devcore:devcore-bom:1.0.0"))
   implementation("com.peco2282.devcore:command")
   implementation("com.peco2282.devcore:config")
 }

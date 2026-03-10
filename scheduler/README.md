@@ -15,7 +15,7 @@ Provides a Kotlin DSL for handling the Bukkit scheduler and automatic lifecycle 
 dependencies {
   implementation("com.peco2282.devcore:scheduler:<version>")
   // or:
-  // implementation(platform("com.peco2282.devcore:bom:<version>"))
+  // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:scheduler")
 }
 ```
