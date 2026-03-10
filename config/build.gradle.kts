@@ -1,3 +1,5 @@
+version = "2.0.1"
+
 dependencies {
   compileOnly(libs.adventure)
   compileOnly(libs.serializer.minimessage)

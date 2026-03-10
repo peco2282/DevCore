@@ -1,3 +1,5 @@
+version = "1.2.0"
+
 dependencies {
   api(project(":adventure"))
   compileOnly(libs.paper.api)

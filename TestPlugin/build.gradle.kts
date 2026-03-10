@@ -17,12 +17,14 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation(project(":adventure"))
-    implementation(project(":config"))
-    implementation(project(":scheduler"))
+
+    // BOMを使用してバージョンを一括管理
+    implementation(platform(project(":bom")))
+
+    // バージョン指定なしで依存関係を追加
     implementation(project(":core"))
-    implementation(project(":cooldown"))
     implementation(project(":command"))
+    implementation(project(":config"))
 }
 
 tasks {
