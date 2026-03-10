@@ -1,3 +1,6 @@
+import org.gradle.plugins.ide.idea.model.IdeaModel
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+
 plugins {
   kotlin("jvm") version "2.2.21" apply false
   id("org.jetbrains.dokka") version "2.0.0" apply false
@@ -8,7 +11,6 @@ version = "1.0"
 
 subprojects {
   group = rootProject.group
-  version = rootProject.version
 
   repositories {
     mavenCentral()
@@ -45,7 +47,7 @@ subprojects {
   }
 
   plugins.withId("idea") {
-    extensions.configure<org.gradle.plugins.ide.idea.model.IdeaModel>("idea") {
+    extensions.configure<IdeaModel>("idea") {
       module {
         isDownloadJavadoc = true
         isDownloadSources = true
@@ -54,7 +56,7 @@ subprojects {
   }
 
   plugins.withId("org.jetbrains.kotlin.jvm") {
-    extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>("kotlin") {
+    extensions.configure<KotlinJvmProjectExtension>("kotlin") {
       jvmToolchain(21)
     }
   }
@@ -91,6 +93,9 @@ subprojects {
       publications {
         create<MavenPublication>("maven") {
           artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
+
+          // 各モジュールで個別に version が定義される
+          version = project.version.toString()
 
           if (project.plugins.hasPlugin("java-platform")) {
             from(project.components["javaPlatform"])
