@@ -52,6 +52,19 @@ subprojects {
     apply(plugin = "maven-publish")
   }
 
+  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+      // 利用者に Kotlin 2.1 以上を要求する設定にする
+      apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
+      languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
+
+      // Java 21 はそのまま維持
+      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+
+      // DSLライブラリなら型推論を助ける設定もおすすめ
+      freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+  }
 
   plugins.withId("org.jetbrains.dokka") {
     tasks.register<Jar>("dokkaJar") {
