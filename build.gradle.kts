@@ -58,15 +58,10 @@ subprojects {
 
   tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-      // 利用者に Kotlin 2.1 以上を要求する設定にする
       apiVersion.set(KotlinVersion.KOTLIN_2_1)
       languageVersion.set(KotlinVersion.KOTLIN_2_1)
 
-      // Java 21 はそのまま維持
       jvmTarget.set(JvmTarget.JVM_21)
-
-      // DSLライブラリなら型推論を助ける設定もおすすめ
-      freeCompilerArgs.add("-Xexpect-actual-classes")
     }
   }
 
