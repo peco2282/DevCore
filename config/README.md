@@ -1,14 +1,15 @@
 # DevCore Config
+[English] | [[日本語](README.ja.md)]
 
-`config.yml` 等の YAML を Kotlin のデータクラスへマッピングし、バリデーションを行うモジュールです。
+Module for mapping YAML (e.g., `config.yml`) to Kotlin data classes and performing validation.
 
-## 特徴
+## Features
 
-- Kotlinのデータクラスによる型安全な設定管理
-- YAMLファイルへのコメントの自動挿入
-- アノテーションベースのバリデーション
-- ネストされたクラス、リスト、マップのサポート
-- 自動的なロード/セーブ/再読み込み
+- Type-safe configuration management using Kotlin data classes
+- Automatic insertion of comments into YAML files
+- Annotation-based validation
+- Support for nested classes, lists, and maps
+- Automatic loading, saving, and reloading
 
 ## Install (Gradle Kotlin DSL)
 ```kotlin
@@ -20,52 +21,52 @@ dependencies {
 }
 ```
 
-## 使用方法
+## Usage
 
-### 設定クラスの定義
+### Defining Configuration Classes
 
 ```kotlin
-@Comment("プラグインのメイン設定")
+@Comment("Main plugin configuration")
 data class MyConfig(
-  @Comment("プレイヤーの名前")
+  @Comment("Player name")
   @NotBlank
   val name: String = "Steve",
 
-  @Comment("レベル (1-100)")
+  @Comment("Level (1-100)")
   @Range(min = 1, max = 100)
   val level: Int = 1,
 
-  @Comment("有効かどうか")
+  @Comment("Whether it is enabled")
   val enabled: Boolean = true
 )
 ```
 
-### 設定のロードとセーブ
+### Loading and Saving Configurations
 
 ```kotlin
-// ロード (config.yml)
+// Load (config.yml)
 val config = Configs.load<MyConfig>(plugin)
 
-// 特定のファイルからロード
+// Load from a specific file
 val otherConfig = Configs.load<OtherConfig>(File(plugin.dataFolder, "other.yml"))
 
-// セーブ
+// Save
 Configs.save(plugin, config)
 ```
 
-### バリデーションアノテーション
+### Validation Annotations
 
-- `@Comment(text)`: YAMLに出力されるコメントを指定します。
-- `@NotBlank`: 文字列が空または空白でないことを検証します。
-- `@NotEmpty`: 文字列、コレクション、マップが空でないことを検証します。
-- `@Range(min, max)`: 数値が指定範囲内であることを検証します。
-- `@Size(min, max)`: コレクションの要素数が範囲内であることを検証します。
-- `@Regex(pattern)`: 文字列が正規表現にマッチするか検証します。
-- `@Email`: 文字列がメールアドレス形式であることを検証します。
-- `@Min(value)`, `@Max(value)`: 数値の最小値、最大値を指定します。
-- `@Positive`: 数値が正（0より大きい）であることを検証します。
-- `@Negative`: 数値が負（0未満）であることを検証します。
-- `@NonNegative`: 数値が0以上であることを検証します。
-- `@URL`: 有効なURL形式であることを検証します。
-- `@FileExists`: 指定されたパスのファイルが存在することを検証します。
+- `@Comment(text)`: Specifies the comment to be output to the YAML.
+- `@NotBlank`: Validates that a string is not empty or blank.
+- `@NotEmpty`: Validates that a string, collection, or map is not empty.
+- `@Range(min, max)`: Validates that a numeric value is within the specified range.
+- `@Size(min, max)`: Validates that the number of elements in a collection is within the range.
+- `@Regex(pattern)`: Validates that a string matches the regular expression.
+- `@Email`: Validates that a string is in email address format.
+- `@Min(value)`, `@Max(value)`: Specifies the minimum and maximum values for a numeric value.
+- `@Positive`: Validates that a numeric value is positive (greater than 0).
+- `@Negative`: Validates that a numeric value is negative (less than 0).
+- `@NonNegative`: Validates that a numeric value is 0 or greater.
+- `@URL`: Validates that it is in a valid URL format.
+- `@FileExists`: Validates that the file at the specified path exists.
 

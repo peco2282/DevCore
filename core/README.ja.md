@@ -1,7 +1,7 @@
 # DevCore Core
-[English] | [[日本語](README.ja.md)]
+[[English](README.md)] | [日本語]
 
-The "umbrella" artifact for using all DevCore modules together.
+DevCore の全モジュールをまとめて利用するための “umbrella” artifact です。
 
 ## Install (Gradle Kotlin DSL)
 ```kotlin
@@ -10,10 +10,9 @@ dependencies {
 }
 ```
 
-## Included
+## 含まれるモジュール
 - `adventure`
 - `command`
 - `config`
 - `scheduler`
 - `cooldown`
-
