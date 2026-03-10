@@ -4,21 +4,33 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
   alias(libs.plugins.kotlin.jvm) apply false
-  alias(libs.plugins.dokka) apply false
+  alias(libs.plugins.dokka)
 }
 
 group = "com.peco2282.devcore"
 version = "1.0"
 
-subprojects {
-  group = rootProject.group
+// Dokka マルチモジュール設定
+dependencies {
+  subprojects.forEach { subproject ->
+    // bom と TestPlugin 以外のモジュールを統合ドキュメントに含める
+    if (subproject.name != "bom" && subproject.name != "core" && subproject.name != "TestPlugin") {
+      dokka(subproject)
+    }
+  }
+}
 
+allprojects {
   repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/") {
       name = "papermc-repo"
     }
   }
+}
+
+subprojects {
+  group = rootProject.group
 
   // secrets.properties を読み込む
   val secrets = java.util.Properties().apply {
@@ -44,6 +56,10 @@ subprojects {
     tasks.register<Jar>("dokkaJar") {
       from(tasks.named("dokkaGeneratePublicationHtml"))
       archiveClassifier.set("javadoc")
+    }
+
+    extensions.configure<org.jetbrains.dokka.gradle.DokkaExtension>("dokka") {
+      moduleName.set(project.name)
     }
   }
 
