@@ -1,4 +1,4 @@
-package com.peco2282.devcore.sheduler
+package com.peco2282.devcore.scheduler
 
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin

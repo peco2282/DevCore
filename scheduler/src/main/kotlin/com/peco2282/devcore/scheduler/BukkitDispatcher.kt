@@ -1,4 +1,4 @@
-package com.peco2282.devcore.sheduler
+package com.peco2282.devcore.scheduler
 
 import kotlinx.coroutines.CoroutineDispatcher
 import org.bukkit.plugin.Plugin

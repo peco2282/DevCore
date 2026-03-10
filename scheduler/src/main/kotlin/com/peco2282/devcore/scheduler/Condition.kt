@@ -1,4 +1,4 @@
-package com.peco2282.devcore.sheduler
+package com.peco2282.devcore.scheduler
 
 /**
  * Represents a condition that can be evaluated to determine if a task should run.

@@ -1,4 +1,4 @@
-package com.peco2282.devcore.sheduler
+package com.peco2282.devcore.scheduler
 
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
@@ -94,14 +94,14 @@ fun main() {
   val world = plugin.server.getWorld("world")!!
   // 通常
   plugin.taskCreate after 5.seconds run {
-    println("遅延実行")
+    println("実行")
   }
 
   player.taskAfter(plugin, 10.seconds) {
     player.sendMessage("まだログインしてたら表示")
   }
 
-// ワールド依存ループ
+// ワールド依存ルーチン
   world.taskTimer(plugin, 0.ticks, 20.ticks) {
     println("ワールド存続中のみ実行")
   }
