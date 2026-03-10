@@ -1,4 +1,4 @@
-version = "1.0.0"
+version = properties["devcore.core.version"] ?: "1.0.0"
 
 dependencies {
   api(project(":adventure"))

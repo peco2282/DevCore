@@ -1,4 +1,4 @@
-version = "1.0.0"
+version = properties["devcore.scheduler.version"] ?: "1.0.0"
 
 dependencies {
   compileOnly(libs.adventure)

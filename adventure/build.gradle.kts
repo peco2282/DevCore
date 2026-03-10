@@ -1,4 +1,4 @@
-version = "1.0.0"
+version = properties["devcore.adventure.version"] ?: "1.0.0"
 
 dependencies {
   testImplementation(libs.kotlin.test)

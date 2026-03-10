@@ -1,5 +1,5 @@
 
-version = "1.0.0"
+version = properties["devcore.bom.version"] ?: "1.0.0"
 
 javaPlatform {
   allowDependencies()
