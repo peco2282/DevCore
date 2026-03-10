@@ -1,9 +1,10 @@
+import org.gradle.kotlin.dsl.create
 import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
-  kotlin("jvm") version "2.2.21" apply false
-  id("org.jetbrains.dokka") version "2.0.0" apply false
+  alias(libs.plugins.kotlin.jvm) apply false
+  alias(libs.plugins.dokka) apply false
 }
 
 group = "com.peco2282.devcore"
@@ -28,10 +29,10 @@ subprojects {
   }
 
   if (name != "bom" && name != "TestPlugin") {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = rootProject.libs.plugins.kotlin.jvm.get().pluginId)
     apply(plugin = "java-library")
-    apply(plugin = "idea")
-    apply(plugin = "org.jetbrains.dokka")
+    apply(plugin = rootProject.libs.plugins.idea.get().pluginId)
+    apply(plugin = rootProject.libs.plugins.dokka.get().pluginId)
   } else if (name == "bom") {
     apply(plugin = "java-platform")
   }

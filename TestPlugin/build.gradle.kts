@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm")
-    id("com.gradleup.shadow") version "8.3.0"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.runPaper)
 }
 
 group = "com.peco2282"
@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compileOnly(libs.paper.api)
+    implementation(libs.kotlin.stdlib)
 
     // BOMを使用してバージョンを一括管理
     implementation(platform(project(":bom")))

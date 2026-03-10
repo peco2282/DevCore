@@ -3,9 +3,9 @@ version = "1.0.0"
 dependencies {
   compileOnly(libs.adventure)
   compileOnly(libs.serializer.minimessage)
-  implementation(kotlin("stdlib"))
+  implementation(libs.kotlin.stdlib)
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   implementation(libs.kotlinx.coroutines)
-  testImplementation(kotlin("test"))
+  testImplementation(libs.kotlin.test)
 }

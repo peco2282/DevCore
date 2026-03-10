@@ -3,6 +3,9 @@ adventure = "4.25.0"
 kotlin = "2.2.21"
 paper = "1.21.4-R0.1-20250925.065901-231"
 kotlinx-coroutine = "1.10.2"
+dokka = "2.0.0"
+shadow = "8.3.0"
+run-paper = "2.3.1"
 
 [libraries]
 adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
@@ -10,8 +13,14 @@ serializer-plugin = { module = "net.kyori:adventure-text-serializer-plain", vers
 serializer-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
 serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutine" }
 
 [plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 idea = { id = "idea" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }
