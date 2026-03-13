@@ -6,4 +6,5 @@ dependencies {
   api(project(":config"))
   api(project(":scheduler"))
   api(project(":cooldown"))
+  api(project(":scoreboard"))
 }
