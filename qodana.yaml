@@ -23,6 +23,9 @@ profile:
 #    paths:
 #      - <path/where/not/run/inspection>
 
+exclude:
+  - name: "UnusedSymbol"
+
 projectJDK: "21" #(Applied in CI/CD pipeline)
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
