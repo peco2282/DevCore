@@ -1,29 +1,30 @@
 # DevCore Adventure
+[English] | [[日本語](README.ja.md)]
 
-Adventureライブラリ（KyoriPowered）をKotlinから使いやすくするためのDSLを提供します。
+Provides a DSL for making the Adventure library (KyoriPowered) easier to use from Kotlin.
 
-## 特徴
+## Features
 
-- 直感的なDSLによるテキストコンポーネントの構築
-- 型安全なスタイリング
-- 色、装飾、クリック・ホバーイベントの簡単な適用
-- 各種コンポーネントの結合（join/collect）
+- Construct text components using an intuitive DSL
+- Type-safe styling
+- Easy application of colors, decorations, click, and hover events
+- Joining and collecting various components
 
 ## Install (Gradle Kotlin DSL)
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:adventure:<version>")
   // or:
-  // implementation(platform("com.peco2282.devcore:bom:<version>"))
+  // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:adventure")
 }
 ```
 
-## 使用方法
+## Usage
 
-### 基本的なテキスト構築
+### Basic Text Construction
 
-`component`ブロック内で`text`関数を使用して構築します。
+Construct within the `component` block using the `text` function.
 
 ```kotlin
 val msg = component {
@@ -37,24 +38,24 @@ val msg = component {
 }
 ```
 
-### スタイリングDSL
+### Styling DSL
 
-`Styler`インターフェースを通じて、豊富なスタイリングメソッドを利用できます。
+A wide range of styling methods are available through the `Styler` interface.
 
-- **色**: `red()`, `green()`, `blue()`, `yellow()`, `color(0xFF0000)`, `color("#FF0000")`
-- **装飾**: `bold()`, `italic()`, `underline()`, `strikethrough()`, `obfuscated()`
-- **イベント**:
+- **Colors**: `red()`, `green()`, `blue()`, `yellow()`, `color(0xFF0000)`, `color("#FF0000")`
+- **Decorations**: `bold()`, `italic()`, `underline()`, `strikethrough()`, `obfuscated()`
+- **Events**:
   - `runCommand("/help")`
   - `suggestCommand("/msg ")`
   - `openUrl("https://...")`
   - `copyToClipboard("text")`
   - `showText("Hover message")`
   - `showItem(key, count)`
-- **その他**: `font("minecraft:default")`, `insertion("shift-click text")`
+- **Other**: `font("minecraft:default")`, `insertion("shift-click text")`
 
-### コンポーネントの結合
+### Joining Components
 
-複数のコンポーネントを特定の区切り文字で結合できます。
+You can join multiple components with a specific separator.
 
 ```kotlin
 val list = component(joiner = { it.join(" | ") }) {
@@ -62,14 +63,14 @@ val list = component(joiner = { it.join(" | ") }) {
   append("Item 2")
   append("Item 3")
 }
-// 結果: Item 1 | Item 2 | Item 3
+// Result: Item 1 | Item 2 | Item 3
 ```
 
-### 高度な機能
+### Advanced Features
 
-- **条件付きスタイリング**: `whenTrue(condition) { ... }`
-- **翻訳**: `translatable("key.name")`, `translatableAny("key", arg1, arg2)`
-- **セレクター**: `selector("@a[distance=..5]")`
+- **Conditional Styling**: `whenTrue(condition) { ... }`
+- **Translation**: `translatable("key.name")`, `translatableAny("key", arg1, arg2)`
+- **Selectors**: `selector("@a[distance=..5]")`
 - **Keybind**: `keybind("key.jump")`
 - **NBT**: `blockNbt`, `entityNbt`, `storageNbt` (Experimental)
 

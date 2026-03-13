@@ -1,71 +1,72 @@
 # DevCore Scheduler
+[English] | [[日本語](README.ja.md)]
 
-Bukkit scheduler を扱うための Kotlin DSL と、自動的なライフサイクル管理機能を提供します。
+Provides a Kotlin DSL for handling the Bukkit scheduler and automatic lifecycle management.
 
-## 特徴
+## Features
 
-- 直感的なDSLによるタスクのスケジューリング
-- `Ticks`クラスによる直感的な時間指定（ticks, seconds, minutes等）
-- プレイヤーやワールドのライフサイクルに紐づいた自動キャンセル機能
-- 同期/非同期実行の簡単な切り替え
+- Intuitive task scheduling using a DSL
+- Intuitive time specification using the `Ticks` class (ticks, seconds, minutes, etc.)
+- Automatic cancellation functionality tied to player and world lifecycles
+- Easy switching between synchronous and asynchronous execution
 
 ## Install (Gradle Kotlin DSL)
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:scheduler:<version>")
   // or:
-  // implementation(platform("com.peco2282.devcore:bom:<version>"))
+  // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:scheduler")
 }
 ```
 
-## 使用方法
+## Usage
 
-### 基本的なタスク
+### Basic Tasks
 
 ```kotlin
-// 遅延実行
+// Delayed execution
 plugin.taskCreate after 5.seconds run {
-  println("5秒後に実行")
+  println("Executed after 5 seconds")
 }
 
-// 繰り返し実行
+// Repeated execution
 plugin.taskCreate after 0.ticks every 20.ticks run {
-  println("1秒ごとに実行")
+  println("Executed every second")
 }
 
-// 即時実行
+// Immediate execution
 plugin.taskCreate now {
-  println("即時実行")
+  println("Executed immediately")
 }
 
-// 非同期実行
+// Asynchronous execution
 plugin.taskCreate async {
-  println("非同期で実行")
+  println("Executed asynchronously")
 }
 ```
 
-### ライフサイクル紐付けタスク
+### Lifecycle-tied Tasks
 
-プレイヤーのログアウトや、ワールドのアンロード時に自動でキャンセルされるタスクを作成できます。
+Tasks can be created that are automatically cancelled when a player logs out or a world is unloaded.
 
 ```kotlin
-// プレイヤーがログアウトするまで継続する遅延タスク
+// Delayed task that continues until the player logs out
 player.taskAfter(plugin, 10.seconds) {
-  player.sendMessage("10秒後、まだログインしていればメッセージを表示")
+  player.sendMessage("Display message after 10 seconds if still logged in")
 }
 
-// ワールドが存続している間のみ繰り返すタスク
+// Task that repeats only while the world exists
 world.taskTimer(plugin, 0.ticks, 20.ticks) {
   // ...
 }
 ```
 
-### 時間の指定 (`Ticks`)
+### Specifying Time (`Ticks`)
 
-`Int`拡張関数を使用して、直感的に時間を指定できます。
+You can intuitively specify time using `Int` extension functions.
 
-- `20.ticks` (1秒相当)
+- `20.ticks` (equivalent to 1 second)
 - `1.seconds`
 - `5.minutes`
 - `1.hours`

@@ -1,6 +1,10 @@
 import org.gradle.kotlin.dsl.create
 import org.gradle.plugins.ide.idea.model.IdeaModel
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   alias(libs.plugins.kotlin.jvm) apply false
@@ -52,6 +56,14 @@ subprojects {
     apply(plugin = "maven-publish")
   }
 
+  tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+      apiVersion.set(KotlinVersion.KOTLIN_2_1)
+      languageVersion.set(KotlinVersion.KOTLIN_2_1)
+
+      jvmTarget.set(JvmTarget.JVM_21)
+    }
+  }
 
   plugins.withId("org.jetbrains.dokka") {
     tasks.register<Jar>("dokkaJar") {
@@ -59,7 +71,7 @@ subprojects {
       archiveClassifier.set("javadoc")
     }
 
-    extensions.configure<org.jetbrains.dokka.gradle.DokkaExtension>("dokka") {
+    extensions.configure<DokkaExtension>("dokka") {
       moduleName.set(project.name)
     }
   }
@@ -130,8 +142,8 @@ subprojects {
 
               licenses {
                 license {
-                  name.set("The MIT License")
-                  url.set("https://opensource.org/licenses/MIT")
+                  name.set("Apache License, Version 2.0")
+                  url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
                 }
               }
 

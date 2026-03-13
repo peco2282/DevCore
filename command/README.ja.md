@@ -1,29 +1,29 @@
 # DevCore Command
-[English] | [[日本語](README.ja.md)]
+[[English](README.md)] | [日本語]
 
-Module for defining Paper (Brigadier) commands using a Kotlin DSL.
+Paper (Brigadier) コマンドを Kotlin DSL で定義するためのモジュールです。
 
-## Features
+## 特徴
 
-- Type-safe DSL based on Brigadier
-- Intuitive argument definitions (string, integer, player, etc.)
-- Condition-based execution restrictions (permission, op, etc.)
-- Advanced suggestions (completion) functionality
-- Targeted execution (executesPlayer, executesConsole)
+- Brigadierをベースとした型安全なDSL
+- 直感的な引数定義（string, integer, player等）
+- 条件ベースの実行制限（permission, op等）
+- 高度なサジェスチョン（補完）機能
+- 実行対象の限定（executesPlayer, executesConsole）
 
 ## Install (Gradle Kotlin DSL)
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:command:<version>")
-  // or:
+  // または:
   // implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))
   // implementation("com.peco2282.devcore:command")
 }
 ```
 
-## Usage
+## 使用方法
 
-### Basic Command Definition
+### 基本的なコマンド定義
 
 ```kotlin
 plugin.command("test") {
@@ -38,7 +38,7 @@ plugin.command("test") {
 }
 ```
 
-### Using Arguments
+### 引数の利用
 
 ```kotlin
 plugin.command("givemoney") {
@@ -49,7 +49,7 @@ plugin.command("givemoney") {
       executes { context ->
         val target = context.getPlayer("target") ?: return@executes 0
         val amount = context.getArg<Int>("amount")
-        // Process...
+        // 処理...
         1
       }
     }
@@ -57,7 +57,7 @@ plugin.command("givemoney") {
 }
 ```
 
-### Targeted Execution
+### 実行対象の限定
 
 ```kotlin
 plugin.command("playeronly") {
@@ -68,7 +68,7 @@ plugin.command("playeronly") {
 }
 ```
 
-### Suggestions (Completion)
+### サジェスチョン（補完）
 
 ```kotlin
 plugin.command("select") {
@@ -79,20 +79,19 @@ plugin.command("select") {
 }
 ```
 
-### Available Argument Types
+### 利用可能な引数タイプ
 - `string`, `word`, `greedyString`
 - `integer`, `long`, `float`, `double`, `boolean`
 - `player`, `players`, `entity`, `entities`
 - `world`, `blockPos`, `finePos`, `rotation`
 
-### Sending Messages
-You can send messages using Adventure components directly within the DSL.
+### メッセージ送信
+DSL内からAdventureコンポーネントを直接使用してメッセージを送信できます。
 
 ```kotlin
 executes { context ->
-  context.sendSuccess { text("Completed") }
-  context.sendError { text("An error occurred") }
+  context.sendSuccess { text("完了しました") }
+  context.sendError { text("エラーが発生しました") }
   1
 }
 ```
-
