@@ -12,3 +12,6 @@ include(":cooldown")
 
 include("command")
 include("TestPlugin")
+
+include("effect")
+include("packet")
