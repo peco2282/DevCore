@@ -57,6 +57,7 @@ Each module can be introduced individually or all at once through `core`.
 - [**config**](#config): Automatically map YAML settings to Kotlin data classes. Supports validation via annotations and automatic insertion of comments.
 - [**scheduler**](#scheduler): Thin wrapper for Bukkit scheduler. Provides tick-based time specification and task management tied to player/world lifecycles.
 - [**cooldown**](#cooldown): General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for players and the system as a whole.
+- [**scoreboard**](#scoreboard): DSL for dynamic Scoreboard/BossBar management. Packet-based and dynamic updates via Scheduler.
 - [**core**](#core): Umbrella artifact to use all modules at once.
 
 ---
@@ -111,6 +112,25 @@ val cooldowns = PlayerCooldowns()
 if (cooldowns.tryUse(player, 3.seconds)) {
   player.sendMessage("Skill used!")
 }
+```
+
+### scoreboard
+[Link to module](scoreboard/README.md)
+```kotlin
+val sidebar = sidebar(plugin, 20.ticks, component { text("Stats") }) {
+  line { player -> component { text("Health: ${player.health.toInt()}") } }
+  emptyLine()
+  line(component { text("Server: devcore.com") })
+}
+sidebar.show(player)
+
+val bar = bossBar(plugin) {
+  title { player -> component { text("HP: ${player.health.toInt()}") } }
+  progress { player -> (player.health / 20.0).toFloat() }
+  red()
+  autoRefresh(plugin, 20.ticks)
+}
+bar.show(player)
 ```
 
 ### core

@@ -57,6 +57,7 @@ dependencies {
 - [**config**](#config): YAML設定をKotlinデータクラスへ自動マッピング。アノテーションによるバリデーションとコメントの自動挿入をサポートします。
 - [**scheduler**](#scheduler): Bukkit schedulerの薄いラッパー。Tickベースの時間指定や、プレイヤー/ワールドのライフサイクルに紐付いたタスク管理を提供します。
 - [**cooldown**](#cooldown): プレイヤーやシステム全般のクールダウンおよびデバウンス（連打防止）を管理するための汎用ユーティリティ。
+- [**scoreboard**](#scoreboard): 動的なScoreboard/BossBarを管理するためのDSL。パケットベースの設計とSchedulerによる自動更新。
 - [**core**](#core): 全モジュールを一括利用するためのアンブレラアーティファクト。
 
 ---
@@ -111,6 +112,25 @@ val cooldowns = PlayerCooldowns()
 if (cooldowns.tryUse(player, 3.seconds)) {
   player.sendMessage("スキル使用！")
 }
+```
+
+### scoreboard
+[モジュールへ移動](scoreboard/README.ja.md)
+```kotlin
+val sidebar = sidebar(plugin, 20.ticks, component { text("ステータス") }) {
+  line { player -> component { text("体力: ${player.health.toInt()}") } }
+  emptyLine()
+  line(component { text("サーバー: devcore.com") })
+}
+sidebar.show(player)
+
+val bar = bossBar(plugin) {
+  title { player -> component { text("HP: ${player.health.toInt()}") } }
+  progress { player -> (player.health / 20.0).toFloat() }
+  red()
+  autoRefresh(plugin, 20.ticks)
+}
+bar.show(player)
 ```
 
 ### core
