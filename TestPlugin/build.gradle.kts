@@ -25,6 +25,9 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":command"))
     implementation(project(":config"))
+    implementation(project(":scoreboard:scoreboard-api"))
+    implementation(project(":scoreboard:scoreboard-nms"))
+    implementation(project(":scoreboard:scoreboard-nms:v1_21_4"))
 }
 
 tasks {
