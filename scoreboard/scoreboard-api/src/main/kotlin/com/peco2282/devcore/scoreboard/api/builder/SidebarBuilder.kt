@@ -40,7 +40,7 @@ class SidebarBuilder(private val title: () -> Component) {
   }
 
   fun build(): SidebarHandle {
-    return ScoreboardApi.getFactory().createSidebar(title, lines.toList(), plugin, refreshInterval).also {
+    return ScoreboardApi.factory().createSidebar(title, lines.toList(), plugin, refreshInterval).also {
       ScoreboardApi.register(it)
     }
   }

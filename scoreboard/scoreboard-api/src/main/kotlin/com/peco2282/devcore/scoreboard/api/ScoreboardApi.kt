@@ -11,21 +11,32 @@ import java.util.concurrent.CopyOnWriteArrayList
 object ScoreboardApi : Listener {
   private val handles = CopyOnWriteArrayList<Handle>()
   private var isInitialized = false
-  private var factory: ScoreboardFactory? = null
+  @PublishedApi
+  internal var factoryInstance: ScoreboardFactory? = null
 
   /**
    * ScoreboardApiを初期化する。
    * 自動クリーンアップを有効にするために必要。
    */
   fun init(plugin: Plugin, factory: ScoreboardFactory) {
-    this.factory = factory
+    this.factoryInstance = factory
     if (isInitialized) return
     Bukkit.getPluginManager().registerEvents(this, plugin)
     isInitialized = true
   }
 
-  fun getFactory(): ScoreboardFactory {
-    return factory ?: throw IllegalStateException("ScoreboardApi is not initialized. Call init() first.")
+  fun <F : ScoreboardFactory> getFactory(): F {
+    val f = factoryInstance ?: throw IllegalStateException("ScoreboardApi is not initialized. Call init() first.")
+    @Suppress("UNCHECKED_CAST")
+    return (f as? F) ?: throw IllegalStateException("Factory is not of requested type: ${f::class.simpleName}")
+  }
+
+  inline fun <reified F : ScoreboardFactory> findFactory(): F? {
+    return factoryInstance as? F
+  }
+
+  fun factory(): ScoreboardFactory {
+    return factoryInstance ?: throw IllegalStateException("ScoreboardApi is not initialized. Call init() first.")
   }
 
   fun register(handle: Handle) {

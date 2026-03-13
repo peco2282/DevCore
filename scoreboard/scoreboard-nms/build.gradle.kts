@@ -8,7 +8,6 @@ dependencies {
   implementation(project(":scoreboard:scoreboard-api"))
   implementation(project(":adventure"))
   implementation(project(":scheduler"))
-  implementation(project(":scoreboard:scoreboard-nms:v1_21_4"))
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(libs.kotlin.test)

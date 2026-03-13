@@ -106,16 +106,17 @@ class BossBarBuilder {
     )
     listeners.forEach { bar.addListener(it) }
 
-    return ScoreboardApi.getFactory().createBossBar(
+    val handle = ScoreboardApi.factory().createBossBar(
       title,
       progress,
       bar,
       plugin,
       refreshInterval,
       visibilityCondition
-    ).also {
-      ScoreboardApi.register(it)
-      players.forEach { p -> it.show(p) }
-    }
+    )
+
+    ScoreboardApi.register(handle)
+    players.forEach { p -> handle.show(p) }
+    return handle
   }
 }
