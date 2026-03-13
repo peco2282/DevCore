@@ -13,5 +13,13 @@ include(":cooldown")
 include("command")
 include("TestPlugin")
 
+include(":gui")
+include(":event")
+
 include("effect")
 include("packet")
+include("scoreboard")
+include("scoreboard:scoreboard-lite")
+include("scoreboard:scoreboard-api")
+include("scoreboard:scoreboard-nms")
+include("scoreboard:scoreboard-nms:v1_21_4")
