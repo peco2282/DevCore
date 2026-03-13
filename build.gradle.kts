@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   alias(libs.plugins.kotlin.jvm) apply false
   alias(libs.plugins.dokka)
+  id("io.papermc.paperweight.userdev") version "2.0.0-beta.19" apply false
 }
 
 group = "com.peco2282.devcore"
@@ -54,6 +55,9 @@ subprojects {
   }
   if (name != "TestPlugin") {
     apply(plugin = "maven-publish")
+  }
+  if (name.contains("nms")) {
+    apply(plugin = "io.papermc.paperweight.userdev")
   }
 
   tasks.withType<KotlinCompile>().configureEach {
