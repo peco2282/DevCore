@@ -1,5 +1,6 @@
 package com.peco2282.testplugin
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.adventure.withStyle
 import com.peco2282.devcore.scheduler.scheduler
@@ -33,9 +34,11 @@ object EventListener {
       }
       player.sendMessage(msg)
 
-      sidebar(plugin, 5.ticks, component { text("Test Sidebar") }) {
+      plugin.sidebar(5.ticks, component { text("Test Sidebar") }) {
         line { p: Player -> component { text("Player: ${p.name}") withStyle { green() } } }
         line { _: Player -> component { text("Online: ${plugin.server.onlinePlayers.size}") } }
+        line { _: Player -> component { text("World: ${player.world.name}") } }
+        line { _: Player -> component { text("Location: ${player.location}") } }
       }.show(player)
 
       var i = 0
@@ -57,6 +60,9 @@ object EventListener {
       plugin.scheduler.timer(0.ticks, 20.ticks) {
         i++
       }
+    }
+    plugin.on<PlayerJumpEvent> {
+
     }
   }
 }
