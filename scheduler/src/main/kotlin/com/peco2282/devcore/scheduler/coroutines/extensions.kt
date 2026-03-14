@@ -22,6 +22,22 @@ class BukkitDispatcher(private val plugin: Plugin) : CoroutineDispatcher() {
     }
 }
 
+private val exceptionHandlerCache = ConcurrentHashMap<Plugin, CoroutineExceptionHandler>()
+
+/**
+ * Gets or sets the [CoroutineExceptionHandler] for this [Plugin].
+ */
+var Plugin.coroutineExceptionHandler: CoroutineExceptionHandler
+    get() = exceptionHandlerCache.getOrPut(this) {
+        CoroutineExceptionHandler { _, throwable ->
+            logger.severe("Coroutine exception in plugin ${this.name}:")
+            throwable.printStackTrace()
+        }
+    }
+    set(value) {
+        exceptionHandlerCache[this] = value
+    }
+
 /**
  * Extension properties and functions for coroutine support in Bukkit.
  */
@@ -37,7 +53,7 @@ val Plugin.dispatcher: BukkitDispatcher
  * Gets a [CoroutineScope] bound to this [Plugin]'s lifecycle on the main thread.
  */
 val Plugin.scope: CoroutineScope
-    get() = CoroutineScope(dispatcher + SupervisorJob())
+    get() = CoroutineScope(dispatcher + SupervisorJob() + coroutineExceptionHandler)
 
 /**
  * Suspends the coroutine for the given number of [ticks].
