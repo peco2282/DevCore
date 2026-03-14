@@ -18,5 +18,6 @@ dependencies {
 - `command`
 - `config`
 - `scheduler`
+- `event`
 - `cooldown`
-- `scoreboard`
+- `scoreboard-lite`
