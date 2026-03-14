@@ -55,9 +55,6 @@ subprojects {
   if (name != "TestPlugin") {
     apply(plugin = "maven-publish")
   }
-  if (name.contains("nms")) {
-    apply(plugin = "io.papermc.paperweight.userdev")
-  }
 
   tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
