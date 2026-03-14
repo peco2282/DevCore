@@ -5,21 +5,60 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import kotlin.reflect.KProperty
 
+/**
+ * A builder for managing entity equipment using a DSL.
+ * This class uses delegated properties to efficiently store only the set items.
+ *
+ * Example usage:
+ * ```kotlin
+ * equipment {
+ *     mainHand = ItemStack(Material.DIAMOND_SWORD)
+ *     helmet = ItemStack(Material.IRON_HELMET)
+ * }
+ * ```
+ */
 @FakeVisualDsl
 class EquipmentBuilder {
-  // 実際に値が設定されたスロットだけを保持する
+  /**
+   * Internal map holding set equipment.
+   */
   private val _items = mutableMapOf<EquipmentSlot, ItemStack>()
   internal val items: Map<EquipmentSlot, ItemStack> get() = _items
 
-  // 各スロットへのショートカットプロパティ
+  /**
+   * The item in the main hand.
+   */
   var mainHand: ItemStack? by EquipmentSlot.MAIN_HAND.delegate()
+
+  /**
+   * The item in the off hand.
+   */
   var offHand: ItemStack? by EquipmentSlot.OFF_HAND.delegate()
+
+  /**
+   * The helmet item.
+   */
   var helmet: ItemStack? by EquipmentSlot.HELMET.delegate()
+
+  /**
+   * The chestplate item.
+   */
   var chestplate: ItemStack? by EquipmentSlot.CHEST_PLATE.delegate()
+
+  /**
+   * The leggings item.
+   */
   var leggings: ItemStack? by EquipmentSlot.LEGGINGS.delegate()
+
+  /**
+   * The boots item.
+   */
   var boots: ItemStack? by EquipmentSlot.BOOTS.delegate()
 
-  // 委譲プロパティ用の内部クラス：nullを代入するとMapから削除し、軽量化に貢献
+  /**
+   * Internal delegate class for equipment slots.
+   * Assigning null or AIR material removes the entry from the internal map to save memory.
+   */
   private inner class EquipmentMapDelegate(val slot: EquipmentSlot) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): ItemStack? = _items[slot]
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: ItemStack?) {
@@ -31,6 +70,8 @@ class EquipmentBuilder {
     }
   }
 
-  // 拡張関数で .delegate() と書けるようにして記述をスッキリさせる
+  /**
+   * Extension function to create a delegate for an [EquipmentSlot].
+   */
   private fun EquipmentSlot.delegate() = EquipmentMapDelegate(this)
 }

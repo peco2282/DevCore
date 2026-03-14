@@ -9,6 +9,17 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.CopyOnWriteArrayList
 
+/**
+ * A default implementation of [BossBarHandle] using the Adventure API.
+ * This handle manages the visibility and content of a [BossBar] for multiple players.
+ *
+ * @param title A function that provides the title component for a player.
+ * @param progress A function that provides the progress value (0.0 to 1.0) for a player.
+ * @param bar The [BossBar] instance to manage.
+ * @param plugin The plugin instance for scheduling updates (optional).
+ * @param refreshInterval The interval at which the bar should refresh (optional).
+ * @param visibilityCondition A predicate that determines if the bar should be visible to a player (optional).
+ */
 class DefaultBossBarHandle(
   private val title: (Player) -> Component,
   private val progress: (Player) -> Float,

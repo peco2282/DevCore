@@ -12,36 +12,59 @@ import org.bukkit.inventory.InventoryHolder
 import org.bukkit.plugin.Plugin
 
 /**
- * 内部用のインベントリホルダー
+ * Internal inventory holder for [Gui].
  */
 internal class GuiHolder(val gui: Gui) : InventoryHolder {
   private var inventory: Inventory? = null
   private val viewers = mutableSetOf<Player>()
 
+  /**
+   * Adds a viewer to the GUI.
+   */
   fun addViewer(player: Player) {
     viewers.add(player)
   }
 
+  /**
+   * Removes a viewer from the GUI.
+   */
   fun removeViewer(player: Player) {
     viewers.remove(player)
   }
 
+  /**
+   * Returns the set of players currently viewing the GUI.
+   */
   fun getViewers(): Set<Player> = viewers
 
+  /**
+   * Sets the underlying Bukkit inventory.
+   */
   fun setInventory(inventory: Inventory) {
     this.inventory = inventory
   }
 
+  /**
+   * Returns the underlying Bukkit inventory.
+   *
+   * @throws IllegalStateException If the inventory has not been initialized.
+   */
   override fun getInventory(): Inventory {
     return inventory ?: throw IllegalStateException("Inventory not initialized")
   }
 }
 
 /**
- * GUIの基本クラス
+ * Base class for all GUIs.
+ *
+ * @param rows The number of rows in the GUI (1-6).
  */
 abstract class Gui(val rows: Int) {
   internal val holder = GuiHolder(this)
+
+  /**
+   * The underlying Bukkit inventory managed by this GUI.
+   */
   lateinit var inventory: Inventory
     private set
 
@@ -50,12 +73,15 @@ abstract class Gui(val rows: Int) {
   }
 
   /**
-   * GUIを構築します。
+   * Builds the GUI using the provided [GuiCreator].
+   *
+   * @param creator The creator instance used to define slots and items.
    */
   abstract fun build(creator: GuiCreator)
 
   /**
-   * インベントリを生成または更新します。
+   * Generates or updates the inventory based on the current configuration.
+   * This should be called whenever the GUI's state changes.
    */
   fun update() {
     if (this is GuiContext) {
@@ -68,25 +94,29 @@ abstract class Gui(val rows: Int) {
       inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
       holder.setInventory(inventory)
     } else {
-      // タイトルの更新が必要な場合は、新しいインベントリを作成して開かせ直す必要がある（Bukkitの制約）
-      // ここでは簡易的にアイテムのみの更新とする
+      // Note: Updating the title requires recreating the inventory (Bukkit limitation).
     }
 
-    // スロットをクリアしてから再配置
+    // Clear and repopulate the inventory.
     inventory.clear()
     creator.getSlots().forEach { (slot, slotCreator) ->
       inventory.setItem(slot, slotCreator.item)
     }
 
-    // 現在のスロット設定を保存（イベント処理用）
+    // Save current slots for event handling.
     this.currentSlots = creator.getSlots().toMap()
 
-    // プレイヤーに開かれているインベントリの表示を更新
+    // Update the inventory for all viewers.
     holder.getViewers().forEach { it.updateInventory() }
   }
 
   internal var currentSlots: Map<Int, SlotCreator> = emptyMap()
 
+  /**
+   * Opens the GUI for the specified player.
+   *
+   * @param player The player to open the GUI for.
+   */
   fun open(player: Player) {
     if (!::inventory.isInitialized) {
       update()
@@ -97,12 +127,29 @@ abstract class Gui(val rows: Int) {
 }
 
 /**
- * 構築中にGUI自体へのアクセスを提供するためのマーカー
+ * A context class that provides a more declarative DSL for building GUIs.
+ * This class also supports state management.
+ *
+ * Example usage:
+ * ```kotlin
+ * val gui = inventory(3, Component.text("My GUI")) {
+ *     var counter by state(0)
+ *
+ *     slot(SLOT_2_5) {
+ *         icon(Material.DIAMOND)
+ *         name(Component.text("Clicked $counter times"))
+ *         onClick {
+ *             counter++ // This automatically triggers update()
+ *         }
+ *     }
+ * }
+ * gui.open(player)
+ * ```
  */
 @GuiDsl
 abstract class GuiContext(rows: Int) : Gui(rows) {
   /**
-   * GUIを構築します。
+   * Builds the GUI. This is where you define slots and states.
    */
   abstract fun build()
 
@@ -113,22 +160,43 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
 
   private lateinit var creator: GuiCreator
 
+  /**
+   * Sets the title of the GUI.
+   */
   fun title(title: net.kyori.adventure.text.Component) {
     creator.title = title
   }
 
+  /**
+   * Configures a slot by its X and Y coordinates (1-indexed).
+   */
   fun slot(x: Int, y: Int, creator: SlotCreator.() -> Unit) = this.creator.slot(x, y, creator)
 
+  /**
+   * Configures a slot by a [Slot] instance.
+   */
   fun slot(slot: Slot, creator: SlotCreator.() -> Unit) = this.creator.slot(slot, creator)
 
+  /**
+   * Configures a slot by its raw index (0-indexed).
+   */
   fun slot(slot: Int, creator: SlotCreator.() -> Unit) = this.creator.slot(slot, creator)
 
+  /**
+   * Fills all slots in the GUI with a material.
+   */
   fun fill(material: org.bukkit.Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) =
     this.creator.fill(material, pickable, creator)
 
+  /**
+   * Fills the border of the GUI with a material.
+   */
   fun fillBorder(material: org.bukkit.Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) =
     this.creator.fillBorder(material, pickable, creator)
 
+  /**
+   * Fills a rectangular area of the GUI with a material.
+   */
   fun fillRect(
     x1: Int,
     y1: Int,
@@ -140,6 +208,9 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
   ) =
     this.creator.fillRect(x1, y1, x2, y2, material, pickable, creator)
 
+  /**
+   * Fills a rectangular area defined by two slots with a material.
+   */
   fun fillRect(
     s1: Slot,
     s2: Slot,
@@ -150,13 +221,19 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
     this.creator.fillRect(s1, s2, material, pickable, creator)
 
   /**
-   * 状態を保持するためのデリゲート。
+   * Creates a state delegate for this GUI.
+   * Changing the state will automatically trigger [update].
+   *
+   * @param initial The initial value of the state.
    */
   fun <T> state(initial: T) = GuiState(initial)
 
   private val states = mutableMapOf<Int, Any?>()
   private var stateCounter = 0
 
+  /**
+   * Delegate class for GUI states.
+   */
   inner class GuiState<T>(private val initial: T) {
     private val id = stateCounter++
 
@@ -177,20 +254,28 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
 }
 
 /**
- * GUIイベントを処理するリスナー
+ * Listener object for processing GUI events.
  */
 object GuiListener : Listener {
+  /**
+   * Registers the GUI listener to the plugin.
+   *
+   * @param plugin The plugin instance.
+   */
   fun register(plugin: Plugin) {
     Bukkit.getPluginManager().registerEvents(this, plugin)
   }
 
+  /**
+   * Internal event handler for clicks in GUIs.
+   */
   @EventHandler(priority = EventPriority.LOWEST)
   fun onInventoryClick(event: InventoryClickEvent) {
     val holder = event.inventory.holder as? GuiHolder ?: return
     val gui = holder.gui
     val player = event.whoClicked as? Player ?: return
 
-    // クリックされたインベントリがGUIのインベントリであることを確認
+    // Ensure the clicked inventory is the GUI.
     if (event.clickedInventory != event.inventory) return
 
     val slot = event.slot
@@ -206,6 +291,9 @@ object GuiListener : Listener {
     slotCreator.events.forEach { it(guiEvent) }
   }
 
+  /**
+   * Internal event handler for closing GUIs.
+   */
   @EventHandler(priority = EventPriority.MONITOR)
   fun onInventoryClose(event: InventoryCloseEvent) {
     val holder = event.inventory.holder as? GuiHolder ?: return

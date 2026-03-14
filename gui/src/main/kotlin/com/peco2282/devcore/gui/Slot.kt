@@ -1,5 +1,11 @@
 package com.peco2282.devcore.gui
 
+/**
+ * Represents a slot in a GUI.
+ *
+ * @property x The row index (0-indexed).
+ * @property y The column index (0-indexed).
+ */
 data class Slot(
   val x: Int,
   val y: Int
@@ -9,6 +15,9 @@ data class Slot(
     require(y >= 0) { "y must be non-negative" }
   }
 
+  /**
+   * Returns the raw index of the slot (0-indexed).
+   */
   fun slot(): Int = x * 9 + y
 
   companion object {
