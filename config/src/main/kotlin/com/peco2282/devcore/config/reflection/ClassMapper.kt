@@ -73,9 +73,9 @@ object ClassMapper {
     clazz.memberProperties.forEach { prop ->
       val value = prop.getter.call(obj) ?: return@forEach
 
-      val comment = prop.findAnnotation<Comment>()?.text
-      if (comment != null) {
-        section.setComments(prop.name, listOf(comment))
+      val propComment = prop.findAnnotation<Comment>()?.text
+      if (propComment != null) {
+        section.setComments(prop.name, listOf(propComment))
       }
 
       when {
@@ -99,35 +99,37 @@ object ClassMapper {
         }
 
         value is Map<*, *> -> {
-          if (!section.contains(prop.name)) {
-            section.createSection(prop.name)
+          val sub = section.getConfigurationSection(prop.name)
+            ?: section.createSection(prop.name)
+          
+          if (propComment != null) {
+            section.setComments(prop.name, listOf(propComment))
           }
-          comment?.let { section.setComments(prop.name, listOf(it)) }
+          
           value.forEach { (k, v) ->
             if (k !is String || v == null) return@forEach
-            val path = "${prop.name}.$k"
+            val path = k // サブセクション内での相対パス
 
             when {
               v::class.isData -> {
-                val sub = section.getConfigurationSection(path) ?: section.createSection(path)
-                write(v, sub)
+                val subSub = sub.getConfigurationSection(path) ?: sub.createSection(path)
+                write(v, subSub)
               }
 
               v is List<*> -> {
-                section.set(path, serializeList(v))
+                sub.set(path, serializeList(v))
               }
 
               v is Map<*, *> -> {
-                section.set(path, serializeMap(v))
+                sub.set(path, serializeMap(v))
               }
 
               else -> {
-                section.set(path, TypeSerializers.serializeOrRaw(v))
+                sub.set(path, TypeSerializers.serializeOrRaw(v))
               }
             }
           }
         }
-
 
         else -> {
           val serialized = TypeSerializers.serializeOrRaw(value)
