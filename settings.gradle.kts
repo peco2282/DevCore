@@ -18,7 +18,6 @@ include(":event")
 
 include("effect")
 include("packet")
-include("scoreboard")
 include("scoreboard:scoreboard-lite")
 include("scoreboard:scoreboard-api")
 include("scoreboard:scoreboard-nms")
