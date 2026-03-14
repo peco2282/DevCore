@@ -41,14 +41,18 @@ class SlotCreator {
    * Sets the display name of the item in this slot.
    */
   fun name(name: net.kyori.adventure.text.Component?): SlotCreator = apply {
-    item.editMeta { it.displayName(name) }
+    val meta = item.itemMeta ?: return@apply
+    meta.displayName(name)
+    item.itemMeta = meta
   }
 
   /**
    * Sets the lore of the item in this slot.
    */
   fun lore(lore: List<net.kyori.adventure.text.Component>?): SlotCreator = apply {
-    item.editMeta { it.lore(lore) }
+    val meta = item.itemMeta ?: return@apply
+    meta.lore(lore)
+    item.itemMeta = meta
   }
 
   /**

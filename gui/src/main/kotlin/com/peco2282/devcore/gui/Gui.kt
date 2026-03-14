@@ -90,14 +90,22 @@ abstract class Gui(val rows: Int) {
     val creator = GuiCreator(rows)
     build(creator)
 
+    // Clear and repopulate the inventory.
+    val viewers = holder.getViewers().toList()
+    if (::inventory.isInitialized && viewers.isNotEmpty()) {
+      val firstViewer = viewers.first()
+      if (creator.title != firstViewer.openInventory.title()) {
+        inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
+        holder.setInventory(inventory)
+        viewers.forEach { it.openInventory(inventory) }
+      }
+    }
+
     if (!::inventory.isInitialized) {
       inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
       holder.setInventory(inventory)
-    } else {
-      // Note: Updating the title requires recreating the inventory (Bukkit limitation).
     }
 
-    // Clear and repopulate the inventory.
     inventory.clear()
     creator.getSlots().forEach { (slot, slotCreator) ->
       inventory.setItem(slot, slotCreator.item)
@@ -107,7 +115,7 @@ abstract class Gui(val rows: Int) {
     this.currentSlots = creator.getSlots().toMap()
 
     // Update the inventory for all viewers.
-    holder.getViewers().forEach { it.updateInventory() }
+    viewers.forEach { it.updateInventory() }
   }
 
   internal var currentSlots: Map<Int, SlotCreator> = emptyMap()
