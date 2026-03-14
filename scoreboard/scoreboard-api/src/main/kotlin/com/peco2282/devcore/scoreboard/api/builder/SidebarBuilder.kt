@@ -12,12 +12,20 @@ import org.bukkit.plugin.Plugin
 annotation class ScoreboardDsl
 
 @ScoreboardDsl
-class SidebarBuilder(private val title: () -> Component) {
+class SidebarBuilder(private var title: () -> Component) {
   private val lines = mutableListOf<(Player) -> Component>()
   private var refreshInterval: Ticks? = null
   private var plugin: Plugin? = null
 
-  fun line(line: Component) = apply {
+  infix fun title(title: Component) = apply {
+    this.title = { title }
+  }
+
+  infix fun title(title: () -> Component) = apply {
+    this.title = title
+  }
+
+  infix fun line(line: Component) = apply {
     lines.add { line }
   }
 
