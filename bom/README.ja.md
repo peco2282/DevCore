@@ -1,10 +1,10 @@
 # DevCore BOM
 
-[English] | [[日本語](README.ja.md)]
+[[English](README.md)] | [日本語]
 
-DevCore modules BOM (`java-platform`) for aligning versions.
+各モジュールのバージョンを統一するための DevCore モジュール BOM (`java-platform`)。
 
-## Install (Gradle Kotlin DSL)
+## 導入方法 (Gradle Kotlin DSL)
 
 ```kotlin
 dependencies {
@@ -16,4 +16,3 @@ dependencies {
   implementation("com.peco2282.devcore:cooldown")
 }
 ```
-

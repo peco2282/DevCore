@@ -1,4 +1,6 @@
-# scoreboard
+# DevCore Scoreboard
+
+[[English](README.md)] | [日本語]
 
 動的なスコアボード（サイドバー）とボスバーを管理するためのモジュールです。
 

@@ -70,9 +70,11 @@ Each module can be introduced individually or all at once through `core`.
 - [**cooldown**](#cooldown): General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for
   players and the system as a whole.
 - [**gui**](#gui): Reactive GUI framework with DSL and State management. Supports dynamic title updates and pagination.
-- [**scoreboard**](#scoreboard): DSL for dynamic Scoreboard/BossBar management. Packet-based and dynamic updates via
-  Scheduler.
+- [**packet**](#packet): DSL for handling fake entities and packets using PacketEvents.
+- [**event**](#event): DSL for defining Bukkit events concisely and type-safely.
+- [**effect**](#effect): Utility for particle effects and visual enhancements.
 - [**core**](#core): Umbrella artifact to use all modules at once.
+- [**bom**](#bom): Bill of Materials to align versions across all modules.
 
 ---
 
@@ -174,10 +176,44 @@ val gui = inventory(rows = 3, title = component { text("Counter") }) {
 }
 ```
 
+### packet
+
+[Link to module](packet/README.md)
+
+```kotlin
+player.sendFakeVisuals {
+  spawnEntity(EntityType.ZOMBIE, location) {
+    customName = "Fake Boss"
+    isGlowing = true
+  }
+}
+```
+
+### event
+
+[Link to module](event/README.md)
+
+```kotlin
+on<PlayerJoinEvent> {
+  handle { player.sendMessage("Welcome!") }
+}
+```
+
+### effect
+
+[Link to module](effect/README.md)
+
+Provides utilities for particle effects and visual enhancements.
+
 ### core
 
 [Link to module](core/README.md)
 Umbrella artifact to use all modules.
+
+### bom
+
+[Link to module](bom/README.md)
+BOM for aligning versions.
 
 ## License
 

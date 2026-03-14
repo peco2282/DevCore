@@ -19,4 +19,5 @@ dependencies {
 - `config`
 - `scheduler`
 - `cooldown`
+- `scoreboard`
 

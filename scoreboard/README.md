@@ -1,4 +1,6 @@
-# scoreboard
+# DevCore Scoreboard
+
+[English] | [[日本語](README.ja.md)]
 
 A module for managing dynamic scoreboards (sidebars) and boss bars.
 
