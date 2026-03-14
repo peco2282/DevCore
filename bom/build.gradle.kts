@@ -9,7 +9,8 @@ fun release(modPath: String): Any {
     return project(":$modPath")
   }
   val modName = modPath.split(":").last()
-  val rel = properties["devcore.${modName.replace("-", ".")}.release"] ?: throw IllegalArgumentException("No release version for $modPath")
+  val prefix = "devcore.${modName.replace("-", ".")}."
+  val rel = properties["${prefix}release"] ?: properties["${prefix}version"] ?: throw IllegalArgumentException("No release version for $modPath")
   return "com.peco2282.devcore:$modName:$rel"
 }
 
