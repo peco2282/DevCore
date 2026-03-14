@@ -1,7 +1,52 @@
 package com.peco2282.devcore.gui
 
 import net.kyori.adventure.text.Component
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import io.papermc.paper.event.player.AsyncChatEvent
 import org.bukkit.inventory.Inventory
+import org.bukkit.plugin.Plugin
+
+/**
+ * Utility for getting chat input from a player.
+ *
+ * @param plugin The plugin instance.
+ * @param timeoutTicks The timeout in ticks (optional).
+ * @param onInput The callback for when input is received.
+ * @param onCancel The callback for when input is cancelled or timed out.
+ */
+fun Player.awaitChatInput(
+  plugin: Plugin,
+  timeoutTicks: Long? = null,
+  onInput: (Component) -> Unit,
+  onCancel: () -> Unit = {}
+) {
+  val listener = object : Listener {
+    @EventHandler
+    fun onChat(event: AsyncChatEvent) {
+      if (event.player.uniqueId != uniqueId) return
+      event.isCancelled = true
+      val message = event.originalMessage()
+      
+      // Execute on main thread
+      plugin.server.scheduler.runTask(plugin, Runnable {
+        onInput(message)
+        AsyncChatEvent.getHandlerList().unregister(this)
+      })
+    }
+  }
+  
+  plugin.server.pluginManager.registerEvents(listener, plugin)
+  
+  if (timeoutTicks != null) {
+    plugin.server.scheduler.runTaskLater(plugin, Runnable {
+      AsyncChatEvent.getHandlerList().unregister(listener)
+      onCancel()
+    }, timeoutTicks)
+  }
+}
 
 /**
  * Creates a simple GUI (Inventory) using a DSL.

@@ -90,29 +90,46 @@ abstract class Gui(val rows: Int) {
     val creator = GuiCreator(rows)
     build(creator)
 
-    // Clear and repopulate the inventory.
+    val newSlots = creator.getSlots()
     val viewers = holder.getViewers().toList()
+
     if (::inventory.isInitialized && viewers.isNotEmpty()) {
       val firstViewer = viewers.first()
+      // タイトルが変わった場合はインベントリを再作成
       if (creator.title != firstViewer.openInventory.title()) {
         inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
         holder.setInventory(inventory)
+        // インベントリの中身を全て設定
+        newSlots.forEach { (slot, slotCreator) ->
+          inventory.setItem(slot, slotCreator.item)
+        }
         viewers.forEach { it.openInventory(inventory) }
+        this.currentSlots = newSlots.toMap()
+        return
       }
     }
 
     if (!::inventory.isInitialized) {
       inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
       holder.setInventory(inventory)
-    }
-
-    inventory.clear()
-    creator.getSlots().forEach { (slot, slotCreator) ->
-      inventory.setItem(slot, slotCreator.item)
+      newSlots.forEach { (slot, slotCreator) ->
+        inventory.setItem(slot, slotCreator.item)
+      }
+    } else {
+      // 🔥 差分更新: 変更があったスロットのみを更新する
+      // 以前のスロットと比較して、アイテムが異なる場合のみsetItemを呼ぶ
+      for (i in 0 until (rows * 9)) {
+        val oldItem = currentSlots[i]?.item
+        val newItem = newSlots[i]?.item
+        
+        if (oldItem != newItem) {
+          inventory.setItem(i, newItem)
+        }
+      }
     }
 
     // Save current slots for event handling.
-    this.currentSlots = creator.getSlots().toMap()
+    this.currentSlots = newSlots.toMap()
 
     // Update the inventory for all viewers.
     viewers.forEach { it.updateInventory() }
