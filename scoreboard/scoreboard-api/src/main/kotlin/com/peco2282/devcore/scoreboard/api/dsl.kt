@@ -16,18 +16,18 @@ inline fun sidebar(noinline title: () -> Component, block: SidebarBuilder.() -> 
   return SidebarBuilder(title).apply(block).build()
 }
 
-inline fun sidebar(plugin: Plugin, title: Component, block: SidebarBuilder.() -> Unit): SidebarHandle =
-  sidebar(plugin, { title }, block)
+inline fun Plugin.sidebar(title: Component, block: SidebarBuilder.() -> Unit): SidebarHandle =
+  sidebar({ title }, block)
 
-inline fun sidebar(plugin: Plugin, noinline title: () -> Component, block: SidebarBuilder.() -> Unit): SidebarHandle {
-  return SidebarBuilder(title).apply { autoRefresh(plugin) }.apply(block).build()
+inline fun Plugin.sidebar(noinline title: () -> Component, block: SidebarBuilder.() -> Unit): SidebarHandle {
+  return SidebarBuilder(title).apply { autoRefresh(this@sidebar) }.apply(block).build()
 }
 
-inline fun sidebar(plugin: Plugin, refreshInterval: Ticks, title: Component, block: SidebarBuilder.() -> Unit): SidebarHandle =
-  sidebar(plugin, refreshInterval, { title }, block)
+inline fun Plugin.sidebar(refreshInterval: Ticks, title: Component, block: SidebarBuilder.() -> Unit): SidebarHandle =
+  sidebar(refreshInterval, { title }, block)
 
-inline fun sidebar(plugin: Plugin, refreshInterval: Ticks, noinline title: () -> Component, block: SidebarBuilder.() -> Unit): SidebarHandle {
-  return SidebarBuilder(title).apply { autoRefresh(plugin, refreshInterval) }.apply(block).build()
+inline fun Plugin.sidebar(refreshInterval: Ticks, noinline title: () -> Component, block: SidebarBuilder.() -> Unit): SidebarHandle {
+  return SidebarBuilder(title).apply { autoRefresh(this@sidebar, refreshInterval) }.apply(block).build()
 }
 
 inline fun bossBar(block: BossBarBuilder.() -> Unit): BossBarHandle =
