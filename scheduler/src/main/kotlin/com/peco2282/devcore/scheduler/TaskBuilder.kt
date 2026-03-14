@@ -107,36 +107,3 @@ class TaskBuilder(
       scheduler.timer(delay, period, task)
   }
 }
-
-
-fun main() {
-  val plugin = object : JavaPlugin() {}
-  val player = plugin.server.getPlayer("peco2282")!!
-  val world = plugin.server.getWorld("world")!!
-  // 通常
-  plugin.taskCreate after 5.seconds run {
-    println("実行")
-  }
-
-  player.taskAfter(plugin, 10.seconds) {
-    player.sendMessage("まだログインしてたら表示")
-  }
-
-// ワールド依存ルーチン
-  world.taskTimer(plugin, 0.ticks, 20.ticks) {
-    println("ワールド存続中のみ実行")
-  }
-
-  // Coroutine
-  plugin.taskCreate launch {
-    println("コルーチン開始")
-    delayTicks(20.ticks)
-    println("1秒後")
-  }
-
-  player.taskLaunch(plugin) {
-    println("プレイヤーログイン中のみ")
-    delayTicks(plugin, 40.ticks)
-    println("2秒後")
-  }
-}
