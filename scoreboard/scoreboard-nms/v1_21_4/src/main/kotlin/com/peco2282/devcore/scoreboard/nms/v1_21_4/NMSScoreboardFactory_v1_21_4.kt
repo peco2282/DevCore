@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
+@Suppress("ClassName")
 class NMSScoreboardFactory_v1_21_4 : ScoreboardNMSFactory {
     override fun createSidebar(
         title: () -> Component,

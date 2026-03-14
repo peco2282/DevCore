@@ -8,6 +8,7 @@ import com.peco2282.devcore.scoreboard.api.SidebarHandle
 import io.papermc.paper.adventure.AdventureComponent
 import net.kyori.adventure.text.Component
 import net.minecraft.network.chat.numbers.BlankFormat
+import net.minecraft.network.chat.numbers.StyledFormat
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
@@ -78,20 +79,39 @@ class NMSPacketHandler_v1_21_4(
         val craftPlayer = player as CraftPlayer
         val connection = craftPlayer.handle.connection
 
+        // Objectiveの更新（タイトル）
+        val updatePacket = ClientboundSetObjectivePacket(
+            Objective(
+                scoreboard,
+                objectiveName,
+                ObjectiveCriteria.DUMMY,
+                AdventureComponent(title()),
+                ObjectiveCriteria.RenderType.INTEGER,
+                false,
+                BlankFormat.INSTANCE
+            ),
+            ClientboundSetObjectivePacket.METHOD_CHANGE
+        )
+        connection.send(updatePacket)
+
         // 行の更新
         for (i in lines.indices) {
             val component = lines[i](player)
             val scoreValue = lines.size - i
+
+            val entryName = i.toString(16).map { "§$it" }.joinToString("") + "§r"
             
             val packet = ClientboundSetScorePacket(
+                entryName,
                 objectiveName,
-                "line_$i", // 一意のエンティティ名
                 scoreValue,
                 Optional.of(AdventureComponent(component)),
-                Optional.of(BlankFormat.INSTANCE)
+                Optional.of(StyledFormat.PLAYER_LIST_DEFAULT)
             )
             connection.send(packet)
         }
+        val displayPacket = ClientboundSetDisplayObjectivePacket(DisplaySlot.SIDEBAR, dummyObjective)
+        connection.send(displayPacket)
     }
 
     private fun sendInitPackets(player: Player) {
