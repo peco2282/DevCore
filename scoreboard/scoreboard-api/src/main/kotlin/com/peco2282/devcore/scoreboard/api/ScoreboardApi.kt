@@ -24,10 +24,10 @@ object ScoreboardApi : Listener {
    * This must be called before using other methods to enable automatic cleanup.
    *
    * @param plugin The plugin instance for event registration.
-   * @param factory The scoreboard factory implementation (e.g., NMS based).
+   * @param factory The scoreboard factory implementation (e.g., NMS based). If null, a default Paper API based factory will be used.
    */
-  fun init(plugin: Plugin, factory: ScoreboardFactory) {
-    this.factoryInstance = factory
+  fun init(plugin: Plugin, factory: ScoreboardFactory? = null) {
+    this.factoryInstance = factory ?: PaperScoreboardFactory()
     if (isInitialized) return
     Bukkit.getPluginManager().registerEvents(this, plugin)
     isInitialized = true

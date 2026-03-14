@@ -6,6 +6,33 @@ import com.peco2282.devcore.scoreboard.api.builder.SidebarBuilder
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+
+/**
+ * DSL for managing scoreboard teams for player name decoration (Prefix/Suffix).
+ *
+ * @param name The name of the team.
+ * @param block The builder block.
+ */
+fun Player.team(name: String, block: org.bukkit.scoreboard.Team.() -> Unit) {
+  val sb = if (scoreboard == Bukkit.getScoreboardManager().mainScoreboard) {
+    Bukkit.getScoreboardManager().newScoreboard
+  } else {
+    scoreboard
+  }
+  
+  val team = sb.getTeam(name) ?: sb.registerNewTeam(name)
+  if (!team.hasEntry(this.name)) {
+    team.addEntry(this.name)
+  }
+  team.block()
+  
+  if (scoreboard != sb) {
+    scoreboard = sb
+  }
+}
+
 /**
  * Creates and returns a [SidebarHandle] using a DSL.
  *
