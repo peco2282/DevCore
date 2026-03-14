@@ -1,13 +1,4 @@
-plugins {
-  kotlin("jvm")
-}
-
-group = "com.peco2282.devcore"
-version = "1.0.0"
-
-repositories {
-  mavenCentral()
-}
+version = properties["devcore.scoreboard.api.version"] ?: "1.0.0"
 
 dependencies {
   implementation(project(":adventure"))
@@ -15,12 +6,4 @@ dependencies {
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(kotlin("test"))
-}
-
-kotlin {
-  jvmToolchain(21)
-}
-
-tasks.test {
-  useJUnitPlatform()
 }
