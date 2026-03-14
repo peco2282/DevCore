@@ -160,8 +160,47 @@ subprojects {
             if (project.plugins.hasPlugin("java-platform")) {
               from(project.components["javaPlatform"])
             } else if (project.plugins.hasPlugin("java-library") || project.plugins.hasPlugin("java")) {
-              from(project.components["java"])
+              // from(project.components["java"])
+              // Workaround for KGP 2.x + Gradle 9.3 incompatibility
+              // By NOT using the default "java" component which KGP decorates,
+              // we can avoid the faulty dependency rewriting logic.
+              // We manually add the main jar and dependencies if needed.
+              artifact(tasks.named("jar"))
               artifact(tasks.named("dokkaJar"))
+
+              pom.withXml {
+                val dependenciesNode = asNode().appendNode("dependencies")
+                project.configurations.findByName("api")?.allDependencies?.forEach {
+                  if (it is ProjectDependency) {
+                    val depNode = dependenciesNode.appendNode("dependency")
+                    depNode.appendNode("groupId", project.group)
+                    depNode.appendNode("artifactId", it.name.lowercase())
+                    depNode.appendNode("version", it.version ?: project.version)
+                    depNode.appendNode("scope", "compile")
+                  } else if (it is ExternalModuleDependency) {
+                    val depNode = dependenciesNode.appendNode("dependency")
+                    depNode.appendNode("groupId", it.group)
+                    depNode.appendNode("artifactId", it.name)
+                    depNode.appendNode("version", it.version)
+                    depNode.appendNode("scope", "compile")
+                  }
+                }
+                project.configurations.findByName("implementation")?.allDependencies?.forEach {
+                  if (it is ProjectDependency) {
+                    val depNode = dependenciesNode.appendNode("dependency")
+                    depNode.appendNode("groupId", project.group)
+                    depNode.appendNode("artifactId", it.name.lowercase())
+                    depNode.appendNode("version", it.version ?: project.version)
+                    depNode.appendNode("scope", "runtime")
+                  } else if (it is ExternalModuleDependency) {
+                    val depNode = dependenciesNode.appendNode("dependency")
+                    depNode.appendNode("groupId", it.group)
+                    depNode.appendNode("artifactId", it.name)
+                    depNode.appendNode("version", it.version)
+                    depNode.appendNode("scope", "runtime")
+                  }
+                }
+              }
             }
 
             pom {
