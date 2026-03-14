@@ -1,5 +1,6 @@
 package com.peco2282.devcore.scheduler
 
+import kotlinx.coroutines.Job
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
@@ -48,6 +49,31 @@ class BukkitTaskHandle(private val plugin: Plugin, private val task: BukkitTask)
    * Checks if the underlying Bukkit task is cancelled.
    */
   override val isCancelled get() = task.isCancelled
+
+  /**
+   * Returns the scheduler for the associated plugin.
+   */
+  override fun scheduler() = plugin.scheduler
+}
+
+/**
+ * A [TaskHandle] implementation for Coroutine jobs.
+ *
+ * @property plugin the [Plugin] that owns this task
+ * @property job the underlying [Job] instance
+ */
+class CoroutineTaskHandle(private val plugin: Plugin, private val job: Job) : TaskHandle {
+  /**
+   * Cancels the underlying Coroutine job.
+   */
+  override fun cancel() {
+    job.cancel()
+  }
+
+  /**
+   * Checks if the underlying Coroutine job is cancelled.
+   */
+  override val isCancelled get() = job.isCancelled
 
   /**
    * Returns the scheduler for the associated plugin.

@@ -1,7 +1,10 @@
 package com.peco2282.devcore.scheduler
 
+import com.peco2282.devcore.scheduler.coroutines.delayTicks
+import kotlinx.coroutines.CoroutineScope
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * DSL for building and scheduling tasks.
@@ -39,6 +42,24 @@ class TaskBuilder(
    * @return a [TaskHandle] that can be used to cancel the task
    */
   infix fun async(task: () -> Unit) = scheduler.async(task)
+
+  /**
+   * Launches a coroutine on the Bukkit main thread.
+   *
+   * @param block the coroutine code
+   * @return a [TaskHandle] that can be used to cancel the coroutine
+   */
+  infix fun launch(block: suspend CoroutineScope.() -> Unit) =
+    scheduler.launch(EmptyCoroutineContext, block)
+
+  /**
+   * Launches a coroutine asynchronously.
+   *
+   * @param block the coroutine code
+   * @return a [TaskHandle] that can be used to cancel the coroutine
+   */
+  infix fun launchAsync(block: suspend CoroutineScope.() -> Unit) =
+    scheduler.launchAsync(EmptyCoroutineContext, block)
 
   /**
    * Represents a task that is set to run after a certain delay.
@@ -106,4 +127,16 @@ fun main() {
     println("ワールド存続中のみ実行")
   }
 
+  // Coroutine
+  plugin.taskCreate launch {
+    println("コルーチン開始")
+    delayTicks(20.ticks)
+    println("1秒後")
+  }
+
+  player.taskLaunch(plugin) {
+    println("プレイヤーログイン中のみ")
+    delayTicks(plugin, 40.ticks)
+    println("2秒後")
+  }
 }

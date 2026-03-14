@@ -1,8 +1,12 @@
 package com.peco2282.devcore.scheduler
 
+import com.peco2282.devcore.scheduler.coroutines.dispatcher
+import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Wrapper for the Bukkit scheduler.
@@ -31,6 +35,43 @@ class Scheduler(
     val handle = BukkitTaskHandle(plugin, task)
     plugin.taskManager.track(handle)
     return handle
+  }
+
+  private fun track(job: Job): TaskHandle {
+    val handle = CoroutineTaskHandle(plugin, job)
+    plugin.taskManager.track(handle)
+    return handle
+  }
+
+  /**
+   * Launches a coroutine on the Bukkit main thread.
+   *
+   * @param context additional coroutine context
+   * @param block the coroutine code
+   * @return a [TaskHandle] that can be used to cancel the coroutine
+   */
+  fun launch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> Unit
+  ): TaskHandle {
+    val scope = CoroutineScope(plugin.dispatcher + SupervisorJob())
+    val job = scope.launch(context, block = block)
+    return track(job)
+  }
+
+  /**
+   * Launches a coroutine asynchronously.
+   *
+   * @param context additional coroutine context
+   * @param block the coroutine code
+   * @return a [TaskHandle] that can be used to cancel the coroutine
+   */
+  fun launchAsync(
+    context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> Unit
+  ): TaskHandle {
+    val job = CoroutineScope(Dispatchers.Default + SupervisorJob()).launch(context, block = block)
+    return track(job)
   }
 
   /**

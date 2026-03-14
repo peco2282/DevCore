@@ -1,5 +1,6 @@
 package com.peco2282.devcore.scheduler
 
+import kotlinx.coroutines.CoroutineScope
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.entity.Player
@@ -7,6 +8,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
+import kotlin.coroutines.EmptyCoroutineContext
 
 internal inline infix fun <reified E : Event> Plugin.on(crossinline action: E.() -> Unit) {
   Bukkit.getPluginManager().registerEvent(
@@ -79,6 +81,36 @@ fun Player.taskAfter(plugin: Plugin, delay: Ticks, task: () -> Unit): TaskHandle
  */
 fun World.taskTimer(plugin: Plugin, delay: Ticks, period: Ticks, task: () -> Unit): TaskHandle {
   val handle = plugin.scheduler.timer(delay, period, task)
+  plugin.taskManager.trackWorld(this, handle)
+  return handle
+}
+
+/**
+ * Launches a coroutine on the Bukkit main thread and tracks it for this [Player].
+ *
+ * The coroutine will be automatically cancelled when the player quits the server.
+ *
+ * @param plugin the [Plugin] instance to schedule the task under
+ * @param block the coroutine code
+ * @return a [TaskHandle] that can be used to cancel the coroutine
+ */
+fun Player.taskLaunch(plugin: Plugin, block: suspend CoroutineScope.() -> Unit): TaskHandle {
+  val handle = plugin.scheduler.launch(EmptyCoroutineContext, block)
+  plugin.taskManager.trackPlayer(this, handle)
+  return handle
+}
+
+/**
+ * Launches a coroutine on the Bukkit main thread and tracks it for this [World].
+ *
+ * The coroutine will be automatically cancelled when the world is unloaded.
+ *
+ * @param plugin the [Plugin] instance to schedule the task under
+ * @param block the coroutine code
+ * @return a [TaskHandle] that can be used to cancel the coroutine
+ */
+fun World.taskLaunch(plugin: Plugin, block: suspend CoroutineScope.() -> Unit): TaskHandle {
+  val handle = plugin.scheduler.launch(EmptyCoroutineContext, block)
   plugin.taskManager.trackWorld(this, handle)
   return handle
 }
