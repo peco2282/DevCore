@@ -14,6 +14,31 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
+/**
+ * Handles error messages for command execution.
+ */
+object GlobalErrorHandler {
+  /**
+   * The default error message handler.
+   */
+  var errorHandler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit = { context, consumer ->
+    context.source.sender.sendMessage(
+      component {
+        text("✘ ") { red() }
+        create(consumer)
+      }
+    )
+  }
+
+  /**
+   * Sets a global error message handler.
+   *
+   * @param handler the handler to use
+   */
+  fun setErrorHandler(handler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit) {
+    errorHandler = handler
+  }
+}
 
 /**
  * Creates and manages Minecraft commands using a DSL-style builder pattern.
@@ -449,10 +474,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * Sends an error message to the command sender.
    */
   fun CommandContext<CommandSourceStack>.sendError(consumer: Componenter.() -> Unit) {
-    sendMessage {
-      text("✘ ") { red() }
-      create(consumer)
-    }
+    GlobalErrorHandler.errorHandler(this, consumer)
   }
 
   /**
@@ -502,6 +524,15 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
       }
       builder.buildFuture()
     }
+
+  /**
+   * Adds static suggestions for this command argument from an [Enum].
+   *
+   * @param enumClass the class of the enum to suggest values from
+   * @return this [CommandCreator] instance for chaining
+   */
+  inline fun <reified E : Enum<E>> suggestion() =
+    suggestion(enumValues<E>().map { it.name.lowercase() })
 
   /**
    * Adds asynchronous suggestions for this command argument.
