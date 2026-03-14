@@ -153,11 +153,9 @@ subprojects {
     extensions.configure<PublishingExtension>("publishing") {
       publications {
         afterEvaluate {
-          create<MavenPublication>("maven") {
+          register<MavenPublication>("maven") {
             artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
 
-            // 各モジュールで個別に version が定義される
-            version = project.version.toString()
 
             if (project.plugins.hasPlugin("java-platform")) {
               from(project.components["javaPlatform"])
