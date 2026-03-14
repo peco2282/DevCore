@@ -104,21 +104,33 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * Adds a required argument to the command.
    *
    * @param V the type of the argument value
-   * @param argument the name of the argument
+   * @param name the name of the argument
    * @param type the Brigadier [ArgumentType] for this argument
    * @param creator the configuration block for the command structure following this argument
    * @return this [CommandCreator] instance for chaining
    */
   fun <V> argument(
-    argument: String,
+    name: String,
     type: ArgumentType<V>,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, V>>.() -> Unit = {}
   ) = apply {
-    val arg = RequiredArgumentBuilder.argument<CommandSourceStack, V>(argument, type)
+    val arg = RequiredArgumentBuilder.argument<CommandSourceStack, V>(name, type)
     val c = CommandCreator(arg)
     c.creator()
     builder.then(c.builder)
   }
+
+  /**
+   * Adds a sub-command structure defined by a literal.
+   *
+   * @param name the literal for the sub-command
+   * @param creator the configuration block for the sub-command
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun sub(
+    name: String,
+    creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit
+  ) = literal(name, creator)
 
   /**
    * Adds a string argument to the command.
