@@ -69,6 +69,7 @@ Each module can be introduced individually or all at once through `core`.
   management tied to player/world lifecycles.
 - [**cooldown**](#cooldown): General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for
   players and the system as a whole.
+- [**gui**](#gui): Reactive GUI framework with DSL and State management. Supports dynamic title updates and pagination.
 - [**scoreboard**](#scoreboard): DSL for dynamic Scoreboard/BossBar management. Packet-based and dynamic updates via
   Scheduler.
 - [**core**](#core): Umbrella artifact to use all modules at once.
@@ -156,6 +157,21 @@ val bar = bossBar(plugin) {
   autoRefresh(plugin, 20.ticks)
 }
 bar.show(player)
+```
+
+### gui
+
+[Link to module](gui/README.md)
+
+```kotlin
+val gui = inventory(rows = 3, title = component { text("Counter") }) {
+  var count by state(0)
+  slot(2, 5) {
+    icon(Material.APPLE)
+    name(component { text("Count: $count") })
+    onClick { count++ }
+  }
+}
 ```
 
 ### core
