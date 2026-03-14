@@ -1,4 +1,4 @@
-version = properties["devcore.config.version"] ?: "2.0.1"
+version = properties["devcore.config.version"] ?: "1.0.0"
 
 dependencies {
   compileOnly(libs.adventure)
