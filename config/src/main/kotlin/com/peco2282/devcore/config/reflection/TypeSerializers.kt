@@ -1,5 +1,7 @@
 package com.peco2282.devcore.config.reflection
 
+import com.peco2282.devcore.config.serializers.AdventureSerializers
+import com.peco2282.devcore.config.serializers.BukkitSerializers
 import com.peco2282.devcore.config.serializers.Serializer
 import kotlin.reflect.KClass
 
@@ -12,6 +14,10 @@ import kotlin.reflect.KClass
 object TypeSerializers {
 
   private val serializers = mutableMapOf<KClass<*>, Serializer<*>>()
+    .apply {
+      AdventureSerializers.registerAll()
+      BukkitSerializers.registerAll()
+    }
 
   /**
    * Registers a [serializer] for the specified [type].
