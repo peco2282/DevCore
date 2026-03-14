@@ -37,7 +37,7 @@ object GlobalErrorHandler {
    *
    * @param handler the handler to use
    */
-  fun setErrorHandler(handler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit) {
+  fun updateErrorHandler(handler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit) {
     errorHandler = handler
   }
 }
