@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.HttpURLConnection
 
 plugins {
   alias(libs.plugins.kotlin.jvm) apply false
@@ -117,6 +118,36 @@ subprojects {
     providers.gradleProperty("devcore.publish.password")
       .orElse(provider { secrets.getProperty("devcore.publish.password") })
       .orElse(providers.environmentVariable("DEVCORE_PUBLISH_PASSWORD"))
+
+  tasks.withType<PublishToMavenRepository>().configureEach {
+    onlyIf {
+      if (project.name.lowercase().contains("test")) return@onlyIf false
+      val artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
+      val groupPath = project.group.toString().replace(".", "/")
+      val remoteUrl = "${repository.url}${groupPath}/${artifactId}/${project.version}/${artifactId}-${project.version}.pom"
+      logger.lifecycle("Check ${project.group}: $remoteUrl")
+
+      try {
+        val connection = uri(remoteUrl).toURL().openConnection() as HttpURLConnection
+        connection.requestMethod = "HEAD"
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
+
+        val responseCode = connection.responseCode
+
+        if (responseCode == 200) {
+          logger.lifecycle(">>> [Skip] ${project.name}:${project.version} is already exists.")
+          false
+        } else {
+          logger.lifecycle(">>> [Publish] ${project.name}:${project.version} will be published.")
+          true
+        }
+      } catch (e: Exception) {
+        logger.warn(">>> [Warn] ${e.message}. try to publish.")
+        true
+      }
+    }
+  }
 
   plugins.withId("maven-publish") {
     extensions.configure<PublishingExtension>("publishing") {
