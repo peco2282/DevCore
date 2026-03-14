@@ -21,15 +21,15 @@ class SidebarBuilder(private val title: () -> Component) {
     lines.add { line }
   }
 
-  fun line(line: () -> Component) = apply {
+  infix fun line(line: () -> Component) = apply {
     lines.add { line() }
   }
 
-  fun line(line: (Player) -> Component) = apply {
+  infix fun line(line: (Player) -> Component) = apply {
     lines.add(line)
   }
 
-  fun lines(block: LinesBuilder.() -> Unit) = apply {
+  infix fun lines(block: LinesBuilder.() -> Unit) = apply {
     val builder = LinesBuilder().apply(block)
     lines.addAll(builder.build())
   }
