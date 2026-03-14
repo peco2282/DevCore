@@ -7,5 +7,6 @@ dependencies {
   api(project(":scheduler"))
   api(project(":event"))
   api(project(":cooldown"))
+  api(project(":gui"))
   api(project(":scoreboard:scoreboard-lite"))
 }

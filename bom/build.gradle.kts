@@ -4,20 +4,29 @@ javaPlatform {
   allowDependencies()
 }
 
+fun release(modPath: String): Any {
+  if (properties["devcore.dev"] == "true") {
+    return project(":$modPath")
+  }
+  val modName = modPath.split(":").last()
+  val rel = properties["devcore.${modName.replace("-", ".")}.release"] ?: throw IllegalArgumentException("No release version for $modPath")
+  return "com.peco2282.devcore:$modName:$rel"
+}
+
 dependencies {
   constraints {
-    api(project(":core"))
-    api(project(":command"))
-    api(project(":config"))
-    api(project(":scheduler"))
-    api(project(":adventure"))
-    api(project(":cooldown"))
-    api(project(":gui"))
-    api(project(":event"))
-    api(project(":effect"))
-    api(project(":packet"))
-    api(project(":scoreboard:scoreboard-api"))
-    api(project(":scoreboard:scoreboard-lite"))
-    api(project(":scoreboard:scoreboard-nms"))
+    api(release("core"))
+    api(release("command"))
+    api(release("config"))
+    api(release("scheduler"))
+    api(release("adventure"))
+    api(release("cooldown"))
+    api(release("gui"))
+    api(release("event"))
+    api(release("effect"))
+    api(release("packet"))
+    api(release("scoreboard:scoreboard-api"))
+    api(release("scoreboard:scoreboard-lite"))
+    api(release("scoreboard:scoreboard-nms"))
   }
 }
