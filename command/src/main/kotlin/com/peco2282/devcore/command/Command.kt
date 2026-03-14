@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.peco2282.devcore.command
 
 import com.mojang.brigadier.arguments.*
