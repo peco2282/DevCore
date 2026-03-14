@@ -1,4 +1,5 @@
 # DevCore Command
+
 [English] | [[日本語](README.ja.md)]
 
 Module for defining Paper (Brigadier) commands using a Kotlin DSL.
@@ -12,6 +13,7 @@ Module for defining Paper (Brigadier) commands using a Kotlin DSL.
 - Targeted execution (executesPlayer, executesConsole)
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:command:<version>")
@@ -80,12 +82,14 @@ plugin.command("select") {
 ```
 
 ### Available Argument Types
+
 - `string`, `word`, `greedyString`
 - `integer`, `long`, `float`, `double`, `boolean`
 - `player`, `players`, `entity`, `entities`
 - `world`, `blockPos`, `finePos`, `rotation`
 
 ### Sending Messages
+
 You can send messages using Adventure components directly within the DSL.
 
 ```kotlin

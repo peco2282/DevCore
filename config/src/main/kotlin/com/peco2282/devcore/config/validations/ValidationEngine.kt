@@ -53,9 +53,11 @@ object ValidatorEngine {
           is String -> require(value.isNotEmpty()) {
             "Config validation failed: ${prop.name} must not be empty"
           }
+
           is Collection<*> -> require(value.isNotEmpty()) {
             "Config validation failed: ${prop.name} must not be empty"
           }
+
           is Map<*, *> -> require(value.isNotEmpty()) {
             "Config validation failed: ${prop.name} must not be empty"
           }

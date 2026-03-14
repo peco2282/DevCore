@@ -21,14 +21,14 @@ class NMSScoreboardFactory_v1_21_4 : ScoreboardNMSFactory {
         return NMSPacketHandler_v1_21_4(title, lines, plugin, refreshInterval)
     }
 
-    override fun createBossBar(
-        title: (Player) -> Component,
-        progress: (Player) -> Float,
-        bar: BossBar,
-        plugin: Plugin?,
-        refreshInterval: Ticks?,
-        visibilityCondition: ((Player) -> Boolean)?
-    ): BossBarHandle {
-        return DefaultBossBarHandle(title, progress, bar, plugin, refreshInterval, visibilityCondition)
-    }
+  override fun createBossBar(
+    title: (Player) -> Component,
+    progress: (Player) -> Float,
+    bar: BossBar,
+    plugin: Plugin?,
+    refreshInterval: Ticks?,
+    visibilityCondition: ((Player) -> Boolean)?
+  ): BossBarHandle {
+    return DefaultBossBarHandle(title, progress, bar, plugin, refreshInterval, visibilityCondition)
+  }
 }

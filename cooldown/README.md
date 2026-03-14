@@ -1,4 +1,5 @@
 # DevCore Cooldown
+
 [English] | [[日本語](README.ja.md)]
 
 General-purpose utility for managing cooldowns and debouncing (rapid-fire prevention).
@@ -12,6 +13,7 @@ Native support for Kotlin's `Duration`.
 - Convenient aliases and extension functions for Bukkit players
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:cooldown:<version>")

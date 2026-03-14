@@ -1,4 +1,5 @@
 # DevCore Cooldown
+
 [[English](README.md)] | [日本語]
 
 クールダウンおよびデバウンス（連打防止）を管理するための汎用ユーティリティです。
@@ -12,6 +13,7 @@ Kotlinの `Duration` をネイティブにサポートしています。
 - Bukkit プレイヤー向けの便利なエイリアスと拡張関数
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:cooldown:<version>")

@@ -1,4 +1,5 @@
 # DevCore Config
+
 [[English](README.md)] | [日本語]
 
 `config.yml` 等の YAML を Kotlin のデータクラスへマッピングし、バリデーションを行うモジュールです。
@@ -12,6 +13,7 @@
 - 自動的なロード/セーブ/再読み込み
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:config:<version>")

@@ -14,7 +14,7 @@ import kotlin.time.DurationUnit
  * @param K the type of the key used to identify cooldowns
  * @property timeSource the source of current time, defaults to [SystemTimeSource]
  */
-class Cooldowns<K: Any>(
+class Cooldowns<K : Any>(
   private val timeSource: TimeSource = SystemTimeSource
 ) {
   private val expiresAtMillis = ConcurrentHashMap<K, Long>()

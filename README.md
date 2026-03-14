@@ -1,24 +1,31 @@
 # DevCore
+
 [English] | [[日本語](README.ja.md)]
 
 Core library for the DevCore project.
 
 ## Documents
+
 - [Documentation](https://peco2282.github.io/DevCore/)
 
 ## Requirements
+
 - JDK 21+
 
 ## Build
+
 ```bash
 ./gradlew build
 ```
 
 ## Publish
+
 Set either Gradle properties or environment variables, then run `./gradlew publish`.
 
-- Gradle properties: `devcore.publish.releaseUrl`, `devcore.publish.snapshotUrl`, `devcore.publish.user`, `devcore.publish.password`
-- Environment variables: `DEVCORE_PUBLISH_RELEASE_URL`, `DEVCORE_PUBLISH_SNAPSHOT_URL`, `DEVCORE_PUBLISH_USER`, `DEVCORE_PUBLISH_PASSWORD`
+- Gradle properties: `devcore.publish.releaseUrl`, `devcore.publish.snapshotUrl`, `devcore.publish.user`,
+  `devcore.publish.password`
+- Environment variables: `DEVCORE_PUBLISH_RELEASE_URL`, `DEVCORE_PUBLISH_SNAPSHOT_URL`, `DEVCORE_PUBLISH_USER`,
+  `DEVCORE_PUBLISH_PASSWORD`
 
 ## Usage (Gradle)
 
@@ -52,18 +59,26 @@ dependencies {
 
 Each module can be introduced individually or all at once through `core`.
 
-- [**adventure**](#adventure): DSL for making the Adventure library easy to use from Kotlin. Intuitive text construction and styling.
-- [**command**](#command): Define Paper (Brigadier) commands with a type-safe DSL. Define arguments, permissions, and suggestions concisely.
-- [**config**](#config): Automatically map YAML settings to Kotlin data classes. Supports validation via annotations and automatic insertion of comments.
-- [**scheduler**](#scheduler): Thin wrapper for Bukkit scheduler. Provides tick-based time specification and task management tied to player/world lifecycles.
-- [**cooldown**](#cooldown): General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for players and the system as a whole.
-- [**scoreboard**](#scoreboard): DSL for dynamic Scoreboard/BossBar management. Packet-based and dynamic updates via Scheduler.
+- [**adventure**](#adventure): DSL for making the Adventure library easy to use from Kotlin. Intuitive text construction
+  and styling.
+- [**command**](#command): Define Paper (Brigadier) commands with a type-safe DSL. Define arguments, permissions, and
+  suggestions concisely.
+- [**config**](#config): Automatically map YAML settings to Kotlin data classes. Supports validation via annotations and
+  automatic insertion of comments.
+- [**scheduler**](#scheduler): Thin wrapper for Bukkit scheduler. Provides tick-based time specification and task
+  management tied to player/world lifecycles.
+- [**cooldown**](#cooldown): General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for
+  players and the system as a whole.
+- [**scoreboard**](#scoreboard): DSL for dynamic Scoreboard/BossBar management. Packet-based and dynamic updates via
+  Scheduler.
 - [**core**](#core): Umbrella artifact to use all modules at once.
 
 ---
 
 ### adventure
+
 [Link to module](adventure/README.md)
+
 ```kotlin
 val msg = component {
   text("Hello ")
@@ -72,7 +87,9 @@ val msg = component {
 ```
 
 ### command
+
 [Link to module](command/README.md)
+
 ```kotlin
 plugin.command("test") {
   player("target") {
@@ -86,7 +103,9 @@ plugin.command("test") {
 ```
 
 ### config
+
 [Link to module](config/README.md)
+
 ```kotlin
 @Comment("Main Config")
 data class MyConfig(@Size(min = 1) @NotEmpty val levels: List<Int> = listOf(1, 2, 3))
@@ -95,7 +114,9 @@ val config = Configs.load<MyConfig>(plugin)
 ```
 
 ### scheduler
+
 [Link to module](scheduler/README.md)
+
 ```kotlin
 plugin.taskCreate after 5.seconds run {
   println("Executed after 5 seconds")
@@ -106,7 +127,9 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 ```
 
 ### cooldown
+
 [Link to module](cooldown/README.md)
+
 ```kotlin
 val cooldowns = PlayerCooldowns()
 if (cooldowns.tryUse(player, 3.seconds)) {
@@ -115,7 +138,9 @@ if (cooldowns.tryUse(player, 3.seconds)) {
 ```
 
 ### scoreboard
+
 [Link to module](scoreboard/README.md)
+
 ```kotlin
 val sidebar = sidebar(plugin, 20.ticks, component { text("Stats") }) {
   line { player -> component { text("Health: ${player.health.toInt()}") } }
@@ -134,8 +159,10 @@ bar.show(player)
 ```
 
 ### core
+
 [Link to module](core/README.md)
 Umbrella artifact to use all modules.
 
 ## License
+
 Apache License 2.0. See [`LICENSE`](LICENSE).

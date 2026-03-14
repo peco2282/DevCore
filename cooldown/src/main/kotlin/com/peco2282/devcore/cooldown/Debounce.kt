@@ -14,7 +14,7 @@ import kotlin.time.DurationUnit
  * @param K the type of the key used to identify debounce states
  * @property timeSource the source of current time, defaults to [SystemTimeSource]
  */
-class Debounce<K: Any>(
+class Debounce<K : Any>(
   private val timeSource: TimeSource = SystemTimeSource
 ) {
   private val nextAllowedAtMillis = ConcurrentHashMap<K, Long>()

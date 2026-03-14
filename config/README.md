@@ -1,4 +1,5 @@
 # DevCore Config
+
 [English] | [[日本語](README.ja.md)]
 
 Module for mapping YAML (e.g., `config.yml`) to Kotlin data classes and performing validation.
@@ -12,6 +13,7 @@ Module for mapping YAML (e.g., `config.yml`) to Kotlin data classes and performi
 - Automatic loading, saving, and reloading
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:config:<version>")

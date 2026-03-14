@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin
 class ThenScope(
   private val plugin: Plugin,
   private val delay: Ticks
-): Runner {
+) : Runner {
   /**
    * Executes the specified [task] after the [delay] associated with this scope.
    *

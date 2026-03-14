@@ -8,7 +8,6 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.Componenter
 import com.peco2282.devcore.adventure.component
-import io.papermc.paper.block.BlockPredicate.predicate
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
@@ -68,7 +67,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     vararg aliases: String,
     creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
   ) = apply {
-    aliases.forEach { 
+    aliases.forEach {
       val command = LiteralArgumentBuilder.literal<CommandSourceStack>(it)
       val c = CommandCreator(command)
       c.creator()
@@ -359,7 +358,8 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * @param predicate a function that takes a [CommandSourceStack] and returns a [Boolean]
    * @return this [CommandCreator] instance for chaining
    */
-  fun permissionAnd(permission: String, predicate: (CommandSourceStack) -> Boolean) = requires { it.sender.hasPermission(permission) && predicate(it) }
+  fun permissionAnd(permission: String, predicate: (CommandSourceStack) -> Boolean) =
+    requires { it.sender.hasPermission(permission) && predicate(it) }
 
   /**
    * Sets the execution handler for this command.

@@ -65,7 +65,7 @@ object FieldResolver {
         }
       }
 
-      classifier.java.isEnum ->{
+      classifier.java.isEnum -> {
         val raw = section.get(actualPath) ?: return null
         val name = raw.toString().uppercase()
         java.lang.Enum.valueOf(classifier.java as Class<out Enum<*>>, name)
@@ -95,16 +95,19 @@ object FieldResolver {
         val map = element as? Map<String, Any?> ?: return element
         mapToDataClass(classifier as KClass<Any>, map)
       }
+
       classifier == List::class -> {
         val argType = type.arguments.first().type!!
         val list = element as? List<*> ?: return element
         list.map { resolveElement(it, argType) }
       }
+
       classifier == Map::class -> {
         val valueType = type.arguments[1].type!!
         val map = element as? Map<String, Any?> ?: return element
         map.mapValues { resolveElement(it.value, valueType) }
       }
+
       else -> TypeSerializers.deserializeOrRaw(classifier as KClass<Any>, element)
     }
   }

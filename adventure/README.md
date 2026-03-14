@@ -1,4 +1,5 @@
 # DevCore Adventure
+
 [English] | [[日本語](README.ja.md)]
 
 Provides a DSL for making the Adventure library (KyoriPowered) easier to use from Kotlin.
@@ -11,6 +12,7 @@ Provides a DSL for making the Adventure library (KyoriPowered) easier to use fro
 - Joining and collecting various components
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:adventure:<version>")
@@ -45,12 +47,12 @@ A wide range of styling methods are available through the `Styler` interface.
 - **Colors**: `red()`, `green()`, `blue()`, `yellow()`, `color(0xFF0000)`, `color("#FF0000")`
 - **Decorations**: `bold()`, `italic()`, `underline()`, `strikethrough()`, `obfuscated()`
 - **Events**:
-  - `runCommand("/help")`
-  - `suggestCommand("/msg ")`
-  - `openUrl("https://...")`
-  - `copyToClipboard("text")`
-  - `showText("Hover message")`
-  - `showItem(key, count)`
+    - `runCommand("/help")`
+    - `suggestCommand("/msg ")`
+    - `openUrl("https://...")`
+    - `copyToClipboard("text")`
+    - `showText("Hover message")`
+    - `showItem(key, count)`
 - **Other**: `font("minecraft:default")`, `insertion("shift-click text")`
 
 ### Joining Components

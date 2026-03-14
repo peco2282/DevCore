@@ -1,4 +1,5 @@
 # DevCore Scheduler
+
 [[English](README.md)] | [日本語]
 
 Bukkit scheduler を扱うための Kotlin DSL と、自動的なライフサイクル管理機能を提供します。
@@ -11,6 +12,7 @@ Bukkit scheduler を扱うための Kotlin DSL と、自動的なライフサイ
 - 同期/非同期実行の簡単な切り替え
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation("com.peco2282.devcore:scheduler:<version>")

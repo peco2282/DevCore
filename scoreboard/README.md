@@ -6,7 +6,8 @@ A module for managing dynamic scoreboards (sidebars) and boss bars.
 
 - **Concise Syntax with DSL**: Intuitive sidebar and boss bar construction using Kotlin DSL.
 - **Packet-Based Sidebar**: Designed to minimize conflicts with other plugins' scoreboards.
-- **Auto-Refresh Support**: Seamlessly updates content at specified intervals in collaboration with the `scheduler` module.
+- **Auto-Refresh Support**: Seamlessly updates content at specified intervals in collaboration with the `scheduler`
+  module.
 - **Per-Player Customization**: Dynamically modify line content and visibility conditions for each player.
 
 ## Installation
@@ -93,4 +94,5 @@ val bar = bossBar(plugin) {
 ## Notes
 
 - The `scheduler` module is required for updating sidebars and boss bars.
-- When using the packet-based sidebar, the appropriate `scoreboard-nms` for your server version must be correctly loaded.
+- When using the packet-based sidebar, the appropriate `scoreboard-nms` for your server version must be correctly
+  loaded.

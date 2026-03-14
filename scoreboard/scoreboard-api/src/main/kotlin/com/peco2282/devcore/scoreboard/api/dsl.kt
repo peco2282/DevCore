@@ -26,7 +26,11 @@ inline fun Plugin.sidebar(noinline title: () -> Component, block: SidebarBuilder
 inline fun Plugin.sidebar(refreshInterval: Ticks, title: Component, block: SidebarBuilder.() -> Unit): SidebarHandle =
   sidebar(refreshInterval, { title }, block)
 
-inline fun Plugin.sidebar(refreshInterval: Ticks, noinline title: () -> Component, block: SidebarBuilder.() -> Unit): SidebarHandle {
+inline fun Plugin.sidebar(
+  refreshInterval: Ticks,
+  noinline title: () -> Component,
+  block: SidebarBuilder.() -> Unit
+): SidebarHandle {
   return SidebarBuilder(title).apply { autoRefresh(this@sidebar, refreshInterval) }.apply(block).build()
 }
 
@@ -57,7 +61,11 @@ inline fun Plugin.bossBar(refreshInterval: Ticks, block: BossBarBuilder.() -> Un
 inline fun Plugin.bossBar(refreshInterval: Ticks, title: Component, block: BossBarBuilder.() -> Unit): BossBarHandle =
   bossBar(refreshInterval, { title }, block)
 
-inline fun Plugin.bossBar(refreshInterval: Ticks, noinline title: () -> Component, block: BossBarBuilder.() -> Unit): BossBarHandle =
+inline fun Plugin.bossBar(
+  refreshInterval: Ticks,
+  noinline title: () -> Component,
+  block: BossBarBuilder.() -> Unit
+): BossBarHandle =
   BossBarBuilder().apply {
     title(title)
     autoRefresh(this@bossBar, refreshInterval)

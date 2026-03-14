@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.create
 import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget

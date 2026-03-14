@@ -4,7 +4,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import org.bukkit.plugin.Plugin
-import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * Marker annotation for Command DSL.

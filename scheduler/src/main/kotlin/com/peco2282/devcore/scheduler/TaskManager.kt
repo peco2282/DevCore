@@ -5,7 +5,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.WorldUnloadEvent
 import org.bukkit.plugin.Plugin
-import java.util.UUID
+import java.util.*
 
 /**
  * Manages scheduled tasks and their lifecycle.

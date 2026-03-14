@@ -1,24 +1,31 @@
 # DevCore
+
 [[English](README.md)] | [日本語]
 
 DevCoreプロジェクトのためのコアライブラリです。
 
 ## ドキュメント
+
 - [Documentation](https://peco2282.github.io/DevCore/)
 
 ## 必要要件
+
 - JDK 21+
 
 ## ビルド
+
 ```bash
 ./gradlew build
 ```
 
 ## 公開 (Publish)
+
 Gradle プロパティまたは環境変数を設定し、`./gradlew publish` を実行してください。
 
-- Gradle プロパティ: `devcore.publish.releaseUrl`, `devcore.publish.snapshotUrl`, `devcore.publish.user`, `devcore.publish.password`
-- 環境変数: `DEVCORE_PUBLISH_RELEASE_URL`, `DEVCORE_PUBLISH_SNAPSHOT_URL`, `DEVCORE_PUBLISH_USER`, `DEVCORE_PUBLISH_PASSWORD`
+- Gradle プロパティ: `devcore.publish.releaseUrl`, `devcore.publish.snapshotUrl`, `devcore.publish.user`,
+  `devcore.publish.password`
+- 環境変数: `DEVCORE_PUBLISH_RELEASE_URL`, `DEVCORE_PUBLISH_SNAPSHOT_URL`, `DEVCORE_PUBLISH_USER`,
+  `DEVCORE_PUBLISH_PASSWORD`
 
 ## 使用方法 (Gradle)
 
@@ -63,7 +70,9 @@ dependencies {
 ---
 
 ### adventure
+
 [モジュールへ移動](adventure/README.ja.md)
+
 ```kotlin
 val msg = component {
   text("Hello ")
@@ -72,7 +81,9 @@ val msg = component {
 ```
 
 ### command
+
 [モジュールへ移動](command/README.ja.md)
+
 ```kotlin
 plugin.command("test") {
   player("target") {
@@ -86,7 +97,9 @@ plugin.command("test") {
 ```
 
 ### config
+
 [モジュールへ移動](config/README.ja.md)
+
 ```kotlin
 @Comment("メイン設定")
 data class MyConfig(@Size(min = 1) @NotEmpty val levels: List<Int> = listOf(1, 2, 3))
@@ -95,7 +108,9 @@ val config = Configs.load<MyConfig>(plugin)
 ```
 
 ### scheduler
+
 [モジュールへ移動](scheduler/README.ja.md)
+
 ```kotlin
 plugin.taskCreate after 5.seconds run {
   println("5秒後に実行")
@@ -106,7 +121,9 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 ```
 
 ### cooldown
+
 [モジュールへ移動](cooldown/README.ja.md)
+
 ```kotlin
 val cooldowns = PlayerCooldowns()
 if (cooldowns.tryUse(player, 3.seconds)) {
@@ -115,7 +132,9 @@ if (cooldowns.tryUse(player, 3.seconds)) {
 ```
 
 ### scoreboard
+
 [モジュールへ移動](scoreboard/README.ja.md)
+
 ```kotlin
 val sidebar = sidebar(plugin, 20.ticks, component { text("ステータス") }) {
   line { player -> component { text("体力: ${player.health.toInt()}") } }
@@ -134,8 +153,10 @@ bar.show(player)
 ```
 
 ### core
+
 [モジュールへ移動](core/README.ja.md)
 全モジュールを一括で利用するためのアーティファクトです。
 
 ## ライセンス
+
 Apache License 2.0。詳細は [`LICENSE`](LICENSE) をご覧ください。

@@ -1,10 +1,10 @@
 package com.peco2282.devcore.config.reflection
 
+import com.peco2282.devcore.config.reflection.ClassMapper.write
 import com.peco2282.devcore.config.validations.ValidatorEngine
 import com.peco2282.devcore.config.validations.annotations.Alias
 import com.peco2282.devcore.config.validations.annotations.Comment
 import org.bukkit.configuration.ConfigurationSection
-import org.bukkit.configuration.file.YamlConfiguration
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
@@ -112,12 +112,15 @@ object ClassMapper {
                 val sub = section.getConfigurationSection(path) ?: section.createSection(path)
                 write(v, sub)
               }
+
               v is List<*> -> {
                 section.set(path, serializeList(v))
               }
+
               v is Map<*, *> -> {
                 section.set(path, serializeMap(v))
               }
+
               else -> {
                 section.set(path, TypeSerializers.serializeOrRaw(v))
               }

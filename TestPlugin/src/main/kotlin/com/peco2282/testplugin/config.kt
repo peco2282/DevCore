@@ -1,6 +1,9 @@
 package com.peco2282.testplugin
 
-import com.peco2282.devcore.config.validations.annotations.*
+import com.peco2282.devcore.config.validations.annotations.Comment
+import com.peco2282.devcore.config.validations.annotations.NotBlank
+import com.peco2282.devcore.config.validations.annotations.Range
+import com.peco2282.devcore.config.validations.annotations.Size
 import net.kyori.adventure.text.Component
 
 enum class TestEnum {

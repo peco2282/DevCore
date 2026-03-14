@@ -112,13 +112,14 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
     apply { builder = builder.decoration(TextDecoration.OBFUSCATED, false) }
 
   override fun noBold(): Styler =
-    apply{
-    builder = builder.decoration(TextDecoration.BOLD, false)
-  }
+    apply {
+      builder = builder.decoration(TextDecoration.BOLD, false)
+    }
 
   override fun noItalic(): Styler =
-    apply { builder = builder.decoration(TextDecoration.ITALIC, false)
-  }
+    apply {
+      builder = builder.decoration(TextDecoration.ITALIC, false)
+    }
 
   override fun noStrikethrough(): Styler =
     apply { builder = builder.decoration(TextDecoration.STRIKETHROUGH, false) }

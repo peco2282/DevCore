@@ -8,7 +8,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
-internal inline infix fun <reified E: Event> Plugin.on(crossinline action: E.() -> Unit) {
+internal inline infix fun <reified E : Event> Plugin.on(crossinline action: E.() -> Unit) {
   Bukkit.getPluginManager().registerEvent(
     E::class.java,
     object : Listener {},

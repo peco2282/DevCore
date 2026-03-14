@@ -72,7 +72,7 @@ class ConditionalRepeating(
   private val scheduler: Scheduler,
   private val delay: Ticks = ZERO,
   private val period: Ticks = ZERO,
-): Runner {
+) : Runner {
   private var condition: Condition = Always
 
   /**

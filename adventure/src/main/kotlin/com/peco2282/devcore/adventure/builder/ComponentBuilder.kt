@@ -5,11 +5,7 @@ import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.adventure.style
 import com.peco2282.devcore.adventure.updateLast
 import net.kyori.adventure.key.Key
-import net.kyori.adventure.text.BlockNBTComponent
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.EntityNBTComponent
-import net.kyori.adventure.text.JoinConfiguration
-import net.kyori.adventure.text.StorageNBTComponent
+import net.kyori.adventure.text.*
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
 import org.intellij.lang.annotations.Language
@@ -127,8 +123,8 @@ internal class ComponentBuilder : Componenter {
     style: Style
   ): Componenter =
     apply {
-    append(Component.translatable(key, style))
-  }
+      append(Component.translatable(key, style))
+    }
 
   override fun translatable(
     key: String,
@@ -137,7 +133,7 @@ internal class ComponentBuilder : Componenter {
   ): Componenter =
     apply {
       append(Component.translatable(key, style, *args))
-  }
+    }
 
   override fun translatable(
     key: String,

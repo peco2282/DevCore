@@ -1,5 +1,6 @@
 package com.peco2282.devcore.config
 
+import com.peco2282.devcore.config.Configs.load
 import com.peco2282.devcore.config.reflection.ClassMapper
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.Plugin
