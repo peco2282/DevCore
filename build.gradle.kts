@@ -53,7 +53,7 @@ subprojects {
   } else if (name == "bom") {
     apply(plugin = "java-platform")
   }
-  if (name != "TestPlugin") {
+  if (name != "TestPlugin" && name != "scoreboard") {
     apply(plugin = "maven-publish")
   }
 
@@ -122,6 +122,7 @@ subprojects {
   tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf {
       if (project.name.lowercase().contains("test")) return@onlyIf false
+      if (project.name == "scoreboard") return@onlyIf false
       val artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
       val groupPath = project.group.toString().replace(".", "/")
       val remoteUrl = "${repository.url}${groupPath}/${artifactId}/${project.version}/${artifactId}-${project.version}.pom"
