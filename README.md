@@ -6,7 +6,7 @@ Core library for the DevCore project.
 
 ## Documents
 
-- [Documentation](https://peco2282.github.io/DevCore/)
+- [Full Documentation](https://peco2282.github.io/DevCore/)
 
 ## Requirements
 

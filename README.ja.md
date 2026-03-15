@@ -1,8 +1,12 @@
 # DevCore
 
-[[English](README.md)] | [日本語]
+[English](README.md) | [日本語]
 
 DevCoreプロジェクトのためのコアライブラリです。
+
+> [!IMPORTANT]
+> このプロジェクトの主要なドキュメントは**英語**で提供されています。
+> 最新かつ詳細な情報については [README.md](README.md) を参照してください。
 
 ## ドキュメント
 
