@@ -142,6 +142,49 @@ class TestPlugin : JavaPlugin() {
             1
           }
         }
+        literal("fakeentity") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              sendFakeEntity(org.bukkit.entity.EntityType.ZOMBIE, player.location) {
+                customName = "§cDSL Zombie"
+                isCustomNameVisible = true
+                isGlowing = true
+                equipment {
+                  helmet = org.bukkit.inventory.ItemStack(Material.DIAMOND_HELMET)
+                  mainHand = org.bukkit.inventory.ItemStack(Material.DIAMOND_SWORD)
+                }
+                animate(com.peco2282.devcore.packet.EntityAnimation.SWING_MAIN_HAND)
+                despawnAfter(100L) // 5 seconds
+              }
+            }
+            player.sendMessage("§aFake Zombie spawned for 5 seconds!")
+            1
+          }
+        }
+        literal("particles") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              particles(org.bukkit.Particle.FLAME) {
+                amount = 100
+                offset = org.bukkit.util.Vector(1.0, 1.0, 1.0)
+                extra = 0.05
+              }
+            }
+            player.sendMessage("§aFlame particles sent!")
+            1
+          }
+        }
+        literal("fakeblocks") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              fakeBlocks {
+                fill(player.location.add(2.0, 0.0, 2.0), player.location.add(4.0, 2.0, 4.0), Material.GOLD_BLOCK)
+              }
+            }
+            player.sendMessage("§aFake gold blocks created!")
+            1
+          }
+        }
       }
       literal("validate") {
         requireOp()
