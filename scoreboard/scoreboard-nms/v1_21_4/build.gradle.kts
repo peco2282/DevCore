@@ -6,7 +6,6 @@ version = properties["devcore.scoreboard.nms.version"] ?: "1.0.0"
 
 dependencies {
   implementation(project(":scoreboard:scoreboard-api"))
-  implementation(project(":scoreboard:scoreboard-nms"))
   implementation(project(":adventure"))
   implementation(project(":scheduler"))
   paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
