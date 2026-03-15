@@ -12,7 +12,6 @@ repositories {
   maven("https://repo.papermc.io/repository/maven-public/") {
     name = "papermc-repo"
   }
-  maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
 }
 
 dependencies {
@@ -34,7 +33,6 @@ dependencies {
   implementation(project(":scheduler"))
   implementation(project(":scoreboard:scoreboard-api"))
   implementation(project(":scoreboard:scoreboard-nms"))
-  implementation("com.github.retrooper:packetevents-spigot:2.11.2")
 }
 
 tasks {
