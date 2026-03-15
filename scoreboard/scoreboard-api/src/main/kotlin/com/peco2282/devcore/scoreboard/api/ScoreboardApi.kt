@@ -27,7 +27,7 @@ object ScoreboardApi : Listener {
    * @param factory The scoreboard factory implementation (e.g., NMS based). If null, a default Paper API based factory will be used.
    */
   fun init(plugin: Plugin, factory: ScoreboardFactory? = null) {
-    this.factoryInstance = factory ?: PaperScoreboardFactory()
+    this.factoryInstance = factory ?: PaperScoreboardFactory
     if (isInitialized) return
     Bukkit.getPluginManager().registerEvents(this, plugin)
     isInitialized = true

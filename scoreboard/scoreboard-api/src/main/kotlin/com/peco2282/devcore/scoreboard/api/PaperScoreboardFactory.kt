@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * A fallback implementation of [ScoreboardFactory] using the Paper API.
  */
-class PaperScoreboardFactory : ScoreboardFactory {
+internal object PaperScoreboardFactory: ScoreboardFactory {
   override fun createSidebar(
     title: () -> Component,
     lines: List<(Player) -> Component>,
