@@ -19,6 +19,10 @@ interface PacketListener {
    * 受信したパケットをNettyレベルで横取りして書き換えます。
    */
   fun <T : Any> transformReceive(transformer: (T) -> T)
+
+    fun logPackets(enabled: Boolean)
+
+    fun measureLatency(enabled: Boolean)
 }
 
 inline fun <reified T : Any> PacketListener.on(noinline action: T.(PacketEvent) -> Unit) {

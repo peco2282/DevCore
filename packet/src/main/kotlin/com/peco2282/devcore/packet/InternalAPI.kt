@@ -1,9 +1,11 @@
 package com.peco2282.devcore.packet
 
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
+import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -26,6 +28,16 @@ interface PacketInternal {
     relative: Boolean,
     offset: Vector
   )
+  fun sendParticles(
+    player: Player,
+    type: org.bukkit.Particle,
+    location: org.bukkit.Location,
+    amount: Int,
+    offset: org.bukkit.util.Vector,
+    extra: Double,
+    data: Any?
+  )
+  fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
 }
 
 internal object InternalAPI {
@@ -97,5 +109,21 @@ internal object InternalAPI {
     offset: Vector
   ) {
     internal?.sendSound(player, type, volume, pitch, relative, offset)
+  }
+
+  fun sendParticles(
+    player: Player,
+    type: org.bukkit.Particle,
+    location: org.bukkit.Location,
+    amount: Int,
+    offset: org.bukkit.util.Vector,
+    extra: Double,
+    data: Any?
+  ) {
+    internal?.sendParticles(player, type, location, amount, offset, extra, data)
+  }
+
+  fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
+    internal?.sendFakeBlocks(player, builder)
   }
 }

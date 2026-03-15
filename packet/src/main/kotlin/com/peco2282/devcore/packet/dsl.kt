@@ -52,6 +52,22 @@ class PacketBuilder(private val player: Player) {
     val fakeEntityBuilder = InternalAPI.createFakeEntityBuilder(player, type, location).apply(builder)
     fakeEntityBuilder.spawn()
   }
+  fun particles(type: org.bukkit.Particle, builder: ParticleBuilder.() -> Unit) {
+    val particleBuilder = ParticleBuilder(type).apply(builder)
+    InternalAPI.sendParticles(
+      player,
+      particleBuilder.type,
+      particleBuilder.location ?: player.location,
+      particleBuilder.amount,
+      particleBuilder.offset,
+      particleBuilder.extra,
+      particleBuilder.data
+    )
+  }
+
+  fun fakeBlocks(builder: FakeBlockBuilder.() -> Unit) {
+    InternalAPI.sendFakeBlocks(player, builder)
+  }
 }
 
 @PacketDsl
@@ -61,8 +77,44 @@ interface FakeEntityBuilder {
   var isInvisible: Boolean
   var isGlowing: Boolean
 
-  fun equipment(slot: EquipmentSlot, item: ItemStack)
+  fun equipment(builder: EquipmentBuilder.() -> Unit)
+  fun animate(animation: EntityAnimation)
+  fun despawnAfter(ticks: Long)
   fun spawn()
+}
+
+@PacketDsl
+class ParticleBuilder(val type: org.bukkit.Particle) {
+  var amount: Int = 10
+  var offset: Vector = Vector(0.5, 0.5, 0.5)
+  var extra: Double = 0.1
+  var location: Location? = null
+  var data: Any? = null
+}
+
+@PacketDsl
+class EquipmentBuilder {
+  var mainHand: ItemStack? = null
+  var offHand: ItemStack? = null
+  var helmet: ItemStack? = null
+  var chestplate: ItemStack? = null
+  var leggings: ItemStack? = null
+  var boots: ItemStack? = null
+}
+
+enum class EntityAnimation {
+  SWING_MAIN_HAND,
+  HURT,
+  WAKE_UP,
+  SWING_OFF_HAND,
+  CRITICAL_HIT,
+  MAGIC_CRITICAL_HIT
+}
+
+@PacketDsl
+interface FakeBlockBuilder {
+  fun set(location: Location, material: org.bukkit.Material)
+  fun fill(from: Location, to: Location, material: org.bukkit.Material)
 }
 
 class TitleBuilder {

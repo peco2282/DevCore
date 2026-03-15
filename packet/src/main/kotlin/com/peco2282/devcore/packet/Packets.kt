@@ -80,10 +80,14 @@ object Packets : Listener {
 
   class PacketHandler(val player: Player) : ChannelDuplexHandler() {
     val settings = NetworkSettingsImpl()
+    var logPackets: Boolean = false
     val transformersSend = mutableListOf<(Any) -> Any>()
     val transformersReceive = mutableListOf<(Any) -> Any>()
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+      if (logPackets || globalLogPackets) {
+        Bukkit.getConsoleSender().sendMessage("§7[PACKET] §9IN: §f${msg::class.java.simpleName} §8($player)")
+      }
       if (settings.packetLoss > 0.0 && Random.nextDouble() < settings.packetLoss) {
         return // Simulate packet loss
       }
@@ -111,6 +115,9 @@ object Packets : Listener {
     }
 
     override fun write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise) {
+      if (logPackets || globalLogPackets) {
+        Bukkit.getConsoleSender().sendMessage("§7[PACKET] §aOUT: §f${msg::class.java.simpleName} §8($player)")
+      }
       if (settings.packetLoss > 0.0 && Random.nextDouble() < settings.packetLoss) {
         promise.setSuccess()
         return // Simulate packet loss
@@ -207,8 +214,18 @@ object Packets : Listener {
         }
       }
     }
+
+    override fun logPackets(enabled: Boolean) {
+      globalLogPackets = enabled
+    }
+
+    override fun measureLatency(enabled: Boolean) {
+      globalMeasureLatency = enabled
+    }
   }
 
+  private var globalLogPackets: Boolean = false
+  private var globalMeasureLatency: Boolean = false
   private val globalTransformersSend = mutableListOf<(Any) -> Any>()
   private val globalTransformersReceive = mutableListOf<(Any) -> Any>()
   private val globalReadHandlers = mutableListOf<(ChannelHandlerContext, Any) -> Unit>()
