@@ -10,7 +10,6 @@ dependencies {
 
   nmsVersions.forEach {
     compileOnly(it)
-    dokka(it)
   }
 
   testImplementation(libs.paper.api)
