@@ -20,7 +20,7 @@ class Scheduler(
   internal val plugin: Plugin
 ) {
   private val scheduler by lazy { Bukkit.getScheduler() }
-  internal val manager by lazy { TaskManager(plugin) }
+  val manager by lazy { TaskManager(plugin) }
 
   private fun wrap(task: () -> Unit): Runnable = Runnable {
     try {
