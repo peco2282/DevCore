@@ -14,10 +14,15 @@ import kotlin.reflect.KClass
 object TypeSerializers {
 
   private val serializers = mutableMapOf<KClass<*>, Serializer<*>>()
-    .apply {
-      AdventureSerializers.registerAll()
-      BukkitSerializers.registerAll()
-    }
+
+  private var initialized = false
+
+  private fun ensureInitialized() {
+    if (initialized) return
+    initialized = true
+    AdventureSerializers.registerAll()
+    BukkitSerializers.registerAll()
+  }
 
   /**
    * Registers a [serializer] for the specified [type].
@@ -36,7 +41,10 @@ object TypeSerializers {
    * @param type the [KClass] to check
    * @return true if a serializer is registered, false otherwise
    */
-  fun has(type: KClass<*>) = serializers.containsKey(type)
+  fun has(type: KClass<*>): Boolean {
+    ensureInitialized()
+    return serializers.containsKey(type)
+  }
 
   /**
    * Deserializes the [value] to type [T] using the registered serializer.
@@ -50,6 +58,7 @@ object TypeSerializers {
    */
   @Suppress("UNCHECKED_CAST")
   fun <T : Any> deserialize(type: KClass<T>, value: Any?): T {
+    ensureInitialized()
     return (serializers[type] as Serializer<T>).deserialize(value)
   }
 
@@ -62,6 +71,7 @@ object TypeSerializers {
    */
   @Suppress("UNCHECKED_CAST")
   fun <T : Any> get(kClass: KClass<T>): Serializer<T>? {
+    ensureInitialized()
     val serializer = serializers[kClass]
     if (serializer != null) return serializer as? Serializer<T>
 
