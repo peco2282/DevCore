@@ -8,8 +8,6 @@ import com.peco2282.devcore.config.serializers.ComponentSerializer
 import com.peco2282.devcore.cooldown.Cooldowns
 import com.peco2282.devcore.gui.fill
 import com.peco2282.devcore.gui.gui
-import com.peco2282.devcore.packet.sendFakeVisuals
-import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes
 import com.peco2282.devcore.gui.GuiListener
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -57,22 +55,6 @@ class TestPlugin : JavaPlugin() {
           } catch (e: Exception) {
             player.sendMessage(Component.text("Failed to reload config: ${e.message}", NamedTextColor.RED))
           }
-          1
-        }
-      }
-      literal("fakeentity") {
-        requireOp()
-        executesPlayer { player, _ ->
-          player.sendFakeVisuals {
-            spawnEntity(EntityTypes.ZOMBIE, player.location.add(player.location.direction.multiply(3))) {
-              customName = "Fake Zombie"
-              isGlowing = true
-              equipment {
-                helmet = org.bukkit.inventory.ItemStack(Material.DIAMOND_HELMET)
-              }
-            }
-          }
-          player.sendMessage(Component.text("Spawned a fake zombie!"))
           1
         }
       }
