@@ -116,8 +116,6 @@ abstract class Gui(val rows: Int) {
         inventory.setItem(slot, slotCreator.item)
       }
     } else {
-      // 🔥 差分更新: 変更があったスロットのみを更新する
-      // 以前のスロットと比較して、アイテムが異なる場合のみsetItemを呼ぶ
       for (i in 0 until (rows * 9)) {
         val oldItem = currentSlots[i]?.item
         val newItem = newSlots[i]?.item
@@ -291,17 +289,12 @@ object GuiListener : Listener {
     Bukkit.getPluginManager().registerEvents(this, plugin)
   }
 
-  /**
-   * Internal event handler for clicks in GUIs.
-   */
   @EventHandler(priority = EventPriority.LOWEST)
   fun onInventoryClick(event: InventoryClickEvent) {
-    val holder = event.inventory.holder as? GuiHolder ?: return
+    val clickedInventory = event.clickedInventory ?: return
+    val holder = clickedInventory.holder as? GuiHolder ?: return
     val gui = holder.gui
     val player = event.whoClicked as? Player ?: return
-
-    // Ensure the clicked inventory is the GUI.
-    if (event.clickedInventory != event.inventory) return
 
     val slot = event.slot
     if (slot < 0 || slot >= gui.rows * 9) return
@@ -313,7 +306,13 @@ object GuiListener : Listener {
     }
 
     val guiEvent = GuiClickEvent(player, slot, event)
-    slotCreator.events.forEach { it(guiEvent) }
+    slotCreator.events.forEach { e ->
+      try {
+        e(guiEvent)
+      } catch (ex: Exception) {
+        ex.printStackTrace()
+      }
+    }
   }
 
   /**

@@ -23,7 +23,7 @@ class GuiCreator internal constructor(val rows: Int) {
     require(rows in 1..6) { "rows must be between 1 and 6" }
   }
 
-  private val slots: Int2ObjectMap<SlotCreator> = Int2ObjectLinkedOpenHashMap()
+  internal val slots: Int2ObjectMap<SlotCreator> = Int2ObjectLinkedOpenHashMap()
 
   /**
    * Returns a map of configured slots.
@@ -141,10 +141,18 @@ class GuiCreator internal constructor(val rows: Int) {
    * Creates a Bukkit inventory based on the current configuration.
    */
   fun create(): Inventory {
-    val inventory = Bukkit.createInventory(null, rows * 9, title)
-    slots.forEach { (slot, creator) ->
-      inventory.setItem(slot, creator.item)
+    val gui = object : Gui(rows) {
+      override fun build(creator: GuiCreator) {
+        creator.title = this@GuiCreator.title
+        this@GuiCreator.slots.forEach { (slot, slotCreator) ->
+          creator.slots[slot] = slotCreator
+        }
+      }
     }
+    gui.update()
+    val inventory = gui.inventory
+    // Create a strong reference to the GUI via a custom listener or similar if needed,
+    // but usually GuiHolder should be enough if the inventory is open.
     return inventory
   }
 }
