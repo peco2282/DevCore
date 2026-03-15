@@ -1,12 +1,11 @@
-repositories {
-  maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
+plugins {
+  id("io.papermc.paperweight.userdev")
 }
 version = properties["devcore.packet.version"] ?: "1.0.0"
 
 dependencies {
   implementation(libs.kotlin.stdlib)
-  compileOnly(libs.paper.api)
+  paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
   testImplementation(libs.kotlin.test)
-  compileOnly("com.github.retrooper:packetevents-spigot:2.11.2")
 }
 
