@@ -9,9 +9,13 @@ import com.peco2282.devcore.cooldown.Cooldowns
 import com.peco2282.devcore.gui.fill
 import com.peco2282.devcore.gui.gui
 import com.peco2282.devcore.gui.GuiListener
+import com.peco2282.devcore.packet.Packets
+import com.peco2282.devcore.packet.onPacket
+import com.peco2282.devcore.packet.packet
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.time.Duration.Companion.seconds
 
@@ -27,6 +31,7 @@ class TestPlugin : JavaPlugin() {
     plugin = this
     // Plugin startup logic
 
+    Packets.init(this)
     GuiListener.register(this)
     TypeSerializers.register(Component::class, ComponentSerializer())
 
@@ -88,6 +93,54 @@ class TestPlugin : JavaPlugin() {
           }
           player.openInventory(inventory)
           1
+        }
+      }
+      literal("packet") {
+        requireOp()
+        literal("title") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              title {
+                title = "Packet Title"
+                subtitle = "Subtitle here"
+                fadeIn = 10
+                stay = 40
+                fadeOut = 10
+              }
+            }
+            1
+          }
+        }
+        literal("actionbar") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              actionBar("§aAction Bar from Packet DSL")
+            }
+            1
+          }
+        }
+        literal("sound") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              sound {
+                type = Sound.ENTITY_EXPERIENCE_ORB_PICKUP
+                volume = 1f
+                pitch = 2f
+              }
+            }
+            1
+          }
+        }
+        literal("listen") {
+          executesPlayer { player, _ ->
+            player.sendMessage("§aStarted listening to packets (any packet)...")
+            player.onPacket<Any> { packet ->
+              if (packet::class.java.simpleName.contains("Chat", ignoreCase = true)) {
+                player.sendMessage("§7[PacketLog] Chat-related packet detected: ${packet::class.java.simpleName}")
+              }
+            }
+            1
+          }
         }
       }
       literal("validate") {
