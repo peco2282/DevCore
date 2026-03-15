@@ -41,7 +41,7 @@ subprojects {
     apply(plugin = "java-platform")
   }
 
-  if (name != "TestPlugin" && name != "scoreboard" && !path.startsWith(":scoreboard:scoreboard-nms:v")) {
+  if (name != "TestPlugin" && name != "scoreboard" && !path.startsWith(":scoreboard:scoreboard-nms:v") && !path.startsWith(":packet:v")) {
     apply(plugin = "devcore.publish-conventions")
   }
 }
