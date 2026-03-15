@@ -14,8 +14,8 @@ object NMSProvider {
     val version = Bukkit.getMinecraftVersion()
     val factoryClass = when (version) {
       "1.20.2" -> factoryClass("1.20.2")
-      "1.20.3" -> factoryClass("1.20.3")
-      "1.21.4" -> factoryClass("1.21.4")
+      in "1.20.3".."1.21.3" -> factoryClass("1.20.3")
+      in "1.21.4".."1.22" -> factoryClass("1.21.4")
       else -> {
         plugin.logger.warning("Unsupported Minecraft version for Scoreboard NMS: $version. Falling back to default if available.")
         null
