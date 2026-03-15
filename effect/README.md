@@ -14,4 +14,6 @@ dependencies {
 
 ## Usage
 
-(Details to be added as features are implemented)
+```kotlin
+Effects.spawnCloud(location)
+```

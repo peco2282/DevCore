@@ -57,25 +57,12 @@ dependencies {
 
 ## モジュール一覧
 
-各モジュールは個別、または `core` を通じて一括で導入可能です。
-
-- [**adventure**](#adventure): AdventureライブラリをKotlinから使いやすくするためのDSL。直感的なテキスト構築とスタイリングが可能です。
-- [**command**](#command): Paper (Brigadier) コマンドを型安全なDSLで定義。引数定義や権限設定、サジェスチョンを簡潔に記述できます。
-- [**config**](#config): YAML設定をKotlinデータクラスへ自動マッピング。アノテーションによるバリデーションとコメントの自動挿入をサポートします。
-- [**scheduler**](#scheduler): Bukkit schedulerの薄いラッパー。Tickベースの時間指定や、プレイヤー/ワールドのライフサイクルに紐付いたタスク管理を提供します。
-- [**cooldown**](#cooldown): プレイヤーやシステム全般のクールダウンおよびデバウンス（連打防止）を管理するための汎用ユーティリティ。
-- [**gui**](#gui): Reactive GUI framework with DSL and State management. 動的なタイトル更新やページネーションをサポート。
-- [**packet**](#packet): PacketEventsを利用したフェイクエンティティやパケット操作のためのDSL。
-- [**event**](#event): Bukkitイベントを簡潔かつ型安全に定義するためのDSL。
-- [**effect**](#effect): パーティクルエフェクトや視覚的な強化のためのユーティリティ。
-- [**core**](#core): 全モジュールを一括利用するためのアンブレラアーティファクト。
-- [**bom**](#bom): 全モジュールのバージョンを統一するためのBOM。
-
----
+各モジュールは特定の機能に特化しており、個別または `core` を通じて一括で導入可能です。詳細については、各モジュールのREADMEを参照してください。
 
 ### adventure
 
-[モジュールへ移動](adventure/README.ja.md)
+Adventureライブラリ（KyoriPowered）をKotlinから使いやすくするためのDSL。直感的なテキスト構築とスタイリングが可能です。
+[詳細ドキュメント](adventure/README.ja.md)
 
 ```kotlin
 val msg = component {
@@ -86,7 +73,8 @@ val msg = component {
 
 ### command
 
-[モジュールへ移動](command/README.ja.md)
+Paper (Brigadier) コマンドを型安全なDSLで定義。引数定義や権限設定、サジェスチョンを簡潔に記述できます。
+[詳細ドキュメント](command/README.ja.md)
 
 ```kotlin
 plugin.command("test") {
@@ -102,7 +90,8 @@ plugin.command("test") {
 
 ### config
 
-[モジュールへ移動](config/README.ja.md)
+YAML設定をKotlinデータクラスへ自動マッピング。アノテーションによるバリデーションとコメントの自動挿入をサポートします。
+[詳細ドキュメント](config/README.ja.md)
 
 ```kotlin
 @Comment("メイン設定")
@@ -113,7 +102,8 @@ val config = Configs.load<MyConfig>(plugin)
 
 ### scheduler
 
-[モジュールへ移動](scheduler/README.ja.md)
+Bukkit schedulerの薄いラッパー。Tickベースの時間指定や、プレイヤー/ワールドのライフサイクルに紐付いたタスク管理を提供します。
+[詳細ドキュメント](scheduler/README.ja.md)
 
 ```kotlin
 plugin.taskCreate after 5.seconds run {
@@ -126,7 +116,8 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 
 ### cooldown
 
-[モジュールへ移動](cooldown/README.ja.md)
+プレイヤーやシステム全般のクールダウンおよびデバウンス（連打防止）を管理するための汎用ユーティリティ。
+[詳細ドキュメント](cooldown/README.ja.md)
 
 ```kotlin
 val cooldowns = PlayerCooldowns()
@@ -137,7 +128,8 @@ if (cooldowns.tryUse(player, 3.seconds)) {
 
 ### scoreboard
 
-[モジュールへ移動](scoreboard/README.ja.md)
+自動更新機能とプレイヤーごとのコンテンツ表示を備えた、サイドバーとボスバー作成のためのシンプルなDSL。
+[詳細ドキュメント](scoreboard/README.ja.md)
 
 ```kotlin
 val sidebar = sidebar(plugin, 20.ticks, component { text("ステータス") }) {
@@ -146,19 +138,12 @@ val sidebar = sidebar(plugin, 20.ticks, component { text("ステータス") }) {
   line(component { text("サーバー: devcore.com") })
 }
 sidebar.show(player)
-
-val bar = bossBar(plugin) {
-  title { player -> component { text("HP: ${player.health.toInt()}") } }
-  progress { player -> (player.health / 20.0).toFloat() }
-  red()
-  autoRefresh(plugin, 20.ticks)
-}
-bar.show(player)
 ```
 
 ### gui
 
-[モジュールへ移動](gui/README.ja.md)
+DSLと状態管理を備えたリアクティブなGUIフレームワーク。動的なタイトル更新やページネーションをサポート。
+[詳細ドキュメント](gui/README.ja.md)
 
 ```kotlin
 val gui = inventory(rows = 3, title = component { text("カウンター") }) {
@@ -173,7 +158,8 @@ val gui = inventory(rows = 3, title = component { text("カウンター") }) {
 
 ### packet
 
-[モジュールへ移動](packet/README.ja.md)
+PacketEventsを利用したフェイクエンティティやパケット操作のためのDSL。
+[詳細ドキュメント](packet/README.ja.md)
 
 ```kotlin
 player.sendFakeVisuals {
@@ -186,7 +172,8 @@ player.sendFakeVisuals {
 
 ### event
 
-[モジュールへ移動](event/README.ja.md)
+Bukkitイベントを簡潔かつ型安全に定義するためのDSL.
+[詳細ドキュメント](event/README.ja.md)
 
 ```kotlin
 on<PlayerJoinEvent> {
@@ -196,19 +183,22 @@ on<PlayerJoinEvent> {
 
 ### effect
 
-[モジュールへ移動](effect/README.ja.md)
+パーティクルエフェクトや視覚的な強化のためのユーティリティ。
+[詳細ドキュメント](effect/README.ja.md)
 
-パーティクルエフェクトや視覚的な強化のためのユーティリティを提供します。
+```kotlin
+Effects.spawnCloud(location)
+```
 
 ### core
 
-[モジュールへ移動](core/README.ja.md)
-全モジュールを一括で利用するためのアーティファクトです。
+全モジュールを一括利用するためのアンブレラアーティファクト。
+[詳細ドキュメント](core/README.ja.md)
 
 ### bom
 
-[モジュールへ移動](bom/README.ja.md)
-バージョンを統一するためのBOM。
+全モジュールのバージョンを統一するためのBOM。
+[詳細ドキュメント](bom/README.ja.md)
 
 ## ライセンス
 

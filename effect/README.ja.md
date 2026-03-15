@@ -14,4 +14,6 @@ dependencies {
 
 ## 使用方法
 
-(機能の実装に合わせて詳細を追加予定)
+```kotlin
+Effects.spawnCloud(location)
+```

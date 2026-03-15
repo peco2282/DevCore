@@ -57,30 +57,12 @@ dependencies {
 
 ## Modules
 
-Each module can be introduced individually or all at once through `core`.
-
-- [**adventure**](#adventure): DSL for making the Adventure library easy to use from Kotlin. Intuitive text construction
-  and styling.
-- [**command**](#command): Define Paper (Brigadier) commands with a type-safe DSL. Define arguments, permissions, and
-  suggestions concisely.
-- [**config**](#config): Automatically map YAML settings to Kotlin data classes. Supports validation via annotations and
-  automatic insertion of comments.
-- [**scheduler**](#scheduler): Thin wrapper for Bukkit scheduler. Provides tick-based time specification and task
-  management tied to player/world lifecycles.
-- [**cooldown**](#cooldown): General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for
-  players and the system as a whole.
-- [**gui**](#gui): Reactive GUI framework with DSL and State management. Supports dynamic title updates and pagination.
-- [**packet**](#packet): DSL for handling fake entities and packets using PacketEvents.
-- [**event**](#event): DSL for defining Bukkit events concisely and type-safely.
-- [**effect**](#effect): Utility for particle effects and visual enhancements.
-- [**core**](#core): Umbrella artifact to use all modules at once.
-- [**bom**](#bom): Bill of Materials to align versions across all modules.
-
----
+Each module provides a specialized functionality and can be introduced individually or all at once through `core`. For more detailed information, please refer to the README in each module.
 
 ### adventure
 
-[Link to module](adventure/README.md)
+Provides a Kotlin DSL for the Adventure library (KyoriPowered). Intuitive text construction and styling.
+[Detailed documentation](adventure/README.md)
 
 ```kotlin
 val msg = component {
@@ -91,7 +73,8 @@ val msg = component {
 
 ### command
 
-[Link to module](command/README.md)
+Define Paper (Brigadier) commands with a type-safe DSL. Define arguments, permissions, and suggestions concisely.
+[Detailed documentation](command/README.md)
 
 ```kotlin
 plugin.command("test") {
@@ -107,7 +90,8 @@ plugin.command("test") {
 
 ### config
 
-[Link to module](config/README.md)
+Automatically map YAML settings to Kotlin data classes. Supports validation via annotations and automatic insertion of comments.
+[Detailed documentation](config/README.md)
 
 ```kotlin
 @Comment("Main Config")
@@ -118,7 +102,8 @@ val config = Configs.load<MyConfig>(plugin)
 
 ### scheduler
 
-[Link to module](scheduler/README.md)
+Thin wrapper for Bukkit scheduler. Provides tick-based time specification and task management tied to player/world lifecycles.
+[Detailed documentation](scheduler/README.md)
 
 ```kotlin
 plugin.taskCreate after 5.seconds run {
@@ -131,7 +116,8 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 
 ### cooldown
 
-[Link to module](cooldown/README.md)
+General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for players and the system as a whole.
+[Detailed documentation](cooldown/README.md)
 
 ```kotlin
 val cooldowns = PlayerCooldowns()
@@ -142,7 +128,8 @@ if (cooldowns.tryUse(player, 3.seconds)) {
 
 ### scoreboard
 
-[Link to module](scoreboard/README.md)
+Simple DSL for creating sidebars and boss bars with automatic refresh and player-specific content.
+[Detailed documentation](scoreboard/README.md)
 
 ```kotlin
 val sidebar = sidebar(plugin, 20.ticks, component { text("Stats") }) {
@@ -151,19 +138,12 @@ val sidebar = sidebar(plugin, 20.ticks, component { text("Stats") }) {
   line(component { text("Server: devcore.com") })
 }
 sidebar.show(player)
-
-val bar = bossBar(plugin) {
-  title { player -> component { text("HP: ${player.health.toInt()}") } }
-  progress { player -> (player.health / 20.0).toFloat() }
-  red()
-  autoRefresh(plugin, 20.ticks)
-}
-bar.show(player)
 ```
 
 ### gui
 
-[Link to module](gui/README.md)
+Reactive GUI framework with DSL and State management. Supports dynamic title updates and pagination.
+[Detailed documentation](gui/README.md)
 
 ```kotlin
 val gui = inventory(rows = 3, title = component { text("Counter") }) {
@@ -178,7 +158,8 @@ val gui = inventory(rows = 3, title = component { text("Counter") }) {
 
 ### packet
 
-[Link to module](packet/README.md)
+DSL for handling fake entities and packets using PacketEvents.
+[Detailed documentation](packet/README.md)
 
 ```kotlin
 player.sendFakeVisuals {
@@ -191,7 +172,8 @@ player.sendFakeVisuals {
 
 ### event
 
-[Link to module](event/README.md)
+DSL for defining Bukkit events concisely and type-safely.
+[Detailed documentation](event/README.md)
 
 ```kotlin
 on<PlayerJoinEvent> {
@@ -201,19 +183,22 @@ on<PlayerJoinEvent> {
 
 ### effect
 
-[Link to module](effect/README.md)
+Utility for particle effects and visual enhancements.
+[Detailed documentation](effect/README.md)
 
-Provides utilities for particle effects and visual enhancements.
+```kotlin
+Effects.spawnCloud(location)
+```
 
 ### core
 
-[Link to module](core/README.md)
-Umbrella artifact to use all modules.
+Umbrella artifact to use all modules at once.
+[Detailed documentation](core/README.md)
 
 ### bom
 
-[Link to module](bom/README.md)
-BOM for aligning versions.
+Bill of Materials to align versions across all modules.
+[Detailed documentation](bom/README.md)
 
 ## License
 
