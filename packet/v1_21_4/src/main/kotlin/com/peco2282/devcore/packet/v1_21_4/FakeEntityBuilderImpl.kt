@@ -67,8 +67,8 @@ class FakeEntityBuilderImpl(
       EntityAnimation.CRITICAL_HIT -> 4
       EntityAnimation.MAGIC_CRITICAL_HIT -> 5
     }
-    @Suppress("JAVA_TYPE_MISMATCH")
-    val packet = ClientboundAnimatePacket(null, id)
+    val p = (player as CraftPlayer).handle
+    val packet = ClientboundAnimatePacket(p, id)
     // Reflectively set entityId because the constructor doesn't take it in 1.21.4 (it takes Entity)
     val field = packet.javaClass.getDeclaredField("id")
     field.isAccessible = true
