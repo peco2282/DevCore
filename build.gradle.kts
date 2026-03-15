@@ -30,9 +30,12 @@ allprojects {
 subprojects {
   group = rootProject.group
 
-  if (name != "bom" && name != "TestPlugin") {
+  if (name != "bom" && name != "TestPlugin" && !name.startsWith("v1_")) {
     apply(plugin = "devcore.kotlin-conventions")
     apply(plugin = "devcore.dokka-conventions")
+    apply(plugin = "java-library")
+  } else if (name.startsWith("v1_")) {
+    apply(plugin = "devcore.kotlin-conventions")
     apply(plugin = "java-library")
   } else if (name == "bom") {
     apply(plugin = "java-platform")
