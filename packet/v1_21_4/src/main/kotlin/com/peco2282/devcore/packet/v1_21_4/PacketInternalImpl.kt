@@ -1,11 +1,13 @@
 package com.peco2282.devcore.packet.v1_21_4
 
+import com.peco2282.devcore.packet.FakeBlockBuilder
 import com.peco2282.devcore.packet.FakeEntityBuilder
 import com.peco2282.devcore.packet.NetworkSettings
 import com.peco2282.devcore.packet.PacketInternal
 import com.peco2282.devcore.packet.Packets
 import io.papermc.paper.adventure.PaperAdventure
 import net.kyori.adventure.text.Component
+import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
@@ -15,7 +17,11 @@ import net.minecraft.network.protocol.game.*
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundSource
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.craftbukkit.CraftParticle
+import org.bukkit.craftbukkit.block.data.CraftBlockData
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.craftbukkit.util.CraftNamespacedKey
 import org.bukkit.entity.EntityType
@@ -65,8 +71,74 @@ class PacketInternalImpl : PacketInternal {
   }
 
   override fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder {
-    // TODO: Implement v1_21_4 specific FakeEntityBuilder
-    throw UnsupportedOperationException("FakeEntityBuilder is not yet implemented for v1_21_4")
+    return FakeEntityBuilderImpl(player, type, location)
+  }
+
+  override fun sendParticles(
+    player: Player,
+    type: Particle,
+    location: Location,
+    amount: Int,
+    offset: Vector,
+    extra: Double,
+    data: Any?
+  ) {
+    val connection = (player as CraftPlayer).handle.connection
+    player.spawnParticle(type, location, amount, offset.x, offset.y, offset.z, extra, data)
+  }
+
+  override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
+    val connection = (player as CraftPlayer).handle.connection
+    val handler = object : FakeBlockBuilder {
+      val blocks = mutableMapOf<BlockPos, net.minecraft.world.level.block.state.BlockState>()
+
+      override fun set(location: Location, material: Material) {
+        val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
+        blocks[pos] = CraftBlockData.newData(material.asBlockType(), null).state
+      }
+
+      override fun fill(from: Location, to: Location, material: Material) {
+        val minX = minOf(from.blockX, to.blockX)
+        val maxX = maxOf(from.blockX, to.blockX)
+        val minY = minOf(from.blockY, to.blockY)
+        val maxY = maxOf(from.blockY, to.blockY)
+        val minZ = minOf(from.blockZ, to.blockZ)
+        val maxZ = maxOf(from.blockZ, to.blockZ)
+        val state = CraftBlockData.newData(material.asBlockType(), null).state
+        for (x in minX..maxX) {
+          for (y in minY..maxY) {
+            for (z in minZ..maxZ) {
+              blocks[BlockPos(x, y, z)] = state
+            }
+          }
+        }
+      }
+    }
+    handler.builder()
+
+    // Group blocks by section
+    val sections = handler.blocks.entries.groupBy { (pos, _) ->
+      net.minecraft.core.SectionPos.of(pos)
+    }
+
+    for ((sectionPos, blockEntries) in sections) {
+      val shortPosArray = ShortArray(blockEntries.size)
+      val stateArray = arrayOfNulls<net.minecraft.world.level.block.state.BlockState>(blockEntries.size)
+      for (i in blockEntries.indices) {
+        val entry = blockEntries[i]
+        val pos = entry.key
+        val state = entry.value
+        shortPosArray[i] = ((pos.x and 15) shl 8 or ((pos.z and 15) shl 4) or (pos.y and 15)).toShort()
+        stateArray[i] = state
+      }
+      connection.send(
+        ClientboundSectionBlocksUpdatePacket(
+          sectionPos,
+          it.unimi.dsi.fastutil.shorts.ShortArraySet(shortPosArray),
+          stateArray as Array<net.minecraft.world.level.block.state.BlockState>
+        )
+      )
+    }
   }
 
   override fun sendRawPacket(player: Player, channel: String, buf: FriendlyByteBuf) {

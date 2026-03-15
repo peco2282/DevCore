@@ -1,12 +1,19 @@
 package com.peco2282.devcore.packet.v1_20_6
 
 import com.peco2282.devcore.packet.*
+import io.papermc.paper.adventure.PaperAdventure
+import net.kyori.adventure.text.Component
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.*
+import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Sound
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.util.Vector
+import java.util.*
 
 class PacketInternalImpl : PacketInternal {
   private val HANDLER_NAME = "devcore_packet_handler"
@@ -50,29 +57,81 @@ class PacketInternalImpl : PacketInternal {
   }
 
   override fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder {
-    throw UnsupportedOperationException("FakeEntityBuilder is not yet implemented for v1_20_6")
+    return FakeEntityBuilderImpl(player, type, location)
+  }
+
+  override fun sendParticles(
+    player: Player,
+    type: org.bukkit.Particle,
+    location: org.bukkit.Location,
+    amount: Int,
+    offset: org.bukkit.util.Vector,
+    extra: Double,
+    data: Any?
+  ) {
+    player.spawnParticle(type, location, amount, offset.x, offset.y, offset.z, extra, data)
+  }
+
+  override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
+    val connection = (player as CraftPlayer).handle.connection
+    val handler = object : FakeBlockBuilder {
+      val blocks = mutableMapOf<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState>()
+
+      override fun set(location: org.bukkit.Location, material: org.bukkit.Material) {
+        val pos = net.minecraft.core.BlockPos(location.blockX, location.blockY, location.blockZ)
+        blocks[pos] = (org.bukkit.Bukkit.createBlockData(material) as org.bukkit.craftbukkit.block.data.CraftBlockData).state
+      }
+
+      override fun fill(from: org.bukkit.Location, to: org.bukkit.Location, material: org.bukkit.Material) {
+        val minX = minOf(from.blockX, to.blockX)
+        val maxX = maxOf(from.blockX, to.blockX)
+        val minY = minOf(from.blockY, to.blockY)
+        val maxY = maxOf(from.blockY, to.blockY)
+        val minZ = minOf(from.blockZ, to.blockZ)
+        val maxZ = maxOf(from.blockZ, to.blockZ)
+
+        val state = (org.bukkit.Bukkit.createBlockData(material) as org.bukkit.craftbukkit.block.data.CraftBlockData).state
+        for (x in minX..maxX) {
+          for (y in minY..maxY) {
+            for (z in minZ..maxZ) {
+              val pos = net.minecraft.core.BlockPos(x, y, z)
+              blocks[pos] = state
+            }
+          }
+        }
+      }
+    }
+    handler.apply(builder)
+
+    handler.blocks.forEach { (pos, state) ->
+      connection.send(ClientboundBlockUpdatePacket(pos, state))
+    }
   }
 
   override fun sendRawPacket(player: Player, channel: String, buf: FriendlyByteBuf) {
-    throw UnsupportedOperationException("sendRawPacket is not yet implemented for v1_20_6")
+    player.sendPluginMessage(Bukkit.getPluginManager().getPlugin("DevCore")!!, channel, buf.array())
   }
 
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
-    throw UnsupportedOperationException("sendTitle is not yet implemented for v1_20_6")
+    val connection = (player as CraftPlayer).handle.connection
+    connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
+    connection.send(ClientboundSetTitleTextPacket(PaperAdventure.asVanilla(Component.text(title))))
+    connection.send(ClientboundSetSubtitleTextPacket(PaperAdventure.asVanilla(Component.text(subtitle))))
   }
 
   override fun sendActionBar(player: Player, message: String) {
-    throw UnsupportedOperationException("sendActionBar is not yet implemented for v1_20_6")
+    player.sendActionBar(Component.text(message))
   }
 
   override fun sendSound(
     player: Player,
-    type: org.bukkit.Sound,
+    type: Sound,
     volume: Float,
     pitch: Float,
     relative: Boolean,
-    offset: org.bukkit.util.Vector
+    offset: Vector
   ) {
-    throw UnsupportedOperationException("sendSound is not yet implemented for v1_20_6")
+    val loc = player.location
+    player.playSound(loc.clone().add(offset), type, volume, pitch)
   }
 }
