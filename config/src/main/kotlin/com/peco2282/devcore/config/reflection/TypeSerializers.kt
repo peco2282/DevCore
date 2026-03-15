@@ -75,7 +75,7 @@ object TypeSerializers {
     val serializer = serializers[kClass]
     if (serializer != null) return serializer as? Serializer<T>
 
-    // 継承関係を遡って検索
+    // Search by traversing inheritance relationship
     for (entry in serializers) {
       if (entry.key.java.isAssignableFrom(kClass.java)) {
         return entry.value as? Serializer<T>

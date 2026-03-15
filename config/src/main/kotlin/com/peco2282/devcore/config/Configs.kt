@@ -50,7 +50,7 @@ object Configs {
   inline fun <reified T : Any> load(file: File): T {
     val yaml = YamlConfiguration.loadConfiguration(file)
     val instance = ClassMapper.create(T::class, yaml)
-    yaml.save(file) // セーブを明示的に行う
+    yaml.save(file) // Explicitly perform save
     return instance
   }
 
@@ -79,7 +79,7 @@ object Configs {
     val yaml = YamlConfiguration.loadConfiguration(file)
 
     val instance = ClassMapper.create(clazz, yaml)
-    yaml.save(file) // セーブを明示的に行う
+    yaml.save(file) // Explicitly perform save
 
     cache[clazz.java] = instance
 

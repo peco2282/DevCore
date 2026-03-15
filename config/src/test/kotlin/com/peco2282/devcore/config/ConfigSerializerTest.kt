@@ -290,7 +290,7 @@ class ConfigSerializerTest {
   }
 
   data class CommentConfig(
-    @Comment("サーバー名")
+    @Comment("Server Name")
     val name: String = "DevServer"
   )
 

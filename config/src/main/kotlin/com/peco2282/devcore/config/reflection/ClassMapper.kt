@@ -51,7 +51,7 @@ object ClassMapper {
     val instance = ctor.callBy(args)
     ValidatorEngine.validate(instance)
 
-    // 🔥 常に現在の正しい状態を書き出す
+    // 🔥 Always write the current correct state
     write(instance, section)
 
     return instance
@@ -108,7 +108,7 @@ object ClassMapper {
           
           value.forEach { (k, v) ->
             if (k !is String || v == null) return@forEach
-            val path = k // サブセクション内での相対パス
+            val path = k // Relative path within the subsection
 
             when {
               v::class.isData -> {
