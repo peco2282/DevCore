@@ -11,7 +11,8 @@ version = properties["devcore.version"] ?: "1.0"
 dependencies {
   subprojects.forEach { subproject ->
     // bom と TestPlugin 以外のモジュールを統合ドキュメントに含める
-    if (subproject.name != "bom" && subproject.name != "core" && subproject.name != "TestPlugin") {
+    // scoreboard-nms の子モジュールは scoreboard-nms がまとめるため除外
+    if (subproject.name != "bom" && subproject.name != "core" && subproject.name != "TestPlugin" && !subproject.name.startsWith("v1_")) {
       dokka(subproject)
     }
   }
