@@ -1,14 +1,21 @@
 package com.peco2282.devcore.scoreboard.nms
 
 import com.peco2282.devcore.scoreboard.api.ScoreboardApi
+import com.peco2282.devcore.scoreboard.api.factory.ScoreboardNMSFactory
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 
 object NMSProvider {
+  private fun factoryClass(version: String): String {
+    val v = version.replace(".", "_")
+    return "com.peco2282.devcore.scoreboard.nms.v$v.NMSScoreboardFactory_v$v"
+  }
   fun init(plugin: Plugin) {
     val version = Bukkit.getMinecraftVersion()
     val factoryClass = when (version) {
-      "1.21.4" -> "com.peco2282.devcore.scoreboard.nms.v1_21_4.NMSScoreboardFactory_v1_21_4"
+      "1.20.2" -> factoryClass("1.20.2")
+      "1.20.3" -> factoryClass("1.20.3")
+      "1.21.4" -> factoryClass("1.21.4")
       else -> {
         plugin.logger.warning("Unsupported Minecraft version for Scoreboard NMS: $version. Falling back to default if available.")
         null
