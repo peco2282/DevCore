@@ -3,12 +3,7 @@ package com.peco2282.devcore.adventure.builder
 import com.peco2282.devcore.adventure.ComponentDsl
 import com.peco2282.devcore.adventure.withStyle
 import net.kyori.adventure.key.Key
-import net.kyori.adventure.text.BlockNBTComponent
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.EntityNBTComponent
-import net.kyori.adventure.text.JoinConfiguration
-import net.kyori.adventure.text.StorageNBTComponent
-import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.*
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
 import org.intellij.lang.annotations.Language
@@ -263,7 +258,8 @@ interface Componenter {
    * @param styler the styler to apply
    * @return this componenter for chaining
    */
-  fun score(name: String, objective: String, styler: Styler.() -> Unit): Componenter = score(name, objective).withStyle(styler)
+  fun score(name: String, objective: String, styler: Styler.() -> Unit): Componenter =
+    score(name, objective).withStyle(styler)
 
   /**
    * Appends a block NBT component with the specified NBT path and builder configuration.
@@ -293,7 +289,11 @@ interface Componenter {
    * @param consumer A lambda with receiver that configures the storage NBT component builder
    * @return This [Componenter] instance
    */
-  fun storageNbt(@Language("NBTPath") nbt: String, storage: Key, consumer: StorageNBTComponent.Builder.() -> Unit): Componenter
+  fun storageNbt(
+    @Language("NBTPath") nbt: String,
+    storage: Key,
+    consumer: StorageNBTComponent.Builder.() -> Unit
+  ): Componenter
 
   /**
    * Appends a storage NBT component.
@@ -303,7 +303,11 @@ interface Componenter {
    * @param consumer A lambda with receiver that configures the storage NBT component builder
    * @return This [Componenter] instance
    */
-  fun storageNbt(@Language("NBTPath") nbt: String, storage: String, consumer: StorageNBTComponent.Builder.() -> Unit): Componenter
+  fun storageNbt(
+    @Language("NBTPath") nbt: String,
+    storage: String,
+    consumer: StorageNBTComponent.Builder.() -> Unit
+  ): Componenter
 
   /**
    * Operator function to append a string to this componenter using the unary + operator.

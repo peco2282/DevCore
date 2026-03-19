@@ -32,7 +32,7 @@ inline fun <reified T : Any> ConfigurationSection.get(key: String): T? = getConf
  * @param default the default value to return if the section is not found
  * @return an instance of type [T], or [default] if not found
  */
-inline fun <reified T: Any> ConfigurationSection.getOrDefault(key: String, default: T): T =
+inline fun <reified T : Any> ConfigurationSection.getOrDefault(key: String, default: T): T =
   getConfigurationSection(key)?.let { ClassMapper.create(T::class, it) } ?: default
 
 /**
@@ -81,6 +81,6 @@ inline operator fun <reified T : Any> ConfigurationSection.get(key: String, runn
  * }
  * ```
  */
-inline fun <reified C: Any> Plugin.getConfigInstance(): C {
+inline fun <reified C : Any> Plugin.getConfigInstance(): C {
   return Configs.load<C>(this)
 }

@@ -14,10 +14,11 @@ import kotlin.time.DurationUnit
  * @param K the type of the key used to identify cooldowns
  * @property timeSource the source of current time, defaults to [SystemTimeSource]
  */
-class Cooldowns<K: Any>(
+class Cooldowns<K : Any>(
   private val timeSource: TimeSource = SystemTimeSource
 ) {
   private val expiresAtMillis = ConcurrentHashMap<K, Long>()
+  private val callbacks = ConcurrentHashMap<K, () -> Unit>()
 
   /**
    * Clears the cooldown for the specified [key].
@@ -28,6 +29,7 @@ class Cooldowns<K: Any>(
    */
   fun clear(key: K) {
     expiresAtMillis.remove(key)
+    callbacks.remove(key)
   }
 
   /**
@@ -64,11 +66,17 @@ class Cooldowns<K: Any>(
    *
    * @param key the key to set the cooldown for
    * @param cooldownMillis the duration of the cooldown in milliseconds. Must be non-negative.
+   * @param onExpiry optional callback to execute when the cooldown expires
    * @throws IllegalArgumentException if [cooldownMillis] is negative
    */
-  fun set(key: K, cooldownMillis: Long) {
+  fun set(key: K, cooldownMillis: Long, onExpiry: () -> Unit = {}) {
     require(cooldownMillis >= 0) { "cooldownMillis must be >= 0" }
     expiresAtMillis[key] = timeSource.nowMillis() + cooldownMillis
+    if (onExpiry != {}) {
+      callbacks[key] = onExpiry
+    } else {
+      callbacks.remove(key)
+    }
   }
 
   /**
@@ -76,9 +84,10 @@ class Cooldowns<K: Any>(
    *
    * @param key the key to set the cooldown for
    * @param cooldown the [Duration] of the cooldown
+   * @param onExpiry optional callback to execute when the cooldown expires
    */
-  fun set(key: K, cooldown: Duration) {
-    set(key, cooldown.toLong(DurationUnit.MILLISECONDS))
+  fun set(key: K, cooldown: Duration, onExpiry: () -> Unit = {}) {
+    set(key, cooldown.toLong(DurationUnit.MILLISECONDS), onExpiry)
   }
 
   /**
@@ -88,11 +97,12 @@ class Cooldowns<K: Any>(
    *
    * @param key the key to try to use
    * @param cooldownMillis the duration of the cooldown in milliseconds to set if ready
+   * @param onExpiry optional callback to execute when the cooldown expires
    * @return true if the key was ready and the cooldown was set, false otherwise
    */
-  fun tryUse(key: K, cooldownMillis: Long): Boolean {
+  fun tryUse(key: K, cooldownMillis: Long, onExpiry: () -> Unit = {}): Boolean {
     if (!isReady(key)) return false
-    set(key, cooldownMillis)
+    set(key, cooldownMillis, onExpiry)
     return true
   }
 
@@ -103,8 +113,25 @@ class Cooldowns<K: Any>(
    *
    * @param key the key to try to use
    * @param cooldown the [Duration] of the cooldown to set if ready
+   * @param onExpiry optional callback to execute when the cooldown expires
    * @return true if the key was ready and the cooldown was set, false otherwise
    */
-  fun tryUse(key: K, cooldown: Duration): Boolean = tryUse(key, cooldown.toLong(DurationUnit.MILLISECONDS))
+  fun tryUse(key: K, cooldown: Duration, onExpiry: () -> Unit = {}): Boolean = 
+    tryUse(key, cooldown.toLong(DurationUnit.MILLISECONDS), onExpiry)
+
+  /**
+   * Periodically purges expired cooldowns and executes their callbacks.
+   */
+  fun purgeExpired() {
+    val now = timeSource.nowMillis()
+    val iterator = expiresAtMillis.entries.iterator()
+    while (iterator.hasNext()) {
+      val (key, expiry) = iterator.next()
+      if (expiry <= now) {
+        iterator.remove()
+        callbacks.remove(key)?.invoke()
+      }
+    }
+  }
 }
 

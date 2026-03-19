@@ -1,7 +1,7 @@
 package com.peco2282.devcore.cooldown
 
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
 import kotlin.time.Duration
 
 typealias PlayerCooldowns = Cooldowns<UUID>

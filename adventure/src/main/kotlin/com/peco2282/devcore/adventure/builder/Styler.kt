@@ -2,7 +2,6 @@ package com.peco2282.devcore.adventure.builder
 
 import com.peco2282.devcore.adventure.StyleDsl
 import net.kyori.adventure.key.Key
-import net.kyori.adventure.nbt.api.BinaryTagHolder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.DataComponentValue
@@ -12,7 +11,7 @@ import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import java.net.URL
-import java.util.UUID
+import java.util.*
 
 /**
  * Interface for styling text components with various text formatting options.
@@ -265,7 +264,8 @@ interface Styler {
    * @param data the item data components
    * @return this Styler instance for chaining
    */
-  fun showItem(key: Key, count: Int, data: Map<Key, DataComponentValue>): Styler = showItem(HoverEvent.ShowItem.showItem(key, count, data))
+  fun showItem(key: Key, count: Int, data: Map<Key, DataComponentValue>): Styler =
+    showItem(HoverEvent.ShowItem.showItem(key, count, data))
 
   /**
    * Applies a hover event to the text.

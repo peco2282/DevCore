@@ -5,6 +5,8 @@ dependencies {
   api(project(":command"))
   api(project(":config"))
   api(project(":scheduler"))
+  api(project(":event"))
   api(project(":cooldown"))
-  api(project(":scoreboard"))
+  api(project(":gui"))
+  api(project(":scoreboard:scoreboard-lite"))
 }

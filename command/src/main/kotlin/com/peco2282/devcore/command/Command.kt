@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.peco2282.devcore.command
 
 import com.mojang.brigadier.arguments.*
@@ -8,13 +10,37 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.Componenter
 import com.peco2282.devcore.adventure.component
-import io.papermc.paper.block.BlockPredicate.predicate
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
+/**
+ * Handles error messages for command execution.
+ */
+object GlobalErrorHandler {
+  /**
+   * The default error message handler.
+   */
+  var errorHandler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit = { context, consumer ->
+    context.source.sender.sendMessage(
+      component {
+        text("✘ ") { red() }
+        create(consumer)
+      }
+    )
+  }
+
+  /**
+   * Sets a global error message handler.
+   *
+   * @param handler the handler to use
+   */
+  fun updateErrorHandler(handler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit) {
+    errorHandler = handler
+  }
+}
 
 /**
  * Creates and manages Minecraft commands using a DSL-style builder pattern.
@@ -68,7 +94,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     vararg aliases: String,
     creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
   ) = apply {
-    aliases.forEach { 
+    aliases.forEach {
       val command = LiteralArgumentBuilder.literal<CommandSourceStack>(it)
       val c = CommandCreator(command)
       c.creator()
@@ -80,21 +106,33 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * Adds a required argument to the command.
    *
    * @param V the type of the argument value
-   * @param argument the name of the argument
+   * @param name the name of the argument
    * @param type the Brigadier [ArgumentType] for this argument
    * @param creator the configuration block for the command structure following this argument
    * @return this [CommandCreator] instance for chaining
    */
   fun <V> argument(
-    argument: String,
+    name: String,
     type: ArgumentType<V>,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, V>>.() -> Unit = {}
   ) = apply {
-    val arg = RequiredArgumentBuilder.argument<CommandSourceStack, V>(argument, type)
+    val arg = RequiredArgumentBuilder.argument<CommandSourceStack, V>(name, type)
     val c = CommandCreator(arg)
     c.creator()
     builder.then(c.builder)
   }
+
+  /**
+   * Adds a sub-command structure defined by a literal.
+   *
+   * @param name the literal for the sub-command
+   * @param creator the configuration block for the sub-command
+   * @return this [CommandCreator] instance for chaining
+   */
+  fun sub(
+    name: String,
+    creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit
+  ) = literal(name, creator)
 
   /**
    * Adds a string argument to the command.
@@ -359,7 +397,8 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * @param predicate a function that takes a [CommandSourceStack] and returns a [Boolean]
    * @return this [CommandCreator] instance for chaining
    */
-  fun permissionAnd(permission: String, predicate: (CommandSourceStack) -> Boolean) = requires { it.sender.hasPermission(permission) && predicate(it) }
+  fun permissionAnd(permission: String, predicate: (CommandSourceStack) -> Boolean) =
+    requires { it.sender.hasPermission(permission) && predicate(it) }
 
   /**
    * Sets the execution handler for this command.
@@ -449,10 +488,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * Sends an error message to the command sender.
    */
   fun CommandContext<CommandSourceStack>.sendError(consumer: Componenter.() -> Unit) {
-    sendMessage {
-      text("✘ ") { red() }
-      create(consumer)
-    }
+    GlobalErrorHandler.errorHandler(this, consumer)
   }
 
   /**
@@ -502,6 +538,15 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
       }
       builder.buildFuture()
     }
+
+  /**
+   * Adds static suggestions for this command argument from an [Enum].
+   *
+   * @param enumClass the class of the enum to suggest values from
+   * @return this [CommandCreator] instance for chaining
+   */
+  inline fun <reified E : Enum<E>> suggestion() =
+    suggestion(enumValues<E>().map { it.name.lowercase() })
 
   /**
    * Adds asynchronous suggestions for this command argument.

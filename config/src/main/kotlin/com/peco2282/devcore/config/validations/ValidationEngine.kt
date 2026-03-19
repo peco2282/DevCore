@@ -53,9 +53,11 @@ object ValidatorEngine {
           is String -> require(value.isNotEmpty()) {
             "Config validation failed: ${prop.name} must not be empty"
           }
+
           is Collection<*> -> require(value.isNotEmpty()) {
             "Config validation failed: ${prop.name} must not be empty"
           }
+
           is Map<*, *> -> require(value.isNotEmpty()) {
             "Config validation failed: ${prop.name} must not be empty"
           }
@@ -157,19 +159,19 @@ object ValidatorEngine {
       }
 
 
-      // 🔁 ネスト data class
+      // Recursive data class nesting
       if (value != null && value::class.isData) {
         validate(value)
       }
 
-      // 🔁 List ネスト
+      // Recursive List nesting
       if (value is List<*>) {
         value.filterNotNull().forEach {
           if (it::class.isData) validate(it)
         }
       }
 
-      // 🔁 Map ネスト
+      // Recursive Map nesting
       if (value is Map<*, *>) {
         value.values.filterNotNull().forEach {
           if (it::class.isData) validate(it)

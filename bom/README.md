@@ -1,8 +1,11 @@
 # DevCore BOM
 
+[English] | [[日本語](README.ja.md)]
+
 DevCore modules BOM (`java-platform`) for aligning versions.
 
 ## Install (Gradle Kotlin DSL)
+
 ```kotlin
 dependencies {
   implementation(platform("com.peco2282.devcore:devcore-bom:<version>"))

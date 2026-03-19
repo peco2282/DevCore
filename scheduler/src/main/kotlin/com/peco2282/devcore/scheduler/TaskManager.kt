@@ -5,7 +5,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.WorldUnloadEvent
 import org.bukkit.plugin.Plugin
-import java.util.UUID
+import java.util.*
 
 /**
  * Manages scheduled tasks and their lifecycle.
@@ -29,6 +29,11 @@ class TaskManager(plugin: Plugin) {
     plugin.on<WorldUnloadEvent> {
       worldTasks.remove(world.uid)?.forEach { it.cancel() }
     }
+    
+    // 🔥 サーバー停止時（プラグイン無効化時）のクリーンアップ
+    // Note: BukkitのイベントシステムではPluginDisableEventなどがありますが、
+    // ここではTaskManager自体がPluginに紐付いているため、明示的にcancelAllを呼ぶのが確実です。
+    // PluginRegistory.remove(plugin) が onDisable で呼ばれることを想定しています。
   }
 
   /**

@@ -5,10 +5,11 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
 /**
- * インベントリイベントのコンテキスト
- * @property player クリックしたプレイヤー
- * @property slot クリックされたスロット番号
- * @property bukkitEvent Bukkitの元のイベント
+ * Context for GUI click events.
+ *
+ * @property player The player who clicked.
+ * @property slot The index of the clicked slot.
+ * @property bukkitEvent The underlying Bukkit [InventoryClickEvent].
  */
 data class GuiClickEvent(
   val player: Player,
@@ -16,7 +17,7 @@ data class GuiClickEvent(
   val bukkitEvent: InventoryClickEvent
 ) {
   /**
-   * クリックされたアイテムを取得します。
+   * Returns the item that was clicked, if any.
    */
   val currentItem: ItemStack? get() = bukkitEvent.currentItem
 }

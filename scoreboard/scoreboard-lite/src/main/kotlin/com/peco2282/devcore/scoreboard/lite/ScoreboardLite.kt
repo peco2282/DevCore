@@ -10,14 +10,13 @@ import com.peco2282.devcore.scoreboard.api.factory.ScoreboardFactory
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
-import org.bukkit.Bukkit.*
+import org.bukkit.Bukkit.getScoreboardManager
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Scoreboard
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 
 object ScoreboardLite : ScoreboardFactory {
 
@@ -42,7 +41,14 @@ object ScoreboardLite : ScoreboardFactory {
     refreshInterval: Ticks?,
     visibilityCondition: ((Player) -> Boolean)?
   ): BossBarHandle {
-    return com.peco2282.devcore.scoreboard.api.DefaultBossBarHandle(title, progress, bar, plugin, refreshInterval, visibilityCondition)
+    return com.peco2282.devcore.scoreboard.api.DefaultBossBarHandle(
+      title,
+      progress,
+      bar,
+      plugin,
+      refreshInterval,
+      visibilityCondition
+    )
   }
 }
 

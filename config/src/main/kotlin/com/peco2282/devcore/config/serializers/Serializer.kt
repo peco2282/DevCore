@@ -1,5 +1,8 @@
 package com.peco2282.devcore.config.serializers
 
+import com.peco2282.devcore.config.reflection.TypeSerializers
+import kotlin.reflect.KClass
+
 /**
  * Interface for serializing and deserializing values of type [T].
  *
@@ -25,4 +28,20 @@ interface Serializer<T : Any> {
    * @return the serialized representation of the [value]
    */
   fun serialize(value: T): Any?
+
+  
+  companion object {
+    /**
+     * Registers a custom serializer for the specified type.
+     *
+     * This method allows you to associate a [Serializer] implementation with a specific
+     * Kotlin class type, enabling the configuration system to properly serialize and
+     * deserialize instances of that type.
+     *
+     * @param T the type of the object to be serialized
+     * @param type the [KClass] representing the type to register the serializer for
+     * @param serializer the [Serializer] implementation to use for the specified type
+     */
+    fun <T: Any> registerer(type: KClass<T>, serializer: Serializer<T>) = TypeSerializers.register(type, serializer)
+  }
 }

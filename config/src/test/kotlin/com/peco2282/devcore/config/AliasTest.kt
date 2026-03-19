@@ -36,7 +36,7 @@ class AliasTest {
     println("[DEBUG_LOG] YAML content: ${yaml.saveToString()}")
     assertEquals("aliased_value", yaml.getString("newName"))
     assertEquals(10, yaml.getInt("level"))
-    
+
     // old keys should still exist in yaml object until we save it and reload it if we use Bukkit's ConfigurationSection.
     // However, ClassMapper.write will set the new name.
   }

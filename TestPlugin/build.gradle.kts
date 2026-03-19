@@ -1,33 +1,38 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.shadow)
-    alias(libs.plugins.runPaper)
+  id("org.jetbrains.kotlin.jvm")
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.runPaper)
 }
 
 group = "com.peco2282"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/") {
-        name = "papermc-repo"
-    }
+  mavenCentral()
+  maven("https://repo.papermc.io/repository/maven-public/") {
+    name = "papermc-repo"
+  }
 }
 
 dependencies {
-    compileOnly(libs.paper.api)
-    implementation(libs.kotlin.stdlib)
+  compileOnly(libs.paper.api)
+  implementation(libs.kotlin.stdlib)
 
-    // BOMを使用してバージョンを一括管理
-    implementation(platform(project(":bom")))
+  // BOMを使用してバージョンを一括管理
+  implementation(platform(project(":bom")))
 
-    // バージョン指定なしで依存関係を追加
-    implementation(project(":core"))
-    implementation(project(":command"))
-    implementation(project(":config"))
-    implementation(project(":scoreboard:scoreboard-api"))
-    implementation(project(":scoreboard:scoreboard-nms"))
-    implementation(project(":scoreboard:scoreboard-nms:v1_21_4"))
+  // バージョン指定なしで依存関係を追加
+  implementation(project(":core"))
+  implementation(project(":command"))
+  implementation(project(":config"))
+  implementation(project(":adventure"))
+  implementation(project(":gui"))
+  implementation(project(":cooldown"))
+  implementation(project(":packet"))
+  implementation(project(":event"))
+  implementation(project(":scheduler"))
+  implementation(project(":scoreboard:scoreboard-api"))
+  implementation(project(":scoreboard:scoreboard-nms"))
 }
 
 tasks {
@@ -41,18 +46,18 @@ tasks {
 
 val targetJavaVersion = 21
 kotlin {
-    jvmToolchain(targetJavaVersion)
+  jvmToolchain(targetJavaVersion)
 }
 
 tasks.build {
-    dependsOn("shadowJar")
+  dependsOn("shadowJar")
 }
 
 tasks.processResources {
-    val props = mapOf("version" to version)
-    inputs.properties(props)
-    filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        expand(props)
-    }
+  val props = mapOf("version" to version)
+  inputs.properties(props)
+  filteringCharset = "UTF-8"
+  filesMatching("plugin.yml") {
+    expand(props)
+  }
 }
