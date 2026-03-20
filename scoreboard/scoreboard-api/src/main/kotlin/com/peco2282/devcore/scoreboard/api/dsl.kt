@@ -21,13 +21,13 @@ fun Player.team(name: String, block: org.bukkit.scoreboard.Team.() -> Unit) {
   } else {
     scoreboard
   }
-  
+
   val team = sb.getTeam(name) ?: sb.registerNewTeam(name)
   if (!team.hasEntry(this.name)) {
     team.addEntry(this.name)
   }
   team.block()
-  
+
   if (scoreboard != sb) {
     scoreboard = sb
   }
@@ -157,36 +157,33 @@ inline fun bossBar(noinline title: () -> Component, block: BossBarBuilder.() -> 
 /**
  * Creates and returns a [BossBarHandle] with auto-refresh enabled.
  *
- * @param plugin The plugin instance.
  * @param block The builder block to configure the boss bar.
  * @return A new [BossBarHandle].
  */
-inline fun bossBar(plugin: Plugin, block: BossBarBuilder.() -> Unit): BossBarHandle =
-  BossBarBuilder().apply { autoRefresh(plugin) }.apply(block).build()
+inline fun Plugin.bossBar(block: BossBarBuilder.() -> Unit): BossBarHandle =
+  BossBarBuilder().apply { autoRefresh(this@bossBar) }.apply(block).build()
 
 /**
  * Creates and returns a [BossBarHandle] with a title and auto-refresh.
  *
- * @param plugin The plugin instance.
  * @param title The title of the boss bar.
  * @param block The builder block to configure the boss bar.
  * @return A new [BossBarHandle].
  */
-inline fun bossBar(plugin: Plugin, title: Component, block: BossBarBuilder.() -> Unit): BossBarHandle =
-  bossBar(plugin, { title }, block)
+inline fun Plugin.bossBar(title: Component, block: BossBarBuilder.() -> Unit): BossBarHandle =
+  bossBar({ title }, block)
 
 /**
  * Creates and returns a [BossBarHandle] with a dynamic title and auto-refresh.
  *
- * @param plugin The plugin instance.
  * @param title A function providing the title of the boss bar.
  * @param block The builder block to configure the boss bar.
  * @return A new [BossBarHandle].
  */
-inline fun bossBar(plugin: Plugin, noinline title: () -> Component, block: BossBarBuilder.() -> Unit): BossBarHandle =
+inline fun Plugin.bossBar(noinline title: () -> Component, block: BossBarBuilder.() -> Unit): BossBarHandle =
   BossBarBuilder().apply {
     title(title)
-    autoRefresh(plugin)
+    autoRefresh(this@bossBar)
   }.apply(block).build()
 
 /**
