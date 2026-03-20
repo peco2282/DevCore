@@ -1,7 +1,5 @@
 package com.peco2282.devcore.packet
 
-import net.minecraft.network.protocol.Packet
-
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 
@@ -9,9 +7,8 @@ interface PacketWrapper {
   val original: Any
 }
 
-fun PacketWrapper.getOriginalPacket(): Packet<*> {
-  return original as Packet<*>
-}
+// 共通 API からは Minecraft の Packet クラスへの直接依存を排除し、Any として扱う。
+// サブモジュール側で必要に応じてキャストして使用する。
 
 private val fieldCache = ConcurrentHashMap<Class<*>, Map<String, Field>>()
 

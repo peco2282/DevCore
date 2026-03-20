@@ -2,8 +2,8 @@ package com.peco2282.devcore.packet
 
 import com.peco2282.devcore.scheduler.PluginRegistory
 import com.peco2282.devcore.scheduler.ticks
+import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
-import net.minecraft.network.FriendlyByteBuf
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
@@ -79,6 +79,9 @@ interface FakeEntityBuilder {
 
   fun equipment(builder: EquipmentBuilder.() -> Unit)
   fun animate(animation: EntityAnimation)
+  fun move(location: Location, onGround: Boolean = true)
+  fun rotate(yaw: Float, pitch: Float, headRotation: Float? = null)
+  fun updateMetadata()
   fun despawnAfter(ticks: Long)
   fun spawn()
 }
@@ -182,8 +185,8 @@ fun Player.networkSettings(action: NetworkSettings.() -> Unit) {
   InternalAPI.getNetworkSettings(this).apply(action)
 }
 
-fun Player.sendRawPacket(channel: String, action: FriendlyByteBuf.() -> Unit) {
-  val buf = FriendlyByteBuf(Unpooled.buffer())
+fun Player.sendRawPacket(channel: String, action: ByteBuf.() -> Unit) {
+  val buf = Unpooled.buffer()
   buf.action()
   InternalAPI.sendRawPacket(this, channel, buf)
 }

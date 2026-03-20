@@ -8,6 +8,7 @@ dependencies {
   implementation(project(":packet"))
   implementation(project(":scheduler"))
   implementation(libs.kotlin.stdlib)
+  implementation(libs.kotlinx.coroutines)
   paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
   testImplementation(libs.kotlin.test)
 }

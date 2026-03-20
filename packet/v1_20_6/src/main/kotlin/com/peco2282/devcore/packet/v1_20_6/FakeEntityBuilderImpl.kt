@@ -9,9 +9,12 @@ import io.papermc.paper.adventure.PaperAdventure
 import net.kyori.adventure.text.Component
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.item.ItemStack as NMSItemStack
@@ -23,6 +26,7 @@ import org.bukkit.entity.Player
 import java.util.*
 import net.minecraft.world.entity.EquipmentSlot as NMSEquipmentSlot
 import com.mojang.datafixers.util.Pair as DataPair
+import com.peco2282.devcore.packet.setFieldValue
 import org.bukkit.Bukkit
 
 class FakeEntityBuilderImpl(
@@ -66,7 +70,66 @@ class FakeEntityBuilderImpl(
     }
     val craftPlayer = player as CraftPlayer
     val packet = ClientboundAnimatePacket(craftPlayer.handle, id)
+    packet.setFieldValue("id", entityId)
     craftPlayer.handle.connection.send(packet)
+  }
+
+  override fun move(location: Location, onGround: Boolean) {
+    val packet = ClientboundTeleportEntityPacket(player as net.minecraft.world.entity.Entity)
+    packet.setFieldValue("id", entityId)
+    packet.setFieldValue("x", location.x)
+    packet.setFieldValue("y", location.y)
+    packet.setFieldValue("z", location.z)
+    packet.setFieldValue("yRot", (location.yaw * 256.0f / 360.0f).toInt().toByte())
+    packet.setFieldValue("xRot", (location.pitch * 256.0f / 360.0f).toInt().toByte())
+    packet.setFieldValue("onGround", onGround)
+    (player as CraftPlayer).handle.connection.send(packet)
+  }
+
+  override fun rotate(yaw: Float, pitch: Float, headRotation: Float?) {
+    val connection = (player as CraftPlayer).handle.connection
+    
+    // Body and Pitch rotation
+    val rotatePacket = ClientboundMoveEntityPacket.Rot(
+      entityId,
+      (yaw * 256.0f / 360.0f).toInt().toByte(),
+      (pitch * 256.0f / 360.0f).toInt().toByte(),
+      true
+    )
+    connection.send(rotatePacket)
+
+    // Head rotation
+    headRotation?.let {
+      val headPacket = ClientboundRotateHeadPacket(null, (it * 256.0f / 360.0f).toInt().toByte())
+      headPacket.setFieldValue("entityId", entityId)
+      connection.send(headPacket)
+    }
+  }
+
+  override fun updateMetadata() {
+    val metadata = createMetadata()
+    (player as CraftPlayer).handle.connection.send(ClientboundSetEntityDataPacket(entityId, metadata))
+  }
+
+  private fun createMetadata(): List<SynchedEntityData.DataValue<*>> {
+    val metadata = mutableListOf<SynchedEntityData.DataValue<*>>()
+    
+    // Entity flags (Index 0)
+    var flags: Byte = 0
+    if (isInvisible) flags = (flags.toInt() or 0x20).toByte()
+    if (isGlowing) flags = (flags.toInt() or 0x40).toByte()
+    metadata.add(SynchedEntityData.DataValue(0, EntityDataSerializers.BYTE, flags))
+
+    // Custom Name (Index 2)
+    customName?.let {
+        val component = PaperAdventure.asVanilla(Component.text(it))
+        metadata.add(SynchedEntityData.DataValue(2, EntityDataSerializers.OPTIONAL_COMPONENT, Optional.of(component)))
+    }
+    
+    // Custom Name Visible (Index 3)
+    metadata.add(SynchedEntityData.DataValue(3, EntityDataSerializers.BOOLEAN, isCustomNameVisible))
+    
+    return metadata
   }
 
   override fun despawnAfter(ticks: Long) {
@@ -96,20 +159,8 @@ class FakeEntityBuilderImpl(
     )
     connection.send(spawnPacket)
 
-    val metadata = mutableListOf<SynchedEntityData.DataValue<*>>()
-    
-    var flags: Byte = 0
-    if (isInvisible) flags = (flags.toInt() or 0x20).toByte()
-    if (isGlowing) flags = (flags.toInt() or 0x40).toByte()
-    metadata.add(SynchedEntityData.DataValue(0, EntityDataSerializers.BYTE, flags))
-
-    customName?.let {
-        val component = PaperAdventure.asVanilla(Component.text(it))
-        metadata.add(SynchedEntityData.DataValue(2, EntityDataSerializers.OPTIONAL_COMPONENT, Optional.of(component)))
-    }
-    
-    metadata.add(SynchedEntityData.DataValue(3, EntityDataSerializers.BOOLEAN, isCustomNameVisible))
-
+    // 2. Metadata Packet
+    val metadata = createMetadata()
     val dataPacket = ClientboundSetEntityDataPacket(entityId, metadata)
     connection.send(dataPacket)
 

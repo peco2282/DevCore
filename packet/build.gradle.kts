@@ -1,6 +1,3 @@
-plugins {
-  id("io.papermc.paperweight.userdev")
-}
 version = properties["devcore.packet.version"] ?: "1.0.0"
 
 val nmsVersions = subprojects.filter { it.name.startsWith("v1_") }
@@ -12,7 +9,8 @@ dependencies {
   // NMS実装はリフレクションで動的にロードされるため、コンパイル時のプロジェクト依存は不要。
   // これにより循環参照を回避しつつ、jarタスクで成果物を集約する。
 
-  paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+  compileOnly(libs.paper.api.common)
+  compileOnly("io.netty:netty-all:4.1.100.Final")
   testImplementation(libs.kotlin.test)
 }
 

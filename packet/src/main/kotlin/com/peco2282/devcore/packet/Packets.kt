@@ -4,10 +4,9 @@ import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelPromise
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
-import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -149,9 +148,7 @@ object Packets : Listener {
   }
 
   fun getNetworkSettings(player: Player): NetworkSettings {
-    val channel = (player as CraftPlayer).handle.connection.connection.channel
-    val handler = channel.pipeline().get(HANDLER_NAME) as? PacketHandler
-    return handler?.settings ?: NetworkSettingsImpl()
+    return InternalAPI.getNetworkSettings(player)
   }
 
   fun createPacketListener(): PacketListener = PacketListenerImpl()
@@ -251,8 +248,7 @@ object Packets : Listener {
   inline fun <reified T> onPacketAsync(player: Player, crossinline handler: suspend PacketEvent.(T) -> Unit) {
     onPacket(player) {
       if (packet is T) {
-        val dispatcher =
-          (player as CraftPlayer).handle.connection.connection.channel.eventLoop().asCoroutineDispatcher()
+        val dispatcher = InternalAPI.getCoroutineDispatcher(player) ?: Dispatchers.Default
         CoroutineScope(dispatcher).launch {
           handler(packet as T)
         }

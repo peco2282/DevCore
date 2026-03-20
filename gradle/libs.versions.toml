@@ -3,6 +3,7 @@ adventure = "4.25.0"
 kotlin = "2.1.10"
 # Gradle 9.3+ compatibility with KGP 2.1.10 (Latest)
 paper = "1.21.4-R0.1-20250925.065901-231"
+paper-api-common = "1.20.4-R0.1-SNAPSHOT"
 kotlinx-coroutine = "1.10.2"
 dokka = "2.0.0"
 shadow = "8.3.0"
@@ -17,6 +18,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+paper-api-common = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper-api-common" }
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutine" }
 
 [plugins]

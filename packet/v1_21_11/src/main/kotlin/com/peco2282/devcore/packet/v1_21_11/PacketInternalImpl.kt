@@ -5,7 +5,10 @@ import com.peco2282.devcore.packet.FakeEntityBuilder
 import com.peco2282.devcore.packet.NetworkSettings
 import com.peco2282.devcore.packet.PacketInternal
 import com.peco2282.devcore.packet.Packets
+import io.netty.buffer.ByteBuf
 import io.papermc.paper.adventure.PaperAdventure
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
@@ -112,8 +115,14 @@ class PacketInternalImpl : PacketInternal {
     }
   }
 
-  override fun sendRawPacket(player: Player, channel: String, buf: FriendlyByteBuf) {
-    player.sendPluginMessage(Bukkit.getPluginManager().getPlugin("DevCore")!!, channel, buf.array())
+  override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
+    val friendlyByteBuf = if (buf is FriendlyByteBuf) buf else FriendlyByteBuf(buf)
+    player.sendPluginMessage(Bukkit.getPluginManager().getPlugin("DevCore")!!, channel, friendlyByteBuf.array())
+  }
+
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
+    val craftPlayer = player as CraftPlayer
+    return craftPlayer.handle.connection.connection.channel.eventLoop().asCoroutineDispatcher()
   }
 
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {

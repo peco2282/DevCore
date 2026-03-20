@@ -5,7 +5,10 @@ import com.peco2282.devcore.packet.FakeEntityBuilder
 import com.peco2282.devcore.packet.NetworkSettings
 import com.peco2282.devcore.packet.PacketInternal
 import com.peco2282.devcore.packet.Packets
+import io.netty.buffer.ByteBuf
 import io.papermc.paper.adventure.PaperAdventure
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
@@ -16,6 +19,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.network.protocol.game.*
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.level.block.state.BlockState
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
@@ -90,7 +94,7 @@ class PacketInternalImpl : PacketInternal {
   override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
     val connection = (player as CraftPlayer).handle.connection
     val handler = object : FakeBlockBuilder {
-      val blocks = mutableMapOf<BlockPos, net.minecraft.world.level.block.state.BlockState>()
+      val blocks = mutableMapOf<BlockPos, BlockState>()
 
       override fun set(location: Location, material: Material) {
         val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
@@ -141,10 +145,17 @@ class PacketInternalImpl : PacketInternal {
     }
   }
 
-  override fun sendRawPacket(player: Player, channel: String, buf: FriendlyByteBuf) {
-    (player as CraftPlayer).handle.connection.send(
-      ClientboundCustomPayloadPacket { CustomPacketPayload.Type(ResourceLocation.parse(channel)) }
-    )
+  override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
+    val friendlyByteBuf = if (buf is FriendlyByteBuf) buf else FriendlyByteBuf(buf)
+    val plugin = org.bukkit.Bukkit.getPluginManager().getPlugin("DevCore")!!
+    val bytes = ByteArray(friendlyByteBuf.readableBytes())
+    friendlyByteBuf.readBytes(bytes)
+    player.sendPluginMessage(plugin, channel, bytes)
+  }
+
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
+    val craftPlayer = player as CraftPlayer
+    return craftPlayer.handle.connection.connection.channel.eventLoop().asCoroutineDispatcher()
   }
 
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {

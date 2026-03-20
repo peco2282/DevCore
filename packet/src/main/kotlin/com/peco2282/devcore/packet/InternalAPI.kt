@@ -1,11 +1,10 @@
 package com.peco2282.devcore.packet
 
-import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.server.network.ServerGamePacketListenerImpl
+import io.netty.buffer.ByteBuf
+import kotlinx.coroutines.CoroutineDispatcher
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
-import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -17,7 +16,8 @@ interface PacketInternal {
   fun sendPacket(player: Player, packet: Any)
   fun getNetworkSettings(player: Player): NetworkSettings
   fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder
-  fun sendRawPacket(player: Player, channel: String, buf: FriendlyByteBuf)
+  fun sendRawPacket(player: Player, channel: String, buf: ByteBuf)
+  fun getCoroutineDispatcher(player: Player): CoroutineDispatcher?
   fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int)
   fun sendActionBar(player: Player, message: String)
   fun sendSound(
@@ -40,7 +40,7 @@ interface PacketInternal {
   fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
 }
 
-internal object InternalAPI {
+object InternalAPI {
   private var internal: PacketInternal? = null
 
   fun init(plugin: Plugin) {
@@ -88,8 +88,12 @@ internal object InternalAPI {
     return internal?.getNetworkSettings(player) ?: Packets.getNetworkSettings(player)
   }
 
-  fun sendRawPacket(player: Player, channel: String, buf: FriendlyByteBuf) {
+  fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
     internal?.sendRawPacket(player, channel, buf)
+  }
+
+  fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
+    return internal?.getCoroutineDispatcher(player)
   }
 
   fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
