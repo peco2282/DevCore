@@ -33,6 +33,7 @@ dependencies {
   implementation(project(":scheduler"))
   implementation(project(":scoreboard:scoreboard-api"))
   implementation(project(":scoreboard:scoreboard-nms"))
+  implementation(project(":world"))
 }
 
 tasks {

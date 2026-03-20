@@ -1,6 +1,7 @@
 package com.peco2282.testplugin
 
 import com.peco2282.devcore.command.command
+import com.peco2282.devcore.command.getWorld
 import com.peco2282.devcore.config.Configs
 import com.peco2282.devcore.config.getConfigInstance
 import com.peco2282.devcore.config.reflection.TypeSerializers
@@ -12,6 +13,7 @@ import com.peco2282.devcore.gui.GuiListener
 import com.peco2282.devcore.packet.Packets
 import com.peco2282.devcore.packet.onPacket
 import com.peco2282.devcore.packet.packet
+import com.peco2282.devcore.world.edit
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
@@ -196,6 +198,17 @@ class TestPlugin : JavaPlugin() {
           file.writeText(updatedContent)
           player.sendMessage(Component.text("Config modified with invalid value. Try /reload!"))
           1
+        }
+      }
+      literal("world") {
+        world("worldName") {
+          executesPlayer { player, ctx ->
+            val world = ctx.getWorld("worldName")
+            world.edit {
+            }
+            player.sendMessage(Component.text("You are in world: ${player.world.name}"))
+            1
+          }
         }
       }
     }
