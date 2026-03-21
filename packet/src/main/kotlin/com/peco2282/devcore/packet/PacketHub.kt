@@ -39,4 +39,9 @@ interface PacketHub {
   )
 
   fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
+
+  fun sendCamera(player: Player, entityId: Int)
+  fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit)
+  fun sendOpenSign(player: Player, location: Location, front: Boolean)
+  fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit)
 }

@@ -13,6 +13,9 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component as VanillaComponent
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
+import net.minecraft.network.syncher.EntityDataSerializer
+import net.minecraft.network.syncher.EntityDataSerializers
+import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.block.state.BlockState
 import org.bukkit.Bukkit
@@ -206,6 +209,103 @@ class PacketHubImpl : PacketHub {
         pitch,
         Random().nextLong()
       )
+    )
+  }
+
+  override fun sendCamera(player: Player, entityId: Int) {
+    val packet = ClientboundSetCameraPacket((player as CraftPlayer).handle)
+    packet.setFieldValue("entityId", entityId)
+    player.handle.connection.send(packet as Packet<*>)
+  }
+
+  override fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit) {
+    val wb = object : WorldBorderBuilder {
+      override var x: Double = 0.0
+      override var z: Double = 0.0
+      override var size: Double = 30000000.0
+      override var oldSize: Double = 30000000.0
+      override var lerpTime: Long = 0
+      override var warningDistance: Int = 5
+      override var warningTime: Int = 15
+    }
+    wb.builder()
+    val packet = Class.forName("net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket")
+      .getDeclaredConstructor()
+      .apply { isAccessible = true }
+      .newInstance()
+    packet.setFieldValue("newCenterX", wb.x)
+    packet.setFieldValue("newCenterZ", wb.z)
+    packet.setFieldValue("oldSize", wb.oldSize)
+    packet.setFieldValue("newSize", wb.size)
+    packet.setFieldValue("lerpTime", wb.lerpTime)
+    packet.setFieldValue("newAbsoluteMaxSize", 30000000)
+    packet.setFieldValue("warningTime", wb.warningTime)
+    packet.setFieldValue("warningBlocks", wb.warningDistance)
+    (player as CraftPlayer).handle.connection.send(packet as Packet<*>)
+  }
+
+  override fun sendOpenSign(player: Player, location: Location, front: Boolean) {
+    (player as CraftPlayer).handle.connection.send(
+      ClientboundOpenSignEditorPacket(
+        BlockPos(location.blockX, location.blockY, location.blockZ),
+        front
+      )
+    )
+  }
+
+  override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {
+    val metadataHandler = object : MetadataBuilder {
+      val dataValues = mutableListOf<SynchedEntityData.DataValue<*>>()
+
+      override fun <T> set(index: Int, type: MetadataType, value: T) {
+        val serializer = when (type) {
+          MetadataType.BYTE -> EntityDataSerializers.BYTE
+          MetadataType.INT -> EntityDataSerializers.INT
+          MetadataType.FLOAT -> EntityDataSerializers.FLOAT
+          MetadataType.STRING -> EntityDataSerializers.STRING
+          MetadataType.CHAT -> EntityDataSerializers.COMPONENT
+          MetadataType.OPTCHAT -> EntityDataSerializers.OPTIONAL_COMPONENT
+          MetadataType.ITEM -> EntityDataSerializers.ITEM_STACK
+          MetadataType.BOOLEAN -> EntityDataSerializers.BOOLEAN
+          MetadataType.ROTATION -> EntityDataSerializers.ROTATIONS
+          MetadataType.POSITION -> EntityDataSerializers.BLOCK_POS
+          MetadataType.OPTPOSITION -> EntityDataSerializers.OPTIONAL_BLOCK_POS
+          MetadataType.DIRECTION -> EntityDataSerializers.DIRECTION
+          MetadataType.OPTUUID -> EntityDataSerializers.OPTIONAL_UUID
+          MetadataType.BLOCKID -> EntityDataSerializers.BLOCK_STATE
+          MetadataType.OPTBLOCKID -> EntityDataSerializers.OPTIONAL_BLOCK_STATE
+          MetadataType.NBT -> EntityDataSerializers.COMPOUND_TAG
+          MetadataType.PARTICLE -> EntityDataSerializers.PARTICLE
+          MetadataType.VILLAGER -> EntityDataSerializers.VILLAGER_DATA
+          MetadataType.OPTINT -> EntityDataSerializers.OPTIONAL_UNSIGNED_INT
+          MetadataType.POSE -> EntityDataSerializers.POSE
+          MetadataType.CAT_VARIANT -> EntityDataSerializers.CAT_VARIANT
+          MetadataType.FROG_VARIANT -> EntityDataSerializers.FROG_VARIANT
+          MetadataType.OPT_GLOBAL_POS -> EntityDataSerializers.OPTIONAL_GLOBAL_POS
+          MetadataType.PAINTING_VARIANT -> EntityDataSerializers.PAINTING_VARIANT
+          MetadataType.SNIFFER_STATE -> EntityDataSerializers.SNIFFER_STATE
+          MetadataType.VECTOR3 -> EntityDataSerializers.VECTOR3
+          MetadataType.QUATERNION -> EntityDataSerializers.QUATERNION
+        }
+        @Suppress("UNCHECKED_CAST")
+        dataValues.add(SynchedEntityData.DataValue(index, serializer as EntityDataSerializer<Any>, value))
+      }
+
+      override fun setGlowing(glowing: Boolean) {
+        set(0, MetadataType.BYTE, (if (glowing) 0x40 else 0).toByte())
+      }
+
+      override fun setCustomName(name: String?) {
+        set(2, MetadataType.OPTCHAT, (name?.let { PaperAdventure.asVanilla(Component.text(it)) }))
+      }
+
+      override fun setInvisible(invisible: Boolean) {
+        set(0, MetadataType.BYTE, (if (invisible) 0x20 else 0).toByte())
+      }
+    }
+    metadataHandler.builder()
+    (player as CraftPlayer).handle.connection.send(
+      ClientboundSetEntityDataPacket(entityId, metadataHandler.dataValues)
     )
   }
 }

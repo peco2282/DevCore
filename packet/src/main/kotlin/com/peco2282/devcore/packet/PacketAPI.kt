@@ -98,4 +98,20 @@ object PacketAPI: PacketHub {
   override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
     delegate?.sendFakeBlocks(player, builder)
   }
+
+  override fun sendCamera(player: Player, entityId: Int) {
+    delegate?.sendCamera(player, entityId)
+  }
+
+  override fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit) {
+    delegate?.sendWorldBorder(player, builder)
+  }
+
+  override fun sendOpenSign(player: Player, location: Location, front: Boolean) {
+    delegate?.sendOpenSign(player, location, front)
+  }
+
+  override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {
+    delegate?.sendMetadata(player, entityId, builder)
+  }
 }

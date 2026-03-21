@@ -152,4 +152,9 @@ class PacketHubImpl : PacketHub {
     val loc = player.location
     player.playSound(loc.clone().add(offset), type, volume, pitch)
   }
+
+  override fun sendCamera(player: Player, entityId: Int) {}
+  override fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit) {}
+  override fun sendOpenSign(player: Player, location: Location, front: Boolean) {}
+  override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {}
 }

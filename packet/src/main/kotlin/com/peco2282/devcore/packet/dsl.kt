@@ -4,16 +4,21 @@ import com.peco2282.devcore.scheduler.PluginRegistory
 import com.peco2282.devcore.scheduler.ticks
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
+import org.bukkit.Rotation
 import org.bukkit.Sound
+import org.bukkit.block.BlockState
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.entity.Villager
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
+import java.util.UUID
 
 @DslMarker
 annotation class PacketDsl
@@ -71,6 +76,22 @@ class PacketBuilder(private val player: Player) {
   fun fakeBlocks(builder: FakeBlockBuilder.() -> Unit) {
     PacketAPI.sendFakeBlocks(player, builder)
   }
+
+  fun camera(entityId: Int) {
+    PacketAPI.sendCamera(player, entityId)
+  }
+
+  fun worldBorder(builder: WorldBorderBuilder.() -> Unit) {
+    PacketAPI.sendWorldBorder(player, builder)
+  }
+
+  fun openSign(location: Location, front: Boolean = true) {
+    PacketAPI.sendOpenSign(player, location, front)
+  }
+
+  fun metadata(entityId: Int, builder: MetadataBuilder.() -> Unit) {
+    PacketAPI.sendMetadata(player, entityId, builder)
+  }
 }
 
 @PacketDsl
@@ -121,6 +142,60 @@ enum class EntityAnimation {
 interface FakeBlockBuilder {
   fun set(location: Location, material: Material)
   fun fill(from: Location, to: Location, material: Material)
+}
+
+@PacketDsl
+interface WorldBorderBuilder {
+  var x: Double
+  var z: Double
+  var size: Double
+  var oldSize: Double
+  var lerpTime: Long
+  var warningDistance: Int
+  var warningTime: Int
+
+  fun center(location: Location) {
+    x = location.x
+    z = location.z
+  }
+}
+
+@PacketDsl
+interface MetadataBuilder {
+  fun <T> set(index: Int, type: MetadataType, value: T)
+  fun setGlowing(glowing: Boolean)
+  fun setCustomName(name: String?)
+  fun setInvisible(invisible: Boolean)
+}
+
+enum class MetadataType {
+  BYTE,
+  INT,
+  FLOAT,
+  STRING,
+  CHAT,
+  OPTCHAT,
+  ITEM,
+  BOOLEAN,
+  ROTATION,
+  POSITION,
+  OPTPOSITION,
+  DIRECTION,
+  OPTUUID,
+  BLOCKID,
+  OPTBLOCKID,
+  NBT,
+  PARTICLE,
+  VILLAGER,
+  OPTINT,
+  POSE,
+  CAT_VARIANT,
+  FROG_VARIANT,
+  OPT_GLOBAL_POS,
+  PAINTING_VARIANT,
+  SNIFFER_STATE,
+  VECTOR3,
+  QUATERNION
 }
 
 class TitleBuilder {

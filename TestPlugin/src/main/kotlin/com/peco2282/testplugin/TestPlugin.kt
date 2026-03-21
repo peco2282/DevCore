@@ -192,6 +192,38 @@ class TestPlugin : JavaPlugin() {
             1
           }
         }
+        literal("camera") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              // Set camera to self (just for test, normally use an entity id)
+              camera(player.entityId)
+            }
+            player.sendMessage("§aCamera set to self!")
+            1
+          }
+        }
+        literal("border") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              worldBorder {
+                center(player.location)
+                size = 10.0
+                warningDistance = 2
+              }
+            }
+            player.sendMessage("§aPersonal world border set!")
+            1
+          }
+        }
+        literal("sign") {
+          executesPlayer { player, _ ->
+            packet(player) {
+              openSign(player.location.block.location)
+            }
+            player.sendMessage("§aOpening sign editor at your feet (needs a sign block there!)")
+            1
+          }
+        }
       }
       literal("validate") {
         requireOp()
