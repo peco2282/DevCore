@@ -2,7 +2,6 @@ package com.peco2282.devcore.util
 
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Entity
-import org.bukkit.entity.Player
 
 fun List<Entity>.rangeOf(filterInRadius: Double, center: Entity): List<Entity> =
   filter { it.location.distanceSquared(center.location) <= filterInRadius * filterInRadius }
