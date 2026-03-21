@@ -1,9 +1,7 @@
 package com.peco2282.devcore.scheduler
 
-import com.peco2282.devcore.scheduler.coroutines.delayTicks
 import kotlinx.coroutines.CoroutineScope
 import org.bukkit.plugin.Plugin
-import org.bukkit.plugin.java.JavaPlugin
 import kotlin.coroutines.EmptyCoroutineContext
 
 /**

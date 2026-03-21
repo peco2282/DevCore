@@ -12,14 +12,14 @@ import kotlin.coroutines.resume
  * Custom dispatcher that runs tasks on the Bukkit main thread.
  */
 class BukkitDispatcher(private val plugin: Plugin) : CoroutineDispatcher() {
-    override fun dispatch(context: CoroutineContext, block: Runnable) {
-        if (!plugin.isEnabled) return
-        if (Bukkit.isPrimaryThread()) {
-            block.run()
-        } else {
-            Bukkit.getScheduler().runTask(plugin, block)
-        }
+  override fun dispatch(context: CoroutineContext, block: Runnable) {
+    if (!plugin.isEnabled) return
+    if (Bukkit.isPrimaryThread()) {
+      block.run()
+    } else {
+      Bukkit.getScheduler().runTask(plugin, block)
     }
+  }
 }
 
 private val exceptionHandlerCache = ConcurrentHashMap<Plugin, CoroutineExceptionHandler>()
@@ -28,15 +28,15 @@ private val exceptionHandlerCache = ConcurrentHashMap<Plugin, CoroutineException
  * Gets or sets the [CoroutineExceptionHandler] for this [Plugin].
  */
 var Plugin.coroutineExceptionHandler: CoroutineExceptionHandler
-    get() = exceptionHandlerCache.getOrPut(this) {
-        CoroutineExceptionHandler { _, throwable ->
-            logger.severe("Coroutine exception in plugin ${this.name}:")
-            throwable.printStackTrace()
-        }
+  get() = exceptionHandlerCache.getOrPut(this) {
+    CoroutineExceptionHandler { _, throwable ->
+      logger.severe("Coroutine exception in plugin ${this.name}:")
+      throwable.printStackTrace()
     }
-    set(value) {
-        exceptionHandlerCache[this] = value
-    }
+  }
+  set(value) {
+    exceptionHandlerCache[this] = value
+  }
 
 /**
  * Extension properties and functions for coroutine support in Bukkit.
@@ -47,13 +47,13 @@ private val dispatcherCache = ConcurrentHashMap<Plugin, BukkitDispatcher>()
  * Gets the [BukkitDispatcher] for this [Plugin].
  */
 val Plugin.dispatcher: BukkitDispatcher
-    get() = dispatcherCache.getOrPut(this) { BukkitDispatcher(this) }
+  get() = dispatcherCache.getOrPut(this) { BukkitDispatcher(this) }
 
 /**
  * Gets a [CoroutineScope] bound to this [Plugin]'s lifecycle on the main thread.
  */
 val Plugin.scope: CoroutineScope
-    get() = CoroutineScope(dispatcher + SupervisorJob() + coroutineExceptionHandler)
+  get() = CoroutineScope(dispatcher + SupervisorJob() + coroutineExceptionHandler)
 
 /**
  * Suspends the coroutine for the given number of [ticks].
@@ -61,19 +61,19 @@ val Plugin.scope: CoroutineScope
  * @param ticks the number of ticks to wait
  */
 suspend fun delayTicks(ticks: Ticks) {
-    if (ticks.value <= 0) return
-    suspendCancellableCoroutine { continuation ->
-        val plugin = Bukkit.getPluginManager().plugins.firstOrNull { it.isEnabled }
-            ?: throw IllegalStateException("No enabled plugin found to schedule delay")
-        
-        val task = Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-            continuation.resume(Unit)
-        }, ticks.value)
+  if (ticks.value <= 0) return
+  suspendCancellableCoroutine { continuation ->
+    val plugin = Bukkit.getPluginManager().plugins.firstOrNull { it.isEnabled }
+      ?: throw IllegalStateException("No enabled plugin found to schedule delay")
 
-        continuation.invokeOnCancellation {
-            task.cancel()
-        }
+    val task = Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+      continuation.resume(Unit)
+    }, ticks.value)
+
+    continuation.invokeOnCancellation {
+      task.cancel()
     }
+  }
 }
 
 /**
@@ -85,14 +85,14 @@ suspend fun delayTicks(ticks: Ticks) {
  * @param ticks the number of ticks to wait
  */
 suspend fun delayTicks(plugin: Plugin, ticks: Ticks) {
-    if (ticks.value <= 0) return
-    suspendCancellableCoroutine { continuation ->
-        val task = Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-            continuation.resume(Unit)
-        }, ticks.value)
+  if (ticks.value <= 0) return
+  suspendCancellableCoroutine { continuation ->
+    val task = Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+      continuation.resume(Unit)
+    }, ticks.value)
 
-        continuation.invokeOnCancellation {
-            task.cancel()
-        }
+    continuation.invokeOnCancellation {
+      task.cancel()
     }
+  }
 }
