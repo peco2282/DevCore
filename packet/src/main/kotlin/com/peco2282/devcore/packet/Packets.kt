@@ -22,7 +22,7 @@ import kotlin.random.Random
  * Send a packet to the player.
  */
 fun Player.sendPacket(packet: Any) {
-  InternalAPI.sendPacket(this, packet)
+  PacketAPI.sendPacket(this, packet)
 }
 
 /**
@@ -52,7 +52,7 @@ object Packets : Listener {
   fun init(plugin: Plugin) {
     if (isInitialized) return
     isInitialized = true
-    InternalAPI.init(plugin)
+    PacketAPI.init(plugin)
     Bukkit.getPluginManager().registerEvents(this, plugin)
     Bukkit.getOnlinePlayers().forEach { injectPlayer(it) }
   }
@@ -69,7 +69,7 @@ object Packets : Listener {
   }
 
   private fun injectPlayer(player: Player) {
-    InternalAPI.injectPlayer(player)
+    PacketAPI.injectPlayer(player)
   }
 
   class NetworkSettingsImpl : NetworkSettings {
@@ -148,7 +148,7 @@ object Packets : Listener {
   }
 
   fun getNetworkSettings(player: Player): NetworkSettings {
-    return InternalAPI.getNetworkSettings(player)
+    return PacketAPI.getNetworkSettings(player)
   }
 
   fun createPacketListener(): PacketListener = PacketListenerImpl()
@@ -232,7 +232,7 @@ object Packets : Listener {
   private val globalReceiveHandlers = mutableListOf<PacketEvent.() -> Unit>()
 
   fun removePlayer(player: Player) {
-    InternalAPI.removePlayer(player)
+    PacketAPI.removePlayer(player)
   }
 
   /**
@@ -248,7 +248,7 @@ object Packets : Listener {
   inline fun <reified T> onPacketAsync(player: Player, crossinline handler: suspend PacketEvent.(T) -> Unit) {
     onPacket(player) {
       if (packet is T) {
-        val dispatcher = InternalAPI.getCoroutineDispatcher(player) ?: Dispatchers.Default
+        val dispatcher = PacketAPI.getCoroutineDispatcher(player) ?: Dispatchers.Default
         CoroutineScope(dispatcher).launch {
           handler(packet as T)
         }

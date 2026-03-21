@@ -22,7 +22,7 @@ class PacketBuilder(private val player: Player) {
 
   fun title(builder: TitleBuilder.() -> Unit) {
     val titleBuilder = TitleBuilder().apply(builder)
-    InternalAPI.sendTitle(
+    PacketAPI.sendTitle(
       player,
       titleBuilder.title,
       titleBuilder.subtitle,
@@ -33,13 +33,13 @@ class PacketBuilder(private val player: Player) {
   }
 
   fun actionBar(message: String) {
-    InternalAPI.sendActionBar(player, message)
+    PacketAPI.sendActionBar(player, message)
   }
 
   fun sound(builder: SoundBuilder.() -> Unit) {
     val soundBuilder = SoundBuilder().apply(builder)
     val sound = soundBuilder.type ?: return
-    InternalAPI.sendSound(
+    PacketAPI.sendSound(
       player,
       sound,
       soundBuilder.volume,
@@ -50,13 +50,13 @@ class PacketBuilder(private val player: Player) {
   }
 
   fun sendFakeEntity(type: EntityType, location: Location, builder: FakeEntityBuilder.() -> Unit) {
-    val fakeEntityBuilder = InternalAPI.createFakeEntityBuilder(player, type, location).apply(builder)
+    val fakeEntityBuilder = PacketAPI.createFakeEntityBuilder(player, type, location).apply(builder)
     fakeEntityBuilder.spawn()
   }
 
   fun particles(type: Particle, builder: ParticleBuilder.() -> Unit) {
     val particleBuilder = ParticleBuilder(type).apply(builder)
-    InternalAPI.sendParticles(
+    PacketAPI.sendParticles(
       player,
       particleBuilder.type,
       particleBuilder.location ?: player.location,
@@ -68,7 +68,7 @@ class PacketBuilder(private val player: Player) {
   }
 
   fun fakeBlocks(builder: FakeBlockBuilder.() -> Unit) {
-    InternalAPI.sendFakeBlocks(player, builder)
+    PacketAPI.sendFakeBlocks(player, builder)
   }
 }
 
@@ -156,7 +156,7 @@ fun packet(player: Player, action: PacketBuilder.() -> Unit) {
 }
 
 fun packetListener(listener: PacketListener.() -> Unit) {
-  InternalAPI.createPacketListener().apply(listener)
+  PacketAPI.createPacketListener().apply(listener)
 }
 
 /**
@@ -184,13 +184,13 @@ interface NetworkSettings {
 }
 
 fun Player.networkSettings(action: NetworkSettings.() -> Unit) {
-  InternalAPI.getNetworkSettings(this).apply(action)
+  PacketAPI.getNetworkSettings(this).apply(action)
 }
 
 fun Player.sendRawPacket(channel: String, action: ByteBuf.() -> Unit) {
   val buf = Unpooled.buffer()
   buf.action()
-  InternalAPI.sendRawPacket(this, channel, buf)
+  PacketAPI.sendRawPacket(this, channel, buf)
 }
 
 interface EffectBuilder {

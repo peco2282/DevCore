@@ -42,7 +42,7 @@ interface PacketHub {
   fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
 }
 
-object InternalAPI {
+object PacketAPI {
   private var internal: PacketHub? = null
 
   private fun className(version: String) =
