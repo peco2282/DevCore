@@ -116,7 +116,7 @@ class Cooldowns<K : Any>(
    * @param onExpiry optional callback to execute when the cooldown expires
    * @return true if the key was ready and the cooldown was set, false otherwise
    */
-  fun tryUse(key: K, cooldown: Duration, onExpiry: () -> Unit = {}): Boolean = 
+  fun tryUse(key: K, cooldown: Duration, onExpiry: () -> Unit = {}): Boolean =
     tryUse(key, cooldown.toLong(DurationUnit.MILLISECONDS), onExpiry)
 
   /**
