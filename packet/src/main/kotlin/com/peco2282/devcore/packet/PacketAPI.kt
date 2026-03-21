@@ -58,7 +58,7 @@ object PacketAPI {
   }
 
   fun getNetworkSettings(player: Player): NetworkSettings {
-    return internal?.getNetworkSettings(player) ?: Packets.getNetworkSettings(player)
+    return internal?.getNetworkSettings(player) ?: Packets.NetworkSettingsImpl()
   }
 
   fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
