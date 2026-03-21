@@ -100,7 +100,7 @@ class FakeEntityBuilderImpl(
 
     // Head rotation
     headRotation?.let {
-      val headPacket = ClientboundRotateHeadPacket(null, (it * 256.0f / 360.0f).toInt().toByte())
+      val headPacket = ClientboundRotateHeadPacket(player.handle, (it * 256.0f / 360.0f).toInt().toByte())
       headPacket.setFieldValue("entityId", entityId)
       connection.send(headPacket)
     }
