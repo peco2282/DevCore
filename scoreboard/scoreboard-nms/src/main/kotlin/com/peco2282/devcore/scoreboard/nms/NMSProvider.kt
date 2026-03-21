@@ -10,6 +10,7 @@ object NMSProvider {
     val v = version.replace(".", "_")
     return "com.peco2282.devcore.scoreboard.nms.v$v.NMSScoreboardFactory_v$v"
   }
+
   fun init(plugin: Plugin) {
     val version = Bukkit.getMinecraftVersion()
     val factoryClass = when (version) {

@@ -4,10 +4,9 @@ import com.peco2282.devcore.scheduler.Ticks
 import com.peco2282.devcore.scoreboard.api.builder.BossBarBuilder
 import com.peco2282.devcore.scoreboard.api.builder.SidebarBuilder
 import net.kyori.adventure.text.Component
-import org.bukkit.plugin.Plugin
-
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.plugin.Plugin
 
 /**
  * DSL for managing scoreboard teams for player name decoration (Prefix/Suffix).

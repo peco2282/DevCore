@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * A fallback implementation of [ScoreboardFactory] using the Paper API.
  */
-internal object PaperScoreboardFactory: ScoreboardFactory {
+internal object PaperScoreboardFactory : ScoreboardFactory {
   override fun createSidebar(
     title: () -> Component,
     lines: List<(Player) -> Component>,
@@ -92,7 +92,7 @@ class PaperSidebarHandle(
       Criteria.DUMMY,
       title()
     )
-    
+
     objective.displayName(title())
     objective.displaySlot = DisplaySlot.SIDEBAR
 
@@ -104,11 +104,11 @@ class PaperSidebarHandle(
       val scoreValue = lines.size - i
       // Use empty colors as entry names to allow duplicate components
       val entryName = i.toString(16).map { "§$it" }.joinToString("") + "§r"
-      
+
       val team = scoreboard.getTeam("line_$i") ?: scoreboard.registerNewTeam("line_$i")
       team.addEntry(entryName)
       team.prefix(component)
-      
+
       objective.getScore(entryName).score = scoreValue
     }
 

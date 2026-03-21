@@ -20,7 +20,7 @@ tasks.jar {
     evaluationDependsOn(subproject.path) // サブプロジェクトの評価を強制する
     val reobfJar = subproject.tasks.named("reobfJar")
     from(reobfJar.map { zipTree(it.outputs.files.singleFile) }) {
-        exclude("META-INF/**")
+      exclude("META-INF/**")
     }
   }
 }
