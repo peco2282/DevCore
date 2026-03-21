@@ -8,7 +8,10 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.*
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -16,7 +19,6 @@ import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
-import java.util.*
 
 class PacketInternalImpl : PacketInternal {
   private val HANDLER_NAME = "devcore_packet_handler"
@@ -82,7 +84,8 @@ class PacketInternalImpl : PacketInternal {
 
       override fun set(location: org.bukkit.Location, material: org.bukkit.Material) {
         val pos = net.minecraft.core.BlockPos(location.blockX, location.blockY, location.blockZ)
-        blocks[pos] = (org.bukkit.Bukkit.createBlockData(material) as org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData).state
+        blocks[pos] =
+          (org.bukkit.Bukkit.createBlockData(material) as org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData).state
       }
 
       override fun fill(from: org.bukkit.Location, to: org.bukkit.Location, material: org.bukkit.Material) {
@@ -93,7 +96,8 @@ class PacketInternalImpl : PacketInternal {
         val minZ = minOf(from.blockZ, to.blockZ)
         val maxZ = maxOf(from.blockZ, to.blockZ)
 
-        val state = (org.bukkit.Bukkit.createBlockData(material) as org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData).state
+        val state =
+          (org.bukkit.Bukkit.createBlockData(material) as org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData).state
         for (x in minX..maxX) {
           for (y in minY..maxY) {
             for (z in minZ..maxZ) {

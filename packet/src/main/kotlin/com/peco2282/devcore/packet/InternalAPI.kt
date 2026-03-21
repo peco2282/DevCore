@@ -28,6 +28,7 @@ interface PacketInternal {
     relative: Boolean,
     offset: Vector
   )
+
   fun sendParticles(
     player: Player,
     type: org.bukkit.Particle,
@@ -37,6 +38,7 @@ interface PacketInternal {
     extra: Double,
     data: Any?
   )
+
   fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
 }
 

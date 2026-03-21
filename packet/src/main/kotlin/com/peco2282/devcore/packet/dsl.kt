@@ -10,7 +10,6 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
@@ -54,6 +53,7 @@ class PacketBuilder(private val player: Player) {
     val fakeEntityBuilder = InternalAPI.createFakeEntityBuilder(player, type, location).apply(builder)
     fakeEntityBuilder.spawn()
   }
+
   fun particles(type: Particle, builder: ParticleBuilder.() -> Unit) {
     val particleBuilder = ParticleBuilder(type).apply(builder)
     InternalAPI.sendParticles(
