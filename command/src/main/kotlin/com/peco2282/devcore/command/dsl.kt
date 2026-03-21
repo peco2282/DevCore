@@ -2,10 +2,19 @@
 
 package com.peco2282.devcore.command
 
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
+import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver
+import io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
+import org.bukkit.Location
+import org.bukkit.World
+import org.bukkit.entity.Entity
+import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
 /**
@@ -41,51 +50,51 @@ inline fun <reified T> CommandContext<CommandSourceStack>.getArg(name: String): 
   getArgument(name, T::class.java)
 
 /**
- * Retrieves a [org.bukkit.entity.Player] from the command context.
+ * Retrieves a [Player] from the command context.
  */
-fun CommandContext<CommandSourceStack>.getPlayer(name: String): org.bukkit.entity.Player? =
-  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver>(name)
+fun CommandContext<CommandSourceStack>.getPlayer(name: String): Player? =
+  getArg<PlayerSelectorArgumentResolver>(name)
     .resolve(source).firstOrNull()
 
 /**
- * Retrieves a list of [org.bukkit.entity.Player]s from the command context.
+ * Retrieves a list of [Player]s from the command context.
  */
-fun CommandContext<CommandSourceStack>.getPlayers(name: String): List<org.bukkit.entity.Player> =
-  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver>(name)
+fun CommandContext<CommandSourceStack>.getPlayers(name: String): List<Player> =
+  getArg<PlayerSelectorArgumentResolver>(name)
     .resolve(source)
 
 /**
- * Retrieves a [org.bukkit.entity.Entity] from the command context.
+ * Retrieves a [Entity] from the command context.
  */
-fun CommandContext<CommandSourceStack>.getEntity(name: String): org.bukkit.entity.Entity? =
-  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver>(name)
+fun CommandContext<CommandSourceStack>.getEntity(name: String): Entity? =
+  getArg<EntitySelectorArgumentResolver>(name)
     .resolve(source).firstOrNull()
 
 /**
- * Retrieves a list of [org.bukkit.entity.Entity]s from the command context.
+ * Retrieves a list of [Entity]s from the command context.
  */
-fun CommandContext<CommandSourceStack>.getEntities(name: String): List<org.bukkit.entity.Entity> =
-  getArg<io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver>(name)
+fun CommandContext<CommandSourceStack>.getEntities(name: String): List<Entity> =
+  getArg<EntitySelectorArgumentResolver>(name)
     .resolve(source)
 
 /**
- * Retrieves a [org.bukkit.Location] (Block Position) from the command context.
+ * Retrieves a [Location] (Block Position) from the command context.
  */
-fun CommandContext<CommandSourceStack>.getLocation(name: String): org.bukkit.Location =
-  getArg<io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver>(name)
+fun CommandContext<CommandSourceStack>.getLocation(name: String): Location =
+  getArg<BlockPositionResolver>(name)
     .resolve(source).toLocation(source.location.world)
 
 /**
- * Retrieves a [org.bukkit.Location] (Fine Position) from the command context.
+ * Retrieves a [Location] (Fine Position) from the command context.
  */
-fun CommandContext<CommandSourceStack>.getFineLocation(name: String): org.bukkit.Location =
-  getArg<io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver>(name)
+fun CommandContext<CommandSourceStack>.getFineLocation(name: String): Location =
+  getArg<FinePositionResolver>(name)
     .resolve(source).toLocation(source.location.world)
 
 /**
- * Retrieves a [org.bukkit.World] from the command context.
+ * Retrieves a [World] from the command context.
  */
-fun CommandContext<CommandSourceStack>.getWorld(name: String): org.bukkit.World =
+fun CommandContext<CommandSourceStack>.getWorld(name: String): World =
   getArg(name)
 
 /**
@@ -99,6 +108,6 @@ fun CommandContext<CommandSourceStack>.getWorld(name: String): org.bukkit.World 
  */
 fun <V> CommandCreator<*>.custom(
   name: String,
-  type: com.mojang.brigadier.arguments.ArgumentType<V>,
+  type: ArgumentType<V>,
   creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, V>>.() -> Unit = {}
 ) = argument(name, type, creator)

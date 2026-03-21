@@ -7,12 +7,15 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
+import net.minecraft.core.SectionPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.chat.Component as VanillaComponent
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.block.state.BlockState
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
@@ -114,12 +117,12 @@ class PacketHubImpl : PacketHub {
 
     // Group blocks by section
     val sections = handler.blocks.entries.groupBy { (pos, _) ->
-      net.minecraft.core.SectionPos.of(pos)
+      SectionPos.of(pos)
     }
 
     for ((sectionPos, blockEntries) in sections) {
       val shortPosArray = ShortArray(blockEntries.size)
-      val stateArray = arrayOfNulls<net.minecraft.world.level.block.state.BlockState>(blockEntries.size)
+      val stateArray = arrayOfNulls<BlockState>(blockEntries.size)
       for (i in blockEntries.indices) {
         val entry = blockEntries[i]
         val pos = entry.key
@@ -131,7 +134,7 @@ class PacketHubImpl : PacketHub {
         ClientboundSectionBlocksUpdatePacket(
           sectionPos,
           it.unimi.dsi.fastutil.shorts.ShortArraySet(shortPosArray),
-          stateArray as Array<net.minecraft.world.level.block.state.BlockState>
+          stateArray as Array<BlockState>
         )
       )
     }
@@ -139,7 +142,7 @@ class PacketHubImpl : PacketHub {
 
   override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
     val friendlyByteBuf = if (buf is FriendlyByteBuf) buf else FriendlyByteBuf(buf)
-    val plugin = org.bukkit.Bukkit.getPluginManager().getPlugin("DevCore")!!
+    val plugin = Bukkit.getPluginManager().getPlugin("DevCore")!!
     val bytes = ByteArray(friendlyByteBuf.readableBytes())
     friendlyByteBuf.readBytes(bytes)
     player.sendPluginMessage(plugin, channel, bytes)
@@ -154,17 +157,17 @@ class PacketHubImpl : PacketHub {
     val connection = (player as CraftPlayer).handle.connection
     connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
     if (title.isNotEmpty()) {
-      connection.send(ClientboundSetTitleTextPacket(PaperAdventure.asVanilla(Component.text(title)) as net.minecraft.network.chat.Component))
+      connection.send(ClientboundSetTitleTextPacket(PaperAdventure.asVanilla(Component.text(title)) as VanillaComponent))
     }
     if (subtitle.isNotEmpty()) {
-      connection.send(ClientboundSetSubtitleTextPacket(PaperAdventure.asVanilla(Component.text(subtitle)) as net.minecraft.network.chat.Component))
+      connection.send(ClientboundSetSubtitleTextPacket(PaperAdventure.asVanilla(Component.text(subtitle)) as VanillaComponent))
     }
   }
 
   override fun sendActionBar(player: Player, message: String) {
     (player as CraftPlayer).handle.connection.send(
       ClientboundSystemChatPacket(
-        PaperAdventure.asVanilla(Component.text(message)) as net.minecraft.network.chat.Component,
+        PaperAdventure.asVanilla(Component.text(message)) as VanillaComponent,
         true
       )
     )

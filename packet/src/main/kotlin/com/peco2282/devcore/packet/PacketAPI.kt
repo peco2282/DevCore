@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf
 import kotlinx.coroutines.CoroutineDispatcher
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -90,10 +91,10 @@ object PacketAPI {
 
   fun sendParticles(
     player: Player,
-    type: org.bukkit.Particle,
-    location: org.bukkit.Location,
+    type: Particle,
+    location: Location,
     amount: Int,
-    offset: org.bukkit.util.Vector,
+    offset: Vector,
     extra: Double,
     data: Any?
   ) {

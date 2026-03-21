@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
@@ -118,8 +119,8 @@ enum class EntityAnimation {
 
 @PacketDsl
 interface FakeBlockBuilder {
-  fun set(location: Location, material: org.bukkit.Material)
-  fun fill(from: Location, to: Location, material: org.bukkit.Material)
+  fun set(location: Location, material: Material)
+  fun fill(from: Location, to: Location, material: Material)
 }
 
 class TitleBuilder {

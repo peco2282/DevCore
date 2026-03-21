@@ -5,6 +5,7 @@ import com.peco2282.devcore.scheduler.scheduler
 import com.peco2282.devcore.scheduler.ticks
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.CopyOnWriteArrayList
@@ -32,7 +33,7 @@ class DefaultBossBarHandle(
 
   override fun update() {
     if (visibilityCondition != null) {
-      org.bukkit.Bukkit.getOnlinePlayers().forEach { player ->
+      Bukkit.getOnlinePlayers().forEach { player ->
         if (visibilityCondition.invoke(player)) {
           show(player)
         } else {

@@ -10,6 +10,7 @@ import com.peco2282.devcore.cooldown.Cooldowns
 import com.peco2282.devcore.gui.fill
 import com.peco2282.devcore.gui.gui
 import com.peco2282.devcore.gui.GuiListener
+import com.peco2282.devcore.packet.EntityAnimation
 import com.peco2282.devcore.packet.Packets
 import com.peco2282.devcore.packet.onPacket
 import com.peco2282.devcore.packet.packet
@@ -17,8 +18,12 @@ import com.peco2282.devcore.world.edit
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.entity.EntityType
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.util.Vector
 import kotlin.time.Duration.Companion.seconds
 
 class TestPlugin : JavaPlugin() {
@@ -147,15 +152,15 @@ class TestPlugin : JavaPlugin() {
         literal("fakeentity") {
           executesPlayer { player, _ ->
             packet(player) {
-              sendFakeEntity(org.bukkit.entity.EntityType.ZOMBIE, player.location) {
+              sendFakeEntity(EntityType.ZOMBIE, player.location) {
                 customName = "§cDSL Zombie"
                 isCustomNameVisible = true
                 isGlowing = true
                 equipment {
-                  helmet = org.bukkit.inventory.ItemStack(Material.DIAMOND_HELMET)
-                  mainHand = org.bukkit.inventory.ItemStack(Material.DIAMOND_SWORD)
+                  helmet = ItemStack(Material.DIAMOND_HELMET)
+                  mainHand = ItemStack(Material.DIAMOND_SWORD)
                 }
-                animate(com.peco2282.devcore.packet.EntityAnimation.SWING_MAIN_HAND)
+                animate(EntityAnimation.SWING_MAIN_HAND)
                 despawnAfter(100L) // 5 seconds
               }
             }
@@ -166,9 +171,9 @@ class TestPlugin : JavaPlugin() {
         literal("particles") {
           executesPlayer { player, _ ->
             packet(player) {
-              particles(org.bukkit.Particle.FLAME) {
+              particles(Particle.FLAME) {
                 amount = 100
-                offset = org.bukkit.util.Vector(1.0, 1.0, 1.0)
+                offset = Vector(1.0, 1.0, 1.0)
                 extra = 0.05
               }
             }

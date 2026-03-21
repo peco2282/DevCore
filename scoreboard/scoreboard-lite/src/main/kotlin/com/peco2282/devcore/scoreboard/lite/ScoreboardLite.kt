@@ -3,6 +3,7 @@ package com.peco2282.devcore.scoreboard.lite
 import com.peco2282.devcore.scheduler.Ticks
 import com.peco2282.devcore.scheduler.scheduler
 import com.peco2282.devcore.scheduler.ticks
+import com.peco2282.devcore.scoreboard.api.DefaultBossBarHandle
 import com.peco2282.devcore.scoreboard.api.BossBarHandle
 import com.peco2282.devcore.scoreboard.api.ScoreboardApi
 import com.peco2282.devcore.scoreboard.api.SidebarHandle
@@ -41,7 +42,7 @@ object ScoreboardLite : ScoreboardFactory {
     refreshInterval: Ticks?,
     visibilityCondition: ((Player) -> Boolean)?
   ): BossBarHandle {
-    return com.peco2282.devcore.scoreboard.api.DefaultBossBarHandle(
+    return DefaultBossBarHandle(
       title,
       progress,
       bar,

@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
+import org.bukkit.scoreboard.Team
 
 /**
  * DSL for managing scoreboard teams for player name decoration (Prefix/Suffix).
@@ -14,7 +15,7 @@ import org.bukkit.plugin.Plugin
  * @param name The name of the team.
  * @param block The builder block.
  */
-fun Player.team(name: String, block: org.bukkit.scoreboard.Team.() -> Unit) {
+fun Player.team(name: String, block: Team.() -> Unit) {
   val sb = if (scoreboard == Bukkit.getScoreboardManager().mainScoreboard) {
     Bukkit.getScoreboardManager().newScoreboard
   } else {

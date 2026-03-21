@@ -1,6 +1,7 @@
 package com.peco2282.devcore.event
 
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.event.*
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.plugin.Plugin
@@ -81,7 +82,7 @@ class EventBuilder<T : Event>(
    *
    * @param predicate A predicate applied to the player.
    */
-  fun filterPlayer(predicate: org.bukkit.entity.Player.() -> Boolean): EventBuilder<T> = filter {
+  fun filterPlayer(predicate: Player.() -> Boolean): EventBuilder<T> = filter {
     if (this is PlayerEvent) {
       predicate(player)
     } else {

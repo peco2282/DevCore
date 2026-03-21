@@ -1,5 +1,7 @@
 package com.peco2282.devcore.gui
 
+import net.kyori.adventure.text.Component
+import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -32,7 +34,7 @@ class SlotCreator {
    * @param amount The amount of the item (default: 1).
    * @param creator Additional configuration for the [ItemStack].
    */
-  fun icon(material: org.bukkit.Material, amount: Int = 1, creator: ItemStack.() -> Unit = {}): SlotCreator = apply {
+  fun icon(material: Material, amount: Int = 1, creator: ItemStack.() -> Unit = {}): SlotCreator = apply {
     this.item = ItemStack(material, amount)
     this.item.apply(creator)
   }
@@ -40,7 +42,7 @@ class SlotCreator {
   /**
    * Sets the display name of the item in this slot.
    */
-  fun name(name: net.kyori.adventure.text.Component?): SlotCreator = apply {
+  fun name(name: Component?): SlotCreator = apply {
     val meta = item.itemMeta ?: return@apply
     meta.displayName(name)
     item.itemMeta = meta
@@ -49,7 +51,7 @@ class SlotCreator {
   /**
    * Sets the lore of the item in this slot.
    */
-  fun lore(lore: List<net.kyori.adventure.text.Component>?): SlotCreator = apply {
+  fun lore(lore: List<Component>?): SlotCreator = apply {
     val meta = item.itemMeta ?: return@apply
     meta.lore(lore)
     item.itemMeta = meta
@@ -58,7 +60,7 @@ class SlotCreator {
   /**
    * Sets the lore of the item in this slot using varargs.
    */
-  fun lore(vararg lore: net.kyori.adventure.text.Component): SlotCreator = lore(lore.toList())
+  fun lore(vararg lore: Component): SlotCreator = lore(lore.toList())
 
   /**
    * Sets whether the item in this slot can be picked up by the player.

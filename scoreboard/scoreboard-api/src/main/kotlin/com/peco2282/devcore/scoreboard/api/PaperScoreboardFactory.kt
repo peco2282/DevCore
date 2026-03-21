@@ -1,5 +1,6 @@
 package com.peco2282.devcore.scoreboard.api
 
+import com.peco2282.devcore.scheduler.TaskHandle
 import com.peco2282.devcore.scheduler.Ticks
 import com.peco2282.devcore.scheduler.scheduler
 import com.peco2282.devcore.scheduler.ticks
@@ -47,7 +48,7 @@ class PaperSidebarHandle(
 ) : SidebarHandle {
 
   private val viewers = ConcurrentHashMap.newKeySet<Player>()
-  private var task: com.peco2282.devcore.scheduler.TaskHandle? = null
+  private var task: TaskHandle? = null
   private val objectiveName = "dc_" + UUID.randomUUID().toString().substring(0, 8)
 
   init {

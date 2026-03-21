@@ -6,15 +6,20 @@ import io.papermc.paper.adventure.PaperAdventure
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
+import net.minecraft.core.BlockPos
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket
+import net.minecraft.world.level.block.state.BlockState
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.craftbukkit.block.data.CraftBlockData
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -67,10 +72,10 @@ class PacketHubImpl : PacketHub {
 
   override fun sendParticles(
     player: Player,
-    type: org.bukkit.Particle,
-    location: org.bukkit.Location,
+    type: Particle,
+    location: Location,
     amount: Int,
-    offset: org.bukkit.util.Vector,
+    offset: Vector,
     extra: Double,
     data: Any?
   ) {
@@ -80,14 +85,14 @@ class PacketHubImpl : PacketHub {
   override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
     val connection = (player as CraftPlayer).handle.connection
     val handler = object : FakeBlockBuilder {
-      val blocks = mutableMapOf<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState>()
+      val blocks = mutableMapOf<BlockPos, BlockState>()
 
-      override fun set(location: org.bukkit.Location, material: org.bukkit.Material) {
-        val pos = net.minecraft.core.BlockPos(location.blockX, location.blockY, location.blockZ)
-        blocks[pos] = (material as org.bukkit.craftbukkit.block.data.CraftBlockData).state
+      override fun set(location: Location, material: Material) {
+        val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
+        blocks[pos] = (material as CraftBlockData).state
       }
 
-      override fun fill(from: org.bukkit.Location, to: org.bukkit.Location, material: org.bukkit.Material) {
+      override fun fill(from: Location, to: Location, material: Material) {
         val minX = minOf(from.blockX, to.blockX)
         val maxX = maxOf(from.blockX, to.blockX)
         val minY = minOf(from.blockY, to.blockY)
@@ -95,11 +100,11 @@ class PacketHubImpl : PacketHub {
         val minZ = minOf(from.blockZ, to.blockZ)
         val maxZ = maxOf(from.blockZ, to.blockZ)
 
-        val state = (material as org.bukkit.craftbukkit.block.data.CraftBlockData).state
+        val state = (material as CraftBlockData).state
         for (x in minX..maxX) {
           for (y in minY..maxY) {
             for (z in minZ..maxZ) {
-              val pos = net.minecraft.core.BlockPos(x, y, z)
+              val pos = BlockPos(x, y, z)
               blocks[pos] = state
             }
           }

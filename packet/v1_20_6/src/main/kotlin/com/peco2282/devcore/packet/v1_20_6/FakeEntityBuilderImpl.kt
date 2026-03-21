@@ -11,6 +11,8 @@ import net.kyori.adventure.text.Component
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.world.entity.Entity as NMSEntity
+import net.minecraft.world.phys.Vec3
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.craftbukkit.entity.CraftPlayer
@@ -68,7 +70,7 @@ class FakeEntityBuilderImpl(
   }
 
   override fun move(location: Location, onGround: Boolean) {
-    val packet = ClientboundTeleportEntityPacket(player as net.minecraft.world.entity.Entity)
+    val packet = ClientboundTeleportEntityPacket(player as NMSEntity)
     packet.setFieldValue("id", entityId)
     packet.setFieldValue("x", location.x)
     packet.setFieldValue("y", location.y)
@@ -147,7 +149,7 @@ class FakeEntityBuilderImpl(
       location.yaw,
       craftPlayer.handle.type,
       0,
-      net.minecraft.world.phys.Vec3.ZERO,
+      Vec3.ZERO,
       location.yaw.toDouble()
     )
     connection.send(spawnPacket)

@@ -2,6 +2,7 @@ package com.peco2282.devcore.gui
 
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -111,7 +112,7 @@ fun GuiContext.template(template: GuiContext.() -> Unit) {
  * @param pickable Whether the items are pickable.
  * @param creator Additional configuration for each slot.
  */
-fun GuiCreator.fill(material: org.bukkit.Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) {
+fun GuiCreator.fill(material: Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) {
   for (i in 0 until (rows * 9)) {
     slot(i) {
       icon(material)

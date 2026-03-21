@@ -14,6 +14,8 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import net.kyori.adventure.text.Component
+import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
 /**
@@ -419,10 +421,10 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * @param block the code to execute, taking the player and [CommandContext]
    * @return this [CommandCreator] instance for chaining
    */
-  fun executesPlayer(block: (org.bukkit.entity.Player, CommandContext<CommandSourceStack>) -> Int) =
+  fun executesPlayer(block: (Player, CommandContext<CommandSourceStack>) -> Int) =
     apply {
       builder = builder.executes { context ->
-        val player = context.source.sender as? org.bukkit.entity.Player
+        val player = context.source.sender as? Player
         if (player == null) {
           context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
           0
@@ -438,10 +440,10 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * @param block the code to execute, taking the console sender and [CommandContext]
    * @return this [CommandCreator] instance for chaining
    */
-  fun executesConsole(block: (org.bukkit.command.ConsoleCommandSender, CommandContext<CommandSourceStack>) -> Int) =
+  fun executesConsole(block: (ConsoleCommandSender, CommandContext<CommandSourceStack>) -> Int) =
     apply {
       builder = builder.executes { context ->
-        val console = context.source.sender as? org.bukkit.command.ConsoleCommandSender
+        val console = context.source.sender as? ConsoleCommandSender
         if (console == null) {
           context.sendError { text("このコマンドはコンソールのみ実行可能です。") }
           0

@@ -14,6 +14,8 @@ import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.PositionMoveRotation
+import net.minecraft.world.entity.Entity as NMSEntity
+import net.minecraft.world.phys.Vec3
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.craftbukkit.entity.CraftPlayer
@@ -75,8 +77,8 @@ class FakeEntityBuilderImpl(
     val packet = ClientboundTeleportEntityPacket(
       entityId,
       PositionMoveRotation(
-        net.minecraft.world.phys.Vec3(location.x, location.y, location.z),
-        net.minecraft.world.phys.Vec3.ZERO,
+        Vec3(location.x, location.y, location.z),
+        Vec3.ZERO,
         location.yaw,
         location.pitch
       ),
@@ -101,7 +103,7 @@ class FakeEntityBuilderImpl(
     // Head rotation
     headRotation?.let {
       val headPacket = ClientboundRotateHeadPacket(
-        player as net.minecraft.world.entity.Entity,
+        player as NMSEntity,
         (it * 256.0f / 360.0f).toInt().toByte()
       )
       headPacket.setFieldValue("entityId", entityId)
@@ -163,7 +165,7 @@ class FakeEntityBuilderImpl(
       location.yaw,
       nmsType,
       0,
-      net.minecraft.world.phys.Vec3.ZERO,
+      Vec3.ZERO,
       location.yaw.toDouble()
     )
     connection.send(spawnPacket)

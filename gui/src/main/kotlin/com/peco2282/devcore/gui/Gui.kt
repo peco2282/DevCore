@@ -1,6 +1,8 @@
 package com.peco2282.devcore.gui
 
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -186,7 +188,7 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
   /**
    * Sets the title of the GUI.
    */
-  fun title(title: net.kyori.adventure.text.Component) {
+  fun title(title: Component) {
     creator.title = title
   }
 
@@ -208,13 +210,13 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
   /**
    * Fills all slots in the GUI with a material.
    */
-  fun fill(material: org.bukkit.Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) =
+  fun fill(material: Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) =
     this.creator.fill(material, pickable, creator)
 
   /**
    * Fills the border of the GUI with a material.
    */
-  fun fillBorder(material: org.bukkit.Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) =
+  fun fillBorder(material: Material, pickable: Boolean = false, creator: SlotCreator.() -> Unit = {}) =
     this.creator.fillBorder(material, pickable, creator)
 
   /**
@@ -225,7 +227,7 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
     y1: Int,
     x2: Int,
     y2: Int,
-    material: org.bukkit.Material,
+    material: Material,
     pickable: Boolean = false,
     creator: SlotCreator.() -> Unit = {}
   ) =
@@ -237,7 +239,7 @@ abstract class GuiContext(rows: Int) : Gui(rows) {
   fun fillRect(
     s1: Slot,
     s2: Slot,
-    material: org.bukkit.Material,
+    material: Material,
     pickable: Boolean = false,
     creator: SlotCreator.() -> Unit = {}
   ) =
