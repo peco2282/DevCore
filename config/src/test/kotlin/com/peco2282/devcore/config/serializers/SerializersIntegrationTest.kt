@@ -13,28 +13,28 @@ import kotlin.test.assertTrue
 
 class SerializersIntegrationTest {
 
-    @Test
-    fun testAdventureSerializersRegistration() {
-        AdventureSerializers.registerAll()
+  @Test
+  fun testAdventureSerializersRegistration() {
+    AdventureSerializers.registerAll()
 
-        assertTrue(TypeSerializers.has(Component::class))
-        assertTrue(TypeSerializers.has(TextColor::class))
-        
-        val component = MiniMessage.miniMessage().deserialize("<red>Hello")
-        val serializedComponent = TypeSerializers.serializeOrRaw(component)
-        assertEquals("<red>Hello", serializedComponent)
-        
-        val textColor = TextColor.color(0xFF0000)
-        val serializedColor = TypeSerializers.serializeOrRaw(textColor)
-        assertEquals("#ff0000", serializedColor)
-    }
+    assertTrue(TypeSerializers.has(Component::class))
+    assertTrue(TypeSerializers.has(TextColor::class))
 
-    @Test
-    fun testBukkitSerializersRegistration() {
-        BukkitSerializers.registerAll()
+    val component = MiniMessage.miniMessage().deserialize("<red>Hello")
+    val serializedComponent = TypeSerializers.serializeOrRaw(component)
+    assertEquals("<red>Hello", serializedComponent)
 
-        assertTrue(TypeSerializers.has(ItemStack::class))
-        assertTrue(TypeSerializers.has(Location::class))
-        assertTrue(TypeSerializers.has(Vector::class))
-    }
+    val textColor = TextColor.color(0xFF0000)
+    val serializedColor = TypeSerializers.serializeOrRaw(textColor)
+    assertEquals("#ff0000", serializedColor)
+  }
+
+  @Test
+  fun testBukkitSerializersRegistration() {
+    BukkitSerializers.registerAll()
+
+    assertTrue(TypeSerializers.has(ItemStack::class))
+    assertTrue(TypeSerializers.has(Location::class))
+    assertTrue(TypeSerializers.has(Vector::class))
+  }
 }

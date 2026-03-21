@@ -29,7 +29,7 @@ interface Serializer<T : Any> {
    */
   fun serialize(value: T): Any?
 
-  
+
   companion object {
     /**
      * Registers a custom serializer for the specified type.
@@ -42,6 +42,6 @@ interface Serializer<T : Any> {
      * @param type the [KClass] representing the type to register the serializer for
      * @param serializer the [Serializer] implementation to use for the specified type
      */
-    fun <T: Any> registerer(type: KClass<T>, serializer: Serializer<T>) = TypeSerializers.register(type, serializer)
+    fun <T : Any> registerer(type: KClass<T>, serializer: Serializer<T>) = TypeSerializers.register(type, serializer)
   }
 }

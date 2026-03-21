@@ -3,13 +3,13 @@ package com.peco2282.devcore.config
 import com.peco2282.devcore.config.reflection.ClassMapper
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
-import kotlinx.coroutines.future.future
-import kotlinx.coroutines.GlobalScope
 
 /**
  * Handles the loading and reloading of a configuration file into an instance of type [T].

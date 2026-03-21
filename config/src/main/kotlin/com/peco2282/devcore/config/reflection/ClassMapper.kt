@@ -101,11 +101,11 @@ object ClassMapper {
         value is Map<*, *> -> {
           val sub = section.getConfigurationSection(prop.name)
             ?: section.createSection(prop.name)
-          
+
           if (propComment != null) {
             section.setComments(prop.name, listOf(propComment))
           }
-          
+
           value.forEach { (k, v) ->
             if (k !is String || v == null) return@forEach
             val path = k // Relative path within the subsection
