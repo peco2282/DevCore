@@ -103,6 +103,7 @@ fun <T> paginatedInventory(
     init {
       this.items = items
     }
+
     override fun build() {
       title(title)
       this.builder()

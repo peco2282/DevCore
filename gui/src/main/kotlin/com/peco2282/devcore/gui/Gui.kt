@@ -119,7 +119,7 @@ abstract class Gui(val rows: Int) {
       for (i in 0 until (rows * 9)) {
         val oldItem = currentSlots[i]?.item
         val newItem = newSlots[i]?.item
-        
+
         if (oldItem != newItem) {
           inventory.setItem(i, newItem)
         }

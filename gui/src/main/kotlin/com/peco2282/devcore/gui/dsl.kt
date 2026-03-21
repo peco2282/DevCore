@@ -1,11 +1,10 @@
 package com.peco2282.devcore.gui
 
+import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import io.papermc.paper.event.player.AsyncChatEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.plugin.Plugin
 
@@ -29,7 +28,7 @@ fun Player.awaitChatInput(
       if (event.player.uniqueId != uniqueId) return
       event.isCancelled = true
       val message = event.originalMessage()
-      
+
       // Execute on main thread
       plugin.server.scheduler.runTask(plugin, Runnable {
         onInput(message)
@@ -37,9 +36,9 @@ fun Player.awaitChatInput(
       })
     }
   }
-  
+
   plugin.server.pluginManager.registerEvents(listener, plugin)
-  
+
   if (timeoutTicks != null) {
     plugin.server.scheduler.runTaskLater(plugin, Runnable {
       AsyncChatEvent.getHandlerList().unregister(listener)
