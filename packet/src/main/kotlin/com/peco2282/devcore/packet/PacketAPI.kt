@@ -11,8 +11,8 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
 
-object PacketAPI {
-  private var internal: PacketHub? = null
+object PacketAPI: PacketHub {
+  private var delegate: PacketHub? = null
 
   private fun className(version: String) =
     "com.peco2282.devcore.packet.v${version.replace(".", "_")}.PacketHubImpl"
@@ -31,7 +31,7 @@ object PacketAPI {
       }
     }
 
-    internal = className?.let {
+    delegate = className?.let {
       try {
         Class.forName(it).getDeclaredConstructor().newInstance() as? PacketHub
       } catch (e: Exception) {
@@ -40,45 +40,45 @@ object PacketAPI {
       }
     }
 
-    if (internal != null) {
+    if (delegate != null) {
       plugin.logger.info("Packet NMS initialized for version: $version")
     }
   }
 
-  fun injectPlayer(player: Player) = internal?.injectPlayer(player)
-  fun removePlayer(player: Player) = internal?.removePlayer(player)
-  fun sendPacket(player: Player, packet: Any) = internal?.sendPacket(player, packet)
+  override fun injectPlayer(player: Player) = delegate?.injectPlayer(player) ?: throw UnsupportedOperationException("Player injection is not supported on this version")
+  override fun removePlayer(player: Player) = delegate?.removePlayer(player) ?: throw UnsupportedOperationException("Player removal is not supported on this version")
+  override fun sendPacket(player: Player, packet: Any) = delegate?.sendPacket(player, packet) ?: throw UnsupportedOperationException("Packet sending is not supported on this version")
 
   fun createPacketListener(): PacketListener {
     return Packets.createPacketListener()
   }
 
-  fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder {
-    return internal?.createFakeEntityBuilder(player, type, location)
+  override fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder {
+    return delegate?.createFakeEntityBuilder(player, type, location)
       ?: throw UnsupportedOperationException("FakeEntityBuilder is not supported on this version")
   }
 
-  fun getNetworkSettings(player: Player): NetworkSettings {
-    return internal?.getNetworkSettings(player) ?: Packets.NetworkSettingsImpl()
+  override fun getNetworkSettings(player: Player): NetworkSettings {
+    return delegate?.getNetworkSettings(player) ?: Packets.NetworkSettingsImpl()
   }
 
-  fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
-    internal?.sendRawPacket(player, channel, buf)
+  override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
+    delegate?.sendRawPacket(player, channel, buf)
   }
 
-  fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
-    return internal?.getCoroutineDispatcher(player)
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
+    return delegate?.getCoroutineDispatcher(player)
   }
 
-  fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
-    internal?.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut)
+  override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
+    delegate?.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut)
   }
 
-  fun sendActionBar(player: Player, message: String) {
-    internal?.sendActionBar(player, message)
+  override fun sendActionBar(player: Player, message: String) {
+    delegate?.sendActionBar(player, message)
   }
 
-  fun sendSound(
+  override fun sendSound(
     player: Player,
     type: Sound,
     volume: Float,
@@ -86,10 +86,10 @@ object PacketAPI {
     relative: Boolean,
     offset: Vector
   ) {
-    internal?.sendSound(player, type, volume, pitch, relative, offset)
+    delegate?.sendSound(player, type, volume, pitch, relative, offset)
   }
 
-  fun sendParticles(
+  override fun sendParticles(
     player: Player,
     type: Particle,
     location: Location,
@@ -98,10 +98,10 @@ object PacketAPI {
     extra: Double,
     data: Any?
   ) {
-    internal?.sendParticles(player, type, location, amount, offset, extra, data)
+    delegate?.sendParticles(player, type, location, amount, offset, extra, data)
   }
 
-  fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
-    internal?.sendFakeBlocks(player, builder)
+  override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
+    delegate?.sendFakeBlocks(player, builder)
   }
 }
