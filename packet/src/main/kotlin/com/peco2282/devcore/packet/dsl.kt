@@ -4,7 +4,9 @@ import com.peco2282.devcore.scheduler.PluginRegistory
 import com.peco2282.devcore.scheduler.ticks
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
+import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -52,7 +54,7 @@ class PacketBuilder(private val player: Player) {
     val fakeEntityBuilder = InternalAPI.createFakeEntityBuilder(player, type, location).apply(builder)
     fakeEntityBuilder.spawn()
   }
-  fun particles(type: org.bukkit.Particle, builder: ParticleBuilder.() -> Unit) {
+  fun particles(type: Particle, builder: ParticleBuilder.() -> Unit) {
     val particleBuilder = ParticleBuilder(type).apply(builder)
     InternalAPI.sendParticles(
       player,
@@ -87,7 +89,7 @@ interface FakeEntityBuilder {
 }
 
 @PacketDsl
-class ParticleBuilder(val type: org.bukkit.Particle) {
+class ParticleBuilder(val type: Particle) {
   var amount: Int = 10
   var offset: Vector = Vector(0.5, 0.5, 0.5)
   var extra: Double = 0.1
@@ -189,4 +191,19 @@ fun Player.sendRawPacket(channel: String, action: ByteBuf.() -> Unit) {
   val buf = Unpooled.buffer()
   buf.action()
   InternalAPI.sendRawPacket(this, channel, buf)
+}
+
+interface EffectBuilder {
+  var particle: Particle
+  var location: Location?
+  var data: Any?
+}
+
+interface TeamBuilder {
+  var name: String
+  var prefix: String?
+  var suffix: String?
+  var friendlyFire: Boolean
+  var canSeeFriendly: Boolean
+  var color: TextColor?
 }
