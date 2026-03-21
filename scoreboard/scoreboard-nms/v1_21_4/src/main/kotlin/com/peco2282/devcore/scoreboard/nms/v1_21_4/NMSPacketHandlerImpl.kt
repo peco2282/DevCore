@@ -21,8 +21,7 @@ import org.bukkit.plugin.Plugin
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-@Suppress("ClassName")
-class NMSPacketHandler_v1_21_4(
+class NMSPacketHandlerImpl(
   private val title: () -> Component,
   private val lines: List<(Player) -> Component>,
   private val plugin: Plugin?,

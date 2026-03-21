@@ -1,4 +1,4 @@
-package com.peco2282.devcore.scoreboard.nms.v1_20_2
+package com.peco2282.devcore.scoreboard.nms.v1_20_3
 
 import com.peco2282.devcore.scheduler.Ticks
 import com.peco2282.devcore.scoreboard.api.BossBarHandle
@@ -10,15 +10,14 @@ import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
-@Suppress("ClassName")
-class NMSScoreboardFactory_v1_20_2 : ScoreboardNMSFactory {
+class NMSScoreboardFactoryImpl : ScoreboardNMSFactory {
   override fun createSidebar(
     title: () -> Component,
     lines: List<(Player) -> Component>,
     plugin: Plugin?,
     refreshInterval: Ticks?
   ): SidebarHandle {
-    return NMSPacketHandler_v1_20_2(title, lines, plugin, refreshInterval)
+    return NMSPacketHandlerImpl(title, lines, plugin, refreshInterval)
   }
 
   override fun createBossBar(

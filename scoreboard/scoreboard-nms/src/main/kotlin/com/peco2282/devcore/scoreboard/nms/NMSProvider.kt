@@ -8,7 +8,7 @@ import org.bukkit.plugin.Plugin
 object NMSProvider {
   private fun factoryClass(version: String): String {
     val v = version.replace(".", "_")
-    return "com.peco2282.devcore.scoreboard.nms.v$v.NMSScoreboardFactory_v$v"
+    return "com.peco2282.devcore.scoreboard.nms.v$v.NMSScoreboardFactoryImpl"
   }
 
   fun init(plugin: Plugin) {
@@ -16,7 +16,7 @@ object NMSProvider {
     val factoryClass = when (version) {
       "1.20.2" -> factoryClass("1.20.2")
       in "1.20.3".."1.21.3" -> factoryClass("1.20.3")
-      in "1.21.4".."1.22" -> factoryClass("1.21.4")
+      in "1.21.4"..<"1.22" -> factoryClass("1.21.4")
       else -> {
         plugin.logger.warning("Unsupported Minecraft version for Scoreboard NMS: $version. Falling back to default if available.")
         null

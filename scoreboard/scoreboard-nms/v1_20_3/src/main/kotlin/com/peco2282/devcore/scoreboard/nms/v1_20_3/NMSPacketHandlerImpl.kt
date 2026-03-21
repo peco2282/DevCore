@@ -1,4 +1,4 @@
-package com.peco2282.devcore.scoreboard.nms.v1_20_2
+package com.peco2282.devcore.scoreboard.nms.v1_20_3
 
 import com.peco2282.devcore.scheduler.TaskHandle
 import com.peco2282.devcore.scheduler.Ticks
@@ -6,24 +6,22 @@ import com.peco2282.devcore.scheduler.scheduler
 import com.peco2282.devcore.scoreboard.api.SidebarHandle
 import io.papermc.paper.adventure.AdventureComponent
 import net.kyori.adventure.text.Component
+import net.minecraft.network.chat.numbers.BlankFormat
+import net.minecraft.network.chat.numbers.StyledFormat
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
-import net.minecraft.server.ServerScoreboard
 import net.minecraft.world.scores.DisplaySlot
 import net.minecraft.world.scores.Objective
-import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.criteria.ObjectiveCriteria
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-@Suppress("ClassName")
-class NMSPacketHandler_v1_20_2(
+class NMSPacketHandlerImpl(
   private val title: () -> Component,
   private val lines: List<(Player) -> Component>,
   private val plugin: Plugin?,
@@ -40,7 +38,9 @@ class NMSPacketHandler_v1_20_2(
     objectiveName,
     ObjectiveCriteria.DUMMY,
     AdventureComponent(title()),
-    ObjectiveCriteria.RenderType.INTEGER
+    ObjectiveCriteria.RenderType.INTEGER,
+    false,
+    BlankFormat.INSTANCE
   )
 
   init {
@@ -85,7 +85,9 @@ class NMSPacketHandler_v1_20_2(
         objectiveName,
         ObjectiveCriteria.DUMMY,
         AdventureComponent(title()),
-        ObjectiveCriteria.RenderType.INTEGER
+        ObjectiveCriteria.RenderType.INTEGER,
+        false,
+        BlankFormat.INSTANCE
       ),
       ClientboundSetObjectivePacket.METHOD_CHANGE
     )
@@ -98,18 +100,12 @@ class NMSPacketHandler_v1_20_2(
 
       val entryName = i.toString(16).map { "§$it" }.joinToString("") + "§r"
 
-      val team = PlayerTeam(scoreboard, "dc_t_$i")
-      team.playerPrefix = AdventureComponent(component)
-      team.players.add(entryName)
-
-      val teamPacket = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true)
-      connection.send(teamPacket)
-
       val packet = ClientboundSetScorePacket(
-        ServerScoreboard.Method.CHANGE,
-        objectiveName,
         entryName,
+        objectiveName,
         scoreValue,
+        AdventureComponent(component),
+        StyledFormat.PLAYER_LIST_DEFAULT
       )
       connection.send(packet)
     }
@@ -136,11 +132,5 @@ class NMSPacketHandler_v1_20_2(
 
     val removePacket = ClientboundSetObjectivePacket(dummyObjective, ClientboundSetObjectivePacket.METHOD_REMOVE)
     connection.send(removePacket)
-
-    for (i in lines.indices) {
-      val team = PlayerTeam(scoreboard, "dc_t_$i")
-      val removeTeamPacket = ClientboundSetPlayerTeamPacket.createRemovePacket(team)
-      connection.send(removeTeamPacket)
-    }
   }
 }
