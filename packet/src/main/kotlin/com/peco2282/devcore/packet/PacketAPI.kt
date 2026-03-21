@@ -10,38 +10,6 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
 
-interface PacketHub {
-  fun injectPlayer(player: Player)
-  fun removePlayer(player: Player)
-  fun sendPacket(player: Player, packet: Any)
-  fun getNetworkSettings(player: Player): NetworkSettings
-  fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder
-  fun sendRawPacket(player: Player, channel: String, buf: ByteBuf)
-  fun getCoroutineDispatcher(player: Player): CoroutineDispatcher?
-  fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int)
-  fun sendActionBar(player: Player, message: String)
-  fun sendSound(
-    player: Player,
-    type: Sound,
-    volume: Float,
-    pitch: Float,
-    relative: Boolean,
-    offset: Vector
-  )
-
-  fun sendParticles(
-    player: Player,
-    type: org.bukkit.Particle,
-    location: org.bukkit.Location,
-    amount: Int,
-    offset: org.bukkit.util.Vector,
-    extra: Double,
-    data: Any?
-  )
-
-  fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
-}
-
 object PacketAPI {
   private var internal: PacketHub? = null
 
