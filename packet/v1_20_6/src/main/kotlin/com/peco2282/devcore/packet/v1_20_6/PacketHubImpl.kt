@@ -20,7 +20,7 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 
-class PacketInternalImpl : PacketInternal {
+class PacketHubImpl : PacketHub {
   private val HANDLER_NAME = "devcore_packet_handler"
 
   override fun injectPlayer(player: Player) {

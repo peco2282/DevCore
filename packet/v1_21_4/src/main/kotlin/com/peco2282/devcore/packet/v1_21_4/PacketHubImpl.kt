@@ -1,4 +1,4 @@
-package com.peco2282.devcore.packet.v1_21_11
+package com.peco2282.devcore.packet.v1_21_4
 
 import com.peco2282.devcore.packet.*
 import io.netty.buffer.ByteBuf
@@ -6,21 +6,26 @@ import io.papermc.paper.adventure.PaperAdventure
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
+import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket
-import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
-import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket
-import org.bukkit.Bukkit
+import net.minecraft.network.protocol.game.*
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.level.block.state.BlockState
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.craftbukkit.block.data.CraftBlockData
 import org.bukkit.craftbukkit.entity.CraftPlayer
+import org.bukkit.craftbukkit.util.CraftNamespacedKey
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
+import java.util.*
 
-class PacketInternalImpl : PacketInternal {
+class PacketHubImpl : PacketHub {
   private val HANDLER_NAME = "devcore_packet_handler"
 
   override fun injectPlayer(player: Player) {
@@ -67,55 +72,77 @@ class PacketInternalImpl : PacketInternal {
 
   override fun sendParticles(
     player: Player,
-    type: org.bukkit.Particle,
-    location: org.bukkit.Location,
+    type: Particle,
+    location: Location,
     amount: Int,
-    offset: org.bukkit.util.Vector,
+    offset: Vector,
     extra: Double,
     data: Any?
   ) {
+    val connection = (player as CraftPlayer).handle.connection
     player.spawnParticle(type, location, amount, offset.x, offset.y, offset.z, extra, data)
   }
 
   override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
     val connection = (player as CraftPlayer).handle.connection
     val handler = object : FakeBlockBuilder {
-      val blocks = mutableMapOf<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState>()
+      val blocks = mutableMapOf<BlockPos, BlockState>()
 
-      override fun set(location: org.bukkit.Location, material: org.bukkit.Material) {
-        val pos = net.minecraft.core.BlockPos(location.blockX, location.blockY, location.blockZ)
-        blocks[pos] = (material as org.bukkit.craftbukkit.block.data.CraftBlockData).state
+      override fun set(location: Location, material: Material) {
+        val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
+        blocks[pos] = CraftBlockData.newData(material.asBlockType(), null).state
       }
 
-      override fun fill(from: org.bukkit.Location, to: org.bukkit.Location, material: org.bukkit.Material) {
+      override fun fill(from: Location, to: Location, material: Material) {
         val minX = minOf(from.blockX, to.blockX)
         val maxX = maxOf(from.blockX, to.blockX)
         val minY = minOf(from.blockY, to.blockY)
         val maxY = maxOf(from.blockY, to.blockY)
         val minZ = minOf(from.blockZ, to.blockZ)
         val maxZ = maxOf(from.blockZ, to.blockZ)
-
-        val state = (material as org.bukkit.craftbukkit.block.data.CraftBlockData).state
+        val state = CraftBlockData.newData(material.asBlockType(), null).state
         for (x in minX..maxX) {
           for (y in minY..maxY) {
             for (z in minZ..maxZ) {
-              val pos = net.minecraft.core.BlockPos(x, y, z)
-              blocks[pos] = state
+              blocks[BlockPos(x, y, z)] = state
             }
           }
         }
       }
     }
-    handler.apply(builder)
+    handler.builder()
 
-    handler.blocks.forEach { (pos, state) ->
-      connection.send(ClientboundBlockUpdatePacket(pos, state))
+    // Group blocks by section
+    val sections = handler.blocks.entries.groupBy { (pos, _) ->
+      net.minecraft.core.SectionPos.of(pos)
+    }
+
+    for ((sectionPos, blockEntries) in sections) {
+      val shortPosArray = ShortArray(blockEntries.size)
+      val stateArray = arrayOfNulls<net.minecraft.world.level.block.state.BlockState>(blockEntries.size)
+      for (i in blockEntries.indices) {
+        val entry = blockEntries[i]
+        val pos = entry.key
+        val state = entry.value
+        shortPosArray[i] = ((pos.x and 15) shl 8 or ((pos.z and 15) shl 4) or (pos.y and 15)).toShort()
+        stateArray[i] = state
+      }
+      connection.send(
+        ClientboundSectionBlocksUpdatePacket(
+          sectionPos,
+          it.unimi.dsi.fastutil.shorts.ShortArraySet(shortPosArray),
+          stateArray as Array<net.minecraft.world.level.block.state.BlockState>
+        )
+      )
     }
   }
 
   override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
     val friendlyByteBuf = if (buf is FriendlyByteBuf) buf else FriendlyByteBuf(buf)
-    player.sendPluginMessage(Bukkit.getPluginManager().getPlugin("DevCore")!!, channel, friendlyByteBuf.array())
+    val plugin = org.bukkit.Bukkit.getPluginManager().getPlugin("DevCore")!!
+    val bytes = ByteArray(friendlyByteBuf.readableBytes())
+    friendlyByteBuf.readBytes(bytes)
+    player.sendPluginMessage(plugin, channel, bytes)
   }
 
   override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
@@ -126,12 +153,21 @@ class PacketInternalImpl : PacketInternal {
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
     val connection = (player as CraftPlayer).handle.connection
     connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
-    connection.send(ClientboundSetTitleTextPacket(PaperAdventure.asVanilla(Component.text(title))))
-    connection.send(ClientboundSetSubtitleTextPacket(PaperAdventure.asVanilla(Component.text(subtitle))))
+    if (title.isNotEmpty()) {
+      connection.send(ClientboundSetTitleTextPacket(PaperAdventure.asVanilla(Component.text(title)) as net.minecraft.network.chat.Component))
+    }
+    if (subtitle.isNotEmpty()) {
+      connection.send(ClientboundSetSubtitleTextPacket(PaperAdventure.asVanilla(Component.text(subtitle)) as net.minecraft.network.chat.Component))
+    }
   }
 
   override fun sendActionBar(player: Player, message: String) {
-    player.sendActionBar(Component.text(message))
+    (player as CraftPlayer).handle.connection.send(
+      ClientboundSystemChatPacket(
+        PaperAdventure.asVanilla(Component.text(message)) as net.minecraft.network.chat.Component,
+        true
+      )
+    )
   }
 
   override fun sendSound(
@@ -142,7 +178,31 @@ class PacketInternalImpl : PacketInternal {
     relative: Boolean,
     offset: Vector
   ) {
-    val loc = player.location
-    player.playSound(loc.clone().add(offset), type, volume, pitch)
+    val craftPlayer = player as CraftPlayer
+
+    @Suppress("DEPRECATION", "removal")
+    val key = CraftNamespacedKey.toMinecraft(type.key)
+
+    @Suppress("UNCHECKED_CAST")
+    val soundEvent = BuiltInRegistries.SOUND_EVENT.get(key).orElseThrow()
+
+    val pos = if (relative) {
+      player.location.add(offset)
+    } else {
+      player.location.clone().add(offset)
+    }
+
+    craftPlayer.handle.connection.send(
+      ClientboundSoundPacket(
+        soundEvent,
+        SoundSource.MASTER,
+        pos.x,
+        pos.y,
+        pos.z,
+        volume,
+        pitch,
+        Random().nextLong()
+      )
+    )
   }
 }

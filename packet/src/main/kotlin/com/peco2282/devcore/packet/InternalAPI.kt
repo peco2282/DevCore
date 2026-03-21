@@ -10,7 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
 
-interface PacketInternal {
+interface PacketHub {
   fun injectPlayer(player: Player)
   fun removePlayer(player: Player)
   fun sendPacket(player: Player, packet: Any)
@@ -43,15 +43,18 @@ interface PacketInternal {
 }
 
 object InternalAPI {
-  private var internal: PacketInternal? = null
+  private var internal: PacketHub? = null
+
+  private fun className(version: String) =
+    "com.peco2282.devcore.packet.v${version.replace(".", "_")}.PacketHubImpl"
 
   fun init(plugin: Plugin) {
     val version = Bukkit.getMinecraftVersion()
     val className = when (version) {
-      "1.20.4" -> "com.peco2282.devcore.packet.v1_20_4.PacketInternalImpl"
-      "1.20.6" -> "com.peco2282.devcore.packet.v1_20_6.PacketInternalImpl"
-      "1.21.4" -> "com.peco2282.devcore.packet.v1_21_4.PacketInternalImpl"
-      "1.21.11" -> "com.peco2282.devcore.packet.v1_21_11.PacketInternalImpl"
+      in "1.20.4"..<"1.20.6" -> className("1.20.4")
+      in "1.20.6"..<"1.21.4" -> className("1.20.6")
+      in "1.21.4"..<"1.21.11" -> className("1.21.4")
+      in "1.21.11"..<"1.22" -> className("1.21.11")
       // 他のバージョンも同様に追加
       else -> {
         plugin.logger.warning("Unsupported version for Packet NMS: $version")
@@ -61,7 +64,7 @@ object InternalAPI {
 
     internal = className?.let {
       try {
-        Class.forName(it).getDeclaredConstructor().newInstance() as? PacketInternal
+        Class.forName(it).getDeclaredConstructor().newInstance() as? PacketHub
       } catch (e: Exception) {
         plugin.logger.warning("Failed to load Packet NMS for $version: ${e.message}")
         null
