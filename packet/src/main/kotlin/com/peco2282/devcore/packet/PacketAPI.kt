@@ -49,26 +49,20 @@ object PacketAPI: PacketHub {
   override fun removePlayer(player: Player) = delegate?.removePlayer(player) ?: throw UnsupportedOperationException("Player removal is not supported on this version")
   override fun sendPacket(player: Player, packet: Any) = delegate?.sendPacket(player, packet) ?: throw UnsupportedOperationException("Packet sending is not supported on this version")
 
-  fun createPacketListener(): PacketListener {
-    return Packets.createPacketListener()
-  }
+  fun createPacketListener(): PacketListener = Packets.createPacketListener()
 
   override fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder {
     return delegate?.createFakeEntityBuilder(player, type, location)
       ?: throw UnsupportedOperationException("FakeEntityBuilder is not supported on this version")
   }
 
-  override fun getNetworkSettings(player: Player): NetworkSettings {
-    return delegate?.getNetworkSettings(player) ?: Packets.NetworkSettingsImpl()
-  }
+  override fun getNetworkSettings(player: Player): NetworkSettings = delegate?.getNetworkSettings(player) ?: Packets.NetworkSettingsImpl()
 
   override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
     delegate?.sendRawPacket(player, channel, buf)
   }
 
-  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
-    return delegate?.getCoroutineDispatcher(player)
-  }
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? = delegate?.getCoroutineDispatcher(player)
 
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
     delegate?.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut)
