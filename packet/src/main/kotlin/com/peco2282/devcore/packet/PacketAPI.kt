@@ -114,4 +114,101 @@ object PacketAPI: PacketHub {
   override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {
     delegate?.sendMetadata(player, entityId, builder)
   }
+
+  override fun hideEntity(player: Player, entityId: Int) {
+    delegate?.hideEntity(player, entityId)
+  }
+
+  override fun showEntity(player: Player, entityId: Int) {
+    delegate?.showEntity(player, entityId)
+  }
+
+  override fun fakeEquipment(
+    player: Player,
+    entityId: Int,
+    slot: org.bukkit.inventory.EquipmentSlot,
+    item: org.bukkit.inventory.ItemStack
+  ) {
+    delegate?.fakeEquipment(player, entityId, slot, item)
+  }
+
+  override fun fakePlayerName(player: Player, target: Player, newName: String) {
+    delegate?.fakePlayerName(player, target, newName)
+  }
+
+  override fun updateInventoryTitle(player: Player, title: String) {
+    delegate?.updateInventoryTitle(player, title)
+  }
+
+  override fun fakeItemSlot(player: Player, windowId: Int, slot: Int, item: org.bukkit.inventory.ItemStack) {
+    delegate?.fakeItemSlot(player, windowId, slot, item)
+  }
+
+  override fun fakeFurnaceProgress(player: Player, windowId: Int, progress: Int, maxProgress: Int) {
+    delegate?.fakeFurnaceProgress(player, windowId, progress, maxProgress)
+  }
+
+  override fun setFakeWorldBorder(
+    player: Player,
+    size: Double,
+    centerX: Double,
+    centerZ: Double,
+    warningBlocks: Int,
+    warningTime: Int
+  ) {
+    delegate?.setFakeWorldBorder(player, size, centerX, centerZ, warningBlocks, warningTime)
+  }
+
+  override fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean) {
+    delegate?.setFakeWeather(player, rain, thunder)
+  }
+
+  override fun setFakeSkyColor(player: Player, color: Int) {
+    delegate?.setFakeSkyColor(player, color)
+  }
+
+  override fun setCamera(player: Player, entityId: Int) {
+    delegate?.setCamera(player, entityId)
+  }
+
+  override fun setEatingAnimation(
+    player: Player,
+    entityId: Int,
+    eating: Boolean,
+    item: org.bukkit.inventory.ItemStack?
+  ) {
+    delegate?.setEatingAnimation(player, entityId, eating, item)
+  }
+
+  override fun setBowAnimation(player: Player, entityId: Int, pulling: Boolean) {
+    delegate?.setBowAnimation(player, entityId, pulling)
+  }
+
+  override fun setGuardPose(player: Player, entityId: Int, guarding: Boolean) {
+    delegate?.setGuardPose(player, entityId, guarding)
+  }
+
+  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: org.bukkit.Location?) {
+    delegate?.setSleepAnimation(player, entityId, sleeping, bedLocation)
+  }
+
+  override fun setEntityMotion(player: Player, entityId: Int, velocity: org.bukkit.util.Vector) {
+    delegate?.setEntityMotion(player, entityId, velocity)
+  }
+
+  override fun fakeStatistic(player: Player, category: String, statistic: String, value: Int) {
+    delegate?.fakeStatistic(player, category, statistic, value)
+  }
+
+  override fun fakeExperienceBar(player: Player, level: Int, progress: Float) {
+    delegate?.fakeExperienceBar(player, level, progress)
+  }
+
+  override fun setItemCooldown(player: Player, material: org.bukkit.Material, ticks: Int) {
+    delegate?.setItemCooldown(player, material, ticks)
+  }
+
+  override fun showFakeDeathScreen(player: Player, message: String) {
+    delegate?.showFakeDeathScreen(player, message)
+  }
 }

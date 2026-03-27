@@ -19,15 +19,18 @@ import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.block.state.BlockState
 import org.bukkit.Bukkit
+import net.minecraft.world.phys.Vec3
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.craftbukkit.block.data.CraftBlockData
 import org.bukkit.craftbukkit.entity.CraftPlayer
+import org.bukkit.craftbukkit.util.CraftMagicNumbers
 import org.bukkit.craftbukkit.util.CraftNamespacedKey
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import java.util.*
 
@@ -253,6 +256,38 @@ class PacketHubImpl : PacketHub {
     )
   }
 
+  override fun hideEntity(player: Player, entityId: Int) {
+    (player as CraftPlayer).handle.connection.send(ClientboundRemoveEntitiesPacket(entityId))
+  }
+
+  override fun showEntity(player: Player, entityId: Int) {
+    // Requires re-sending spawn packet
+  }
+
+  override fun fakeEquipment(
+    player: Player,
+    entityId: Int,
+    slot: org.bukkit.inventory.EquipmentSlot,
+    item: ItemStack
+  ) {
+    val nmsSlot = when (slot) {
+      org.bukkit.inventory.EquipmentSlot.HAND -> net.minecraft.world.entity.EquipmentSlot.MAINHAND
+      org.bukkit.inventory.EquipmentSlot.OFF_HAND -> net.minecraft.world.entity.EquipmentSlot.OFFHAND
+      org.bukkit.inventory.EquipmentSlot.FEET -> net.minecraft.world.entity.EquipmentSlot.FEET
+      org.bukkit.inventory.EquipmentSlot.LEGS -> net.minecraft.world.entity.EquipmentSlot.LEGS
+      org.bukkit.inventory.EquipmentSlot.CHEST -> net.minecraft.world.entity.EquipmentSlot.CHEST
+      org.bukkit.inventory.EquipmentSlot.HEAD -> net.minecraft.world.entity.EquipmentSlot.HEAD
+      else -> net.minecraft.world.entity.EquipmentSlot.MAINHAND
+    }
+    val nmsItem = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(item)
+    (player as CraftPlayer).handle.connection.send(
+      ClientboundSetEquipmentPacket(
+        entityId,
+        listOf(com.mojang.datafixers.util.Pair.of(nmsSlot, nmsItem))
+      )
+    )
+  }
+
   override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {
     val metadataHandler = object : MetadataBuilder {
       val dataValues = mutableListOf<SynchedEntityData.DataValue<*>>()
@@ -307,5 +342,105 @@ class PacketHubImpl : PacketHub {
     (player as CraftPlayer).handle.connection.send(
       ClientboundSetEntityDataPacket(entityId, metadataHandler.dataValues)
     )
+  }
+
+  override fun fakePlayerName(player: Player, target: Player, newName: String) {
+    // Info Update entry logic...
+  }
+
+  override fun updateInventoryTitle(player: Player, title: String) {
+    val craftPlayer = player as CraftPlayer
+    val container = craftPlayer.handle.containerMenu
+    val type = container.type
+    val titleComponent = PaperAdventure.asVanilla(Component.text(title)) as net.minecraft.network.chat.Component
+    craftPlayer.handle.connection.send(ClientboundOpenScreenPacket(container.containerId, type, titleComponent))
+  }
+
+  override fun fakeItemSlot(player: Player, windowId: Int, slot: Int, item: ItemStack) {
+    val nmsItem = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(item)
+    (player as CraftPlayer).handle.connection.send(ClientboundContainerSetSlotPacket(windowId, 0, slot, nmsItem))
+  }
+
+  override fun fakeFurnaceProgress(player: Player, windowId: Int, progress: Int, maxProgress: Int) {
+    val connection = (player as CraftPlayer).handle.connection
+    connection.send(ClientboundContainerSetDataPacket(windowId, 2, progress))
+    connection.send(ClientboundContainerSetDataPacket(windowId, 3, maxProgress))
+  }
+
+  override fun setFakeWorldBorder(
+    player: Player,
+    size: Double,
+    centerX: Double,
+    centerZ: Double,
+    warningBlocks: Int,
+    warningTime: Int
+  ) {
+    val connection = (player as CraftPlayer).handle.connection
+    // Property packets...
+  }
+
+  override fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean) {
+    val connection = (player as CraftPlayer).handle.connection
+    if (rain) {
+      connection.send(ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0f))
+    } else {
+      connection.send(ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0f))
+    }
+  }
+
+  override fun setFakeSkyColor(player: Player, color: Int) {
+    (player as CraftPlayer).handle.connection.send(
+      ClientboundGameEventPacket(
+        ClientboundGameEventPacket.RAIN_LEVEL_CHANGE,
+        color.toFloat()
+      )
+    )
+  }
+
+  override fun setCamera(player: Player, entityId: Int) {
+    val craftPlayer = player as CraftPlayer
+    val entity = craftPlayer.handle.level().getEntity(entityId) ?: return
+    craftPlayer.handle.connection.send(ClientboundSetCameraPacket(entity))
+  }
+
+  override fun setEatingAnimation(
+    player: Player,
+    entityId: Int,
+    eating: Boolean,
+    item: ItemStack?
+  ) {
+  }
+
+  override fun setBowAnimation(player: Player, entityId: Int, pulling: Boolean) {
+  }
+
+  override fun setGuardPose(player: Player, entityId: Int, guarding: Boolean) {
+  }
+
+  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: org.bukkit.Location?) {
+  }
+
+  override fun setEntityMotion(player: Player, entityId: Int, velocity: Vector) {
+    (player as CraftPlayer).handle.connection.send(
+      ClientboundSetEntityMotionPacket(
+        entityId,
+        Vec3(velocity.x, velocity.y, velocity.z)
+      )
+    )
+  }
+
+  override fun fakeStatistic(player: Player, category: String, statistic: String, value: Int) {
+  }
+
+  override fun fakeExperienceBar(player: Player, level: Int, progress: Float) {
+    (player as CraftPlayer).handle.connection.send(ClientboundSetExperiencePacket(progress, 0, level))
+  }
+
+  override fun setItemCooldown(player: Player, material: org.bukkit.Material, ticks: Int) {
+    val nmsItem = CraftMagicNumbers.getItem(material)
+    (player as CraftPlayer).handle.connection.send(ClientboundCooldownPacket(BuiltInRegistries.ITEM.getKey(nmsItem), ticks))
+  }
+
+  override fun showFakeDeathScreen(player: Player, message: String) {
   }
 }

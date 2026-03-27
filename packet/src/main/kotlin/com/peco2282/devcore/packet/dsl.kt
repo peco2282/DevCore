@@ -92,6 +92,65 @@ class PacketBuilder(private val player: Player) {
   fun metadata(entityId: Int, builder: MetadataBuilder.() -> Unit) {
     PacketAPI.sendMetadata(player, entityId, builder)
   }
+
+  // --- New DSL Actions ---
+
+  fun hideEntity(entityId: Int) = PacketAPI.hideEntity(player, entityId)
+  fun showEntity(entityId: Int) = PacketAPI.showEntity(player, entityId)
+
+  fun fakeEquipment(entityId: Int, slot: org.bukkit.inventory.EquipmentSlot, item: ItemStack) =
+    PacketAPI.fakeEquipment(player, entityId, slot, item)
+
+  fun fakePlayerName(target: Player, newName: String) =
+    PacketAPI.fakePlayerName(player, target, newName)
+
+  fun updateInventoryTitle(title: String) =
+    PacketAPI.updateInventoryTitle(player, title)
+
+  fun fakeItemSlot(windowId: Int, slot: Int, item: ItemStack) =
+    PacketAPI.fakeItemSlot(player, windowId, slot, item)
+
+  fun fakeFurnaceProgress(windowId: Int, progress: Int, maxProgress: Int) =
+    PacketAPI.fakeFurnaceProgress(player, windowId, progress, maxProgress)
+
+  fun worldBorder(size: Double, centerX: Double, centerZ: Double, warningBlocks: Int = 5, warningTime: Int = 15) =
+    PacketAPI.setFakeWorldBorder(player, size, centerX, centerZ, warningBlocks, warningTime)
+
+  fun weather(rain: Boolean, thunder: Boolean = false) =
+    PacketAPI.setFakeWeather(player, rain, thunder)
+
+  fun skyColor(color: Int) =
+    PacketAPI.setFakeSkyColor(player, color)
+
+  fun setCamera(entityId: Int) =
+    PacketAPI.setCamera(player, entityId)
+
+  fun eatingAnimation(entityId: Int, eating: Boolean, item: ItemStack? = null) =
+    PacketAPI.setEatingAnimation(player, entityId, eating, item)
+
+  fun bowAnimation(entityId: Int, pulling: Boolean) =
+    PacketAPI.setBowAnimation(player, entityId, pulling)
+
+  fun guardPose(entityId: Int, guarding: Boolean) =
+    PacketAPI.setGuardPose(player, entityId, guarding)
+
+  fun sleepAnimation(entityId: Int, sleeping: Boolean, bedLocation: Location? = null) =
+    PacketAPI.setSleepAnimation(player, entityId, sleeping, bedLocation)
+
+  fun entityMotion(entityId: Int, velocity: Vector) =
+    PacketAPI.setEntityMotion(player, entityId, velocity)
+
+  fun statistic(category: String, statistic: String, value: Int) =
+    PacketAPI.fakeStatistic(player, category, statistic, value)
+
+  fun experienceBar(level: Int, progress: Float) =
+    PacketAPI.fakeExperienceBar(player, level, progress)
+
+  fun itemCooldown(material: org.bukkit.Material, ticks: Int) =
+    PacketAPI.setItemCooldown(player, material, ticks)
+
+  fun deathScreen(message: String) =
+    PacketAPI.showFakeDeathScreen(player, message)
 }
 
 @PacketDsl
