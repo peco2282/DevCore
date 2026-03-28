@@ -1,6 +1,7 @@
 package com.peco2282.devcore.adventure.builder
 
 import com.peco2282.devcore.adventure.ComponentDsl
+import com.peco2282.devcore.adventure.ExperimentalNbtComponent
 import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.adventure.style
 import com.peco2282.devcore.adventure.updateLast
@@ -166,6 +167,7 @@ internal class ComponentBuilder : Componenter {
     apply { iterable.forEach { action(it) } }
 
   @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   override fun blockNbt(
     @Language("NBTPath") nbt: String,
     consumer: BlockNBTComponent.Builder.() -> Unit
@@ -173,6 +175,7 @@ internal class ComponentBuilder : Componenter {
     apply { append(Component.blockNBT().nbtPath(nbt).apply(consumer).build()) }
 
   @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   override fun entityNbt(
     @Language("NBTPath") nbt: String,
     consumer: EntityNBTComponent.Builder.() -> Unit
@@ -180,6 +183,7 @@ internal class ComponentBuilder : Componenter {
     apply { append(Component.entityNBT().nbtPath(nbt).apply(consumer).build()) }
 
   @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   override fun storageNbt(
     @Language("NBTPath") nbt: String,
     storage: Key,
@@ -188,6 +192,7 @@ internal class ComponentBuilder : Componenter {
     apply { append(Component.storageNBT().nbtPath(nbt).storage(storage).apply(consumer).build()) }
 
   @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   override fun storageNbt(
     @Language("NBTPath") nbt: String,
     storage: String,

@@ -19,3 +19,6 @@ annotation class ComponentDsl
  */
 @DslMarker
 annotation class StyleDsl
+
+@RequiresOptIn("This function is experimental and may change in the future.")
+annotation class ExperimentalNbtComponent

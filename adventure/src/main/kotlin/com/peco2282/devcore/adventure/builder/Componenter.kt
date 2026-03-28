@@ -1,6 +1,7 @@
 package com.peco2282.devcore.adventure.builder
 
 import com.peco2282.devcore.adventure.ComponentDsl
+import com.peco2282.devcore.adventure.ExperimentalNbtComponent
 import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.adventure.withStyle
 import net.kyori.adventure.key.Key
@@ -274,6 +275,7 @@ interface Componenter {
    * @return this componenter for chaining
    */
   @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   fun blockNbt(@Language("NBTPath") nbt: String, consumer: BlockNBTComponent.Builder.() -> Unit): Componenter
 
   /**
@@ -285,6 +287,7 @@ interface Componenter {
    * @return this componenter for chaining
    */
   @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   fun entityNbt(@Language("NBTPath") nbt: String, consumer: EntityNBTComponent.Builder.() -> Unit): Componenter
 
   /**
@@ -296,6 +299,8 @@ interface Componenter {
    * @param consumer the consumer lambda that configures the StorageNBTComponent.Builder
    * @return this componenter for chaining
    */
+  @ApiStatus.Experimental
+  @ExperimentalNbtComponent
   fun storageNbt(
     @Language("NBTPath") nbt: String,
     storage: Key,
