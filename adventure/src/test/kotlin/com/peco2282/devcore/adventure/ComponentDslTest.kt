@@ -124,6 +124,7 @@ class ComponentDslTest {
     assertEquals(expected, actual)
   }
 
+  @OptIn(ExperimentalNbtComponent::class)
   @Test
   fun `block nbt component with absolute position`() {
     val actual = component {
@@ -148,6 +149,7 @@ class ComponentDslTest {
     assertEquals(expected, actual)
   }
 
+  @OptIn(ExperimentalNbtComponent::class)
   @Test
   fun `block nbt component with local position`() {
     val actual = component {
@@ -170,6 +172,7 @@ class ComponentDslTest {
     assertEquals(expected, actual)
   }
 
+  @OptIn(ExperimentalNbtComponent::class)
   @Test
   fun `entity nbt component`() {
     val actual = component {
