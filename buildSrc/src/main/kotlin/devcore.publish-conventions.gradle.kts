@@ -28,6 +28,29 @@ val publishPassword =
     .orElse(provider { secrets.getProperty("devcore.publish.password") })
     .orElse(providers.environmentVariable("DEVCORE_PUBLISH_PASSWORD"))
 
+val RED = "\u001b[31m"
+val GREEN = "\u001b[32m"
+val YELLOW = "\u001b[33m"
+val CYAN = "\u001b[36m"
+val RESET = "\u001b[0m"
+val BOLD = "\u001b[1m"
+
+
+fun checkLog(project: Project, remoteUrl: String) {
+  logger.lifecycle("${CYAN}[Check]${RESET} ${project.group}: $remoteUrl")
+}
+
+fun publishLog(project: Project) {
+  logger.lifecycle("${BOLD}${GREEN}>>> [Publish]${RESET} ${project.name}:${project.version} will be published.")}
+
+fun skipLog(project: Project) {
+  logger.lifecycle(">>> ${BOLD}[Skip]${RESET} ${project.name}:${project.version} already exists.")}
+
+fun warnLog(e: Exception) {
+  logger.lifecycle("${YELLOW}>>> [Warn] ${e.message}. try to publish.${RESET}")
+}
+
+
 tasks.withType<PublishToMavenRepository>().configureEach {
   onlyIf {
     if (project.name.lowercase().contains("test")) return@onlyIf false
@@ -36,7 +59,8 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     val groupPath = project.group.toString().replace(".", "/")
     val remoteUrl =
       "${repository.url}${groupPath}/${artifactId}/${project.version}/${artifactId}-${project.version}.pom"
-    logger.lifecycle("Check ${project.group}: $remoteUrl")
+
+    checkLog(project, remoteUrl)
 
     try {
       val connection = uri(remoteUrl).toURL().openConnection() as HttpURLConnection
@@ -47,14 +71,14 @@ tasks.withType<PublishToMavenRepository>().configureEach {
       val responseCode = connection.responseCode
 
       if (responseCode == 200) {
-        logger.lifecycle(">>> [Skip] ${project.name}:${project.version} is already exists.")
+        skipLog(project)
         false
       } else {
-        logger.lifecycle(">>> [Publish] ${project.name}:${project.version} will be published.")
+        publishLog(project)
         true
       }
     } catch (e: Exception) {
-      logger.warn(">>> [Warn] ${e.message}. try to publish.")
+      warnLog(e)
       true
     }
   }
