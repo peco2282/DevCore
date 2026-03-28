@@ -8,6 +8,7 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.*
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.ApiStatus
 
@@ -17,6 +18,25 @@ import org.jetbrains.annotations.ApiStatus
  */
 @ComponentDsl
 interface Componenter {
+  /**
+   * Appends a MiniMessage string content to this componenter with optional tag resolvers.
+   *
+   * @param content the MiniMessage string content
+   * @param tags the tag resolvers for placeholders
+   * @return this componenter for chaining
+   */
+  fun mini(content: String, vararg tags: TagResolver): Componenter
+
+  /**
+   * Appends a MiniMessage string content to this componenter with tag resolvers built using a consumer.
+   *
+   * @param content the MiniMessage string content
+   * @param tags the tag resolver builder consumer
+   * @return this componenter for chaining
+   */
+  fun mini(content: String, tags: TagResolverBuilder.() -> Unit): Componenter =
+    mini(content, *TagResolverBuilderImpl().apply(tags).build())
+
   /**
    * Appends a string content to this componenter.
    *
@@ -71,6 +91,15 @@ interface Componenter {
    * @return the joined component
    */
   fun join(conf: JoinConfiguration): Component
+
+  /**
+   * Joins all appended components into a single component using a join configuration DSL.
+   *
+   * @param consumer the join configuration builder consumer
+   * @return the joined component
+   */
+  fun join(consumer: JoinConfiguration.Builder.() -> Unit): Component =
+    join(JoinConfiguration.builder().apply(consumer).build())
 
   /**
    * Collects all appended components into a single component without a separator.
@@ -171,7 +200,7 @@ interface Componenter {
   fun translatable(key: String, args: List<Component>): Componenter
 
   /**
-   * Appends a translatable component with the specified translation key and arguments built using a consumer lambda.
+   * Appends a translatable component with arguments built using a consumer lambda.
    *
    * @param key the translation key
    * @param consumer the consumer lambda that builds component arguments
@@ -380,7 +409,6 @@ interface Componenter {
    */
   fun newline(): Componenter
 
-
   /**
    * Appends a space component to this componenter.
    * Inserts a single space character in the text display.
@@ -388,6 +416,22 @@ interface Componenter {
    * @return this componenter for chaining
    */
   fun space(): Componenter
+
+  /**
+   * Appends a tab component to this componenter.
+   *
+   * @return this componenter for chaining
+   */
+  fun tab(): Componenter = append("\t")
+
+  /**
+   * Creates a new component join configuration using a DSL builder.
+   *
+   * @param consumer the join configuration builder consumer
+   * @return the built join configuration
+   */
+  fun joinConfiguration(consumer: JoinConfiguration.Builder.() -> Unit): JoinConfiguration =
+    JoinConfiguration.builder().apply(consumer).build()
 
   /**
    * Iterates over the given iterable and applies an action to each element.

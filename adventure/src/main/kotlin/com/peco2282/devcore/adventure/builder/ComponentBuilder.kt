@@ -9,12 +9,19 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.*
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.ApiStatus
 
 @ComponentDsl
 internal class ComponentBuilder : Componenter {
   private val components = mutableListOf<Component>()
+
+  override fun mini(content: String, vararg tags: TagResolver): ComponentBuilder =
+    apply {
+      components.add(MiniMessage.miniMessage().deserialize(content, *tags))
+    }
 
   override infix fun append(content: String): ComponentBuilder =
     apply {

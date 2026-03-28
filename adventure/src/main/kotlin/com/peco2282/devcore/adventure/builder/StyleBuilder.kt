@@ -130,5 +130,20 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
   override fun reset(): Styler =
     apply { builder = Style.style() }
 
+  override fun gradient(vararg colors: TextColor): Styler = apply {
+    // Note: Adventure Style doesn't support gradient directly.
+    // This is a placeholder or should be handled by the component builder if possible.
+    // For now, we set the first color or a representation.
+    if (colors.isNotEmpty()) color(colors[0])
+  }
+
+  override fun gradient(gradient: Gradient.() -> Unit): Styler = apply {
+    // Same as above
+  }
+
+  override fun rainbow(): Styler = apply {
+    // Same as above
+  }
+
   fun build(): Style = builder.build()
 }

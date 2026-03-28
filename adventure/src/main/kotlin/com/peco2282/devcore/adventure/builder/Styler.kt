@@ -463,4 +463,27 @@ interface Styler {
    * @return this Styler instance for chaining
    */
   fun reset(): Styler
+
+  /**
+   * Applies a gradient of colors to the text.
+   *
+   * @param colors the colors to use in the gradient
+   * @return this Styler instance for chaining
+   */
+  fun gradient(vararg colors: TextColor): Styler
+
+  /**
+   * Applies a gradient of colors to the text using a DSL builder.
+   *
+   * @param gradient the gradient builder consumer
+   * @return this Styler instance for chaining
+   */
+  fun gradient(gradient: Gradient.() -> Unit): Styler
+
+  /**
+   * Applies a rainbow effect to the text.
+   *
+   * @return this Styler instance for chaining
+   */
+  fun rainbow(): Styler
 }

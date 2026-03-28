@@ -5,6 +5,7 @@ import com.peco2282.devcore.adventure.builder.Componenter
 import com.peco2282.devcore.adventure.builder.StyleBuilder
 import com.peco2282.devcore.adventure.builder.Styler
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.Style
 
 /**
@@ -91,6 +92,10 @@ fun component(consumer: Componenter.() -> Unit): Component =
  */
 fun component(joiner: (Componenter) -> Component = Componenter::join, consumer: Componenter.() -> Unit): Component =
   ComponentBuilder().apply(consumer).let(joiner)
+
+@JvmName("componentJoinConfiguration")
+fun component(joiner: JoinConfiguration.Builder.() -> Unit, consumer: Componenter.() -> Unit): Component =
+  ComponentBuilder().apply(consumer).join(JoinConfiguration.builder().apply(joiner).build())
 
 /**
  * Creates a text style using a DSL builder pattern.
