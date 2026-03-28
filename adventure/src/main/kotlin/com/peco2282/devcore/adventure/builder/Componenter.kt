@@ -1,8 +1,7 @@
 package com.peco2282.devcore.adventure.builder
 
 import com.peco2282.devcore.adventure.ComponentDsl
-import com.peco2282.devcore.adventure.legacy
-import com.peco2282.devcore.adventure.mini
+import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.adventure.withStyle
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.*
@@ -32,11 +31,6 @@ interface Componenter {
    * @return this componenter for chaining
    */
   infix fun append(component: Component): Componenter
-
-  
-  fun legacy(content: String, char: Char = '§'): Componenter = append(content.legacy(char))
-  
-  infix fun mini(content: String): Componenter = append(content.mini())
 
   /**
    * Creates a new componenter scope with the given consumer.
@@ -147,20 +141,22 @@ interface Componenter {
   infix fun translatable(key: String): Componenter = append(Component.translatable(key))
 
   /**
-   * Appends a translatable component with arguments.
+   * Appends a translatable component with component arguments.
+   * The arguments will be substituted into the translation pattern.
    *
-   * @param key The translation key
-   * @param args The translation arguments
-   * @return This [Componenter] instance
+   * @param key the translation key
+   * @param args the component arguments for the translation
+   * @return this componenter for chaining
    */
   fun translatable(key: String, vararg args: Component): Componenter
 
   /**
-   * Appends a translatable component with arguments.
+   * Appends a translatable component with mixed type arguments.
+   * Accepts any type of arguments (String, Number, Component, etc.) which will be converted appropriately.
    *
-   * @param key The translation key
-   * @param args The translation arguments (can be String, Number, Component, etc.)
-   * @return This [Componenter] instance
+   * @param key the translation key
+   * @param args the translation arguments of any type
+   * @return this componenter for chaining
    */
   fun translatableAny(key: String, vararg args: Any): Componenter
 
@@ -232,6 +228,7 @@ interface Componenter {
 
   /**
    * Appends a keybind component with the specified keybind key.
+   * Displays the key binding configured by the player (e.g., "key.inventory", "key.jump").
    *
    * @param key the keybind key
    * @return this componenter for chaining
@@ -270,9 +267,10 @@ interface Componenter {
 
   /**
    * Appends a block NBT component with the specified NBT path and builder configuration.
+   * Queries and displays NBT data from a block at a specific position.
    *
    * @param nbt the NBT path to query from the block
-   * @param consumer the consumer lambda that configures the BlockNBTComponent.Builder
+   * @param consumer the consumer lambda that configures the BlockNBTComponent.Builder (including block position)
    * @return this componenter for chaining
    */
   @ApiStatus.Experimental
@@ -280,21 +278,23 @@ interface Componenter {
 
   /**
    * Appends an entity NBT component with the specified NBT path and builder configuration.
+   * Queries and displays NBT data from entities matching a selector.
    *
    * @param nbt the NBT path to query from the entity
-   * @param consumer the consumer lambda that configures the EntityNBTComponent.Builder
+   * @param consumer the consumer lambda that configures the EntityNBTComponent.Builder (including entity selector)
    * @return this componenter for chaining
    */
   @ApiStatus.Experimental
   fun entityNbt(@Language("NBTPath") nbt: String, consumer: EntityNBTComponent.Builder.() -> Unit): Componenter
 
   /**
-   * Appends a storage NBT component.
+   * Appends a storage NBT component that queries data from command storage.
+   * Displays NBT data from persistent command storage at the specified key.
    *
-   * @param nbt The NBT path
-   * @param storage The storage key
-   * @param consumer A lambda with receiver that configures the storage NBT component builder
-   * @return This [Componenter] instance
+   * @param nbt the NBT path to query from storage
+   * @param storage the storage key identifying the storage location
+   * @param consumer the consumer lambda that configures the StorageNBTComponent.Builder
+   * @return this componenter for chaining
    */
   fun storageNbt(
     @Language("NBTPath") nbt: String,
@@ -303,12 +303,13 @@ interface Componenter {
   ): Componenter
 
   /**
-   * Appends a storage NBT component.
+   * Appends a storage NBT component that queries data from command storage.
+   * Displays NBT data from persistent command storage at the specified key (parsed from string).
    *
-   * @param nbt The NBT path
-   * @param storage The storage key as string
-   * @param consumer A lambda with receiver that configures the storage NBT component builder
-   * @return This [Componenter] instance
+   * @param nbt the NBT path to query from storage
+   * @param storage the storage key as string (e.g., "minecraft:custom_data")
+   * @param consumer the consumer lambda that configures the StorageNBTComponent.Builder
+   * @return this componenter for chaining
    */
   fun storageNbt(
     @Language("NBTPath") nbt: String,
@@ -331,7 +332,8 @@ interface Componenter {
   operator fun Component.unaryPlus(): Componenter = this@Componenter.append(this)
 
   /**
-   * Applies a style to the last appended component in this componenter.
+   * Applies a style to the most recently appended component in this componenter.
+   * This allows retroactive styling of the last added component.
    *
    * @param style the style to apply to the last component
    * @return this componenter for chaining
@@ -340,6 +342,7 @@ interface Componenter {
 
   /**
    * Appends a selector component with the specified selector pattern.
+   * Selectors target entities in the game world (e.g., "@a" for all players, "@p" for nearest player, "@e[type=cow]" for cows).
    *
    * @param key the selector pattern (e.g., "@a", "@p", "@e[type=cow]")
    * @return this componenter for chaining
@@ -348,7 +351,7 @@ interface Componenter {
 
   /**
    * Sets the insertion text for the last appended component.
-   * This text will be inserted into the chat input when the component is shift-clicked.
+   * When the player shift-clicks this component, the specified text will be inserted into their chat input field.
    *
    * @param text the text to insert when shift-clicked
    * @return this componenter for chaining
@@ -357,14 +360,16 @@ interface Componenter {
 
   /**
    * Applies a hover event to the last appended component.
+   * When the player hovers over this component, the specified hover event will be triggered.
    *
-   * @param event the hover event to apply
+   * @param event the hover event to apply (e.g., show text, show item, show entity)
    * @return this componenter for chaining
    */
   infix fun hoverEvent(event: HoverEvent<*>): Componenter
 
   /**
    * Appends a newline component to this componenter.
+   * Inserts a line break in the text display.
    *
    * @return this componenter for chaining
    */
@@ -373,6 +378,7 @@ interface Componenter {
 
   /**
    * Appends a space component to this componenter.
+   * Inserts a single space character in the text display.
    *
    * @return this componenter for chaining
    */
@@ -380,26 +386,50 @@ interface Componenter {
 
   /**
    * Iterates over the given iterable and applies an action to each element.
-   * The action can use componenter methods to append components based on each element.
+   * The action receives both the componenter context and the current element, allowing component building per iteration.
    *
    * @param T the type of elements in the iterable
    * @param iterable the iterable to iterate over
-   * @param action the action lambda to apply to each element
+   * @param action the action lambda with componenter receiver to apply to each element
    * @return this componenter for chaining
    */
   fun <T> forEach(iterable: Iterable<T>, action: Componenter.(T) -> Unit): Componenter
 
-  val String.append : Componenter
+  /**
+   * Extension property to append this string directly to the componenter.
+   * Provides a convenient property-style syntax for appending strings.
+   */
+  val String.append: Componenter
     get() = append(this)
 
-  val String.legacy : Componenter
-    get() = legacy(this)
-  val String.mini : Componenter
-    get() = mini(this)
-  val String.translatable : Componenter
+  /**
+   * Extension property to append this string as a translatable component.
+   * Uses this string as the translation key for localized text.
+   */
+  val String.translatable: Componenter
     get() = translatable(this)
-  val String.selector : Componenter
+
+  /**
+   * Extension property to append this string as a selector component.
+   * Uses this string as the entity selector pattern (@a, @p, etc.).
+   */
+  val String.selector: Componenter
     get() = selector(this)
-  val String.keybind : Componenter
+
+  /**
+   * Extension property to append this string as a keybind component.
+   * Uses this string as the keybind key to display the player's configured key.
+   */
+  val String.keybind: Componenter
     get() = keybind(this)
+
+  /**
+   * Extension property to convert this string into a Component using auto-detection.
+   * Automatically detects the component format type (legacy section, legacy ampersand, MiniMessage, or plain text)
+   * and deserializes the string accordingly.
+   *
+   * @see component
+   */
+  val String.convert: Component
+    get() = component
 }

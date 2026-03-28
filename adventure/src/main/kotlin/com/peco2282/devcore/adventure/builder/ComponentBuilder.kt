@@ -17,7 +17,7 @@ internal class ComponentBuilder : Componenter {
 
   override infix fun append(content: String): ComponentBuilder =
     apply {
-      components.add(Component.text(content))
+      components.add(content.component())
     }
 
   override infix fun append(component: Component): ComponentBuilder =
@@ -39,10 +39,10 @@ internal class ComponentBuilder : Componenter {
 //    }
 
   override fun join(): Component =
-    join(Component.text(""))
+    join(Component.empty())
 
   override fun join(sep: String): Component =
-    join(Component.text(sep))
+    join(sep.convert)
 
   override fun join(sep: Component): Component =
     join(JoinConfiguration.separator(sep))
@@ -51,10 +51,10 @@ internal class ComponentBuilder : Componenter {
     Component.join(conf, components)
 
   override fun collect(): Component =
-    collect(Component.text(""))
+    collect(Component.empty())
 
   override fun collect(separator: String): Component =
-    collect(Component.text(separator))
+    collect(separator.convert)
 
   override fun collect(separator: Component): Component =
     components.stream().collect(Component.toComponent(separator))
@@ -97,7 +97,7 @@ internal class ComponentBuilder : Componenter {
       val components = args.map {
         when (it) {
           is Component -> it
-          else -> Component.text(it.toString())
+          else -> it.toString().convert
         }
       }
       append(Component.translatable(key, components))

@@ -78,9 +78,9 @@ fun component(consumer: Componenter.() -> Unit): Component =
  * Example usage with custom join configuration:
  * ```kotlin
  * val formatted = component(joiner = { 
- *     it.join(JoinConfiguration.separator(Component.text(", "))
- *         .prefix(Component.text("["))
- *         .suffix(Component.text("]")))
+ *     it.join(JoinConfiguration.separator(", ".convert)
+ *         .prefix("[".convert)
+ *         .suffix("]".convert))
  * }) {
  *     append("A")
  *     append("B")

@@ -1,6 +1,7 @@
 package com.peco2282.devcore.adventure.builder
 
 import com.peco2282.devcore.adventure.StyleDsl
+import com.peco2282.devcore.adventure.component
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
@@ -210,7 +211,7 @@ interface Styler {
    * @param text the text to show
    * @return this Styler instance for chaining
    */
-  infix fun showText(text: String): Styler = showText(Component.text(text))
+  infix fun showText(text: String): Styler = showText(text.component)
 
   /**
    * Applies a hover event that shows a component built with a DSL.

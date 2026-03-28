@@ -17,7 +17,7 @@ import net.kyori.adventure.text.format.TextDecoration
  * @param content The string content to append
  * @return The component with the appended content
  */
-infix fun Component.append(content: String) = append(Component.text(content))
+infix fun Component.append(content: String) = append(content.component)
 
 
 /**
@@ -27,7 +27,7 @@ infix fun Component.append(content: String) = append(Component.text(content))
  * @return The component builder with the appended content
  */
 infix fun <C : BuildableComponent<C, B>, B : ComponentBuilder<C, B>> ComponentBuilder<C, B>.append(content: String) =
-  append(Component.text(content))
+  append(content.component)
 
 /**
  * Operator function to append a string to this component builder using the + operator.
