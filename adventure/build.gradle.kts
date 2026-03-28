@@ -4,6 +4,7 @@ dependencies {
   testImplementation(libs.kotlin.test)
   compileOnly(libs.adventure)
   compileOnly(libs.serializer.legacy)
+  compileOnly(libs.serializer.minimessage)
   testImplementation(libs.adventure)
   testImplementation(libs.serializer.plugin)
 }

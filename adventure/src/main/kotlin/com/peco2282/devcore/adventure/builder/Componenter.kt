@@ -1,6 +1,8 @@
 package com.peco2282.devcore.adventure.builder
 
 import com.peco2282.devcore.adventure.ComponentDsl
+import com.peco2282.devcore.adventure.legacy
+import com.peco2282.devcore.adventure.mini
 import com.peco2282.devcore.adventure.withStyle
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.*
@@ -30,6 +32,11 @@ interface Componenter {
    * @return this componenter for chaining
    */
   infix fun append(component: Component): Componenter
+
+  
+  fun legacy(content: String, char: Char = '§'): Componenter = append(content.legacy(char))
+  
+  infix fun mini(content: String): Componenter = append(content.mini())
 
   /**
    * Creates a new componenter scope with the given consumer.
@@ -381,4 +388,18 @@ interface Componenter {
    * @return this componenter for chaining
    */
   fun <T> forEach(iterable: Iterable<T>, action: Componenter.(T) -> Unit): Componenter
+
+  val String.append : Componenter
+    get() = append(this)
+
+  val String.legacy : Componenter
+    get() = legacy(this)
+  val String.mini : Componenter
+    get() = mini(this)
+  val String.translatable : Componenter
+    get() = translatable(this)
+  val String.selector : Componenter
+    get() = selector(this)
+  val String.keybind : Componenter
+    get() = keybind(this)
 }
