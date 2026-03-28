@@ -7,4 +7,7 @@ dependencies {
   compileOnly(libs.serializer.legacy)
   compileOnly(libs.serializer.minimessage)
   testImplementation(libs.adventure)
+  testImplementation(libs.serializer.plain)
+  testImplementation(libs.serializer.legacy)
+  testImplementation(libs.serializer.minimessage)
 }
