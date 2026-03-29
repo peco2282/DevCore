@@ -9,6 +9,7 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.*
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.intellij.lang.annotations.Language
@@ -87,6 +88,73 @@ internal class ComponentBuilder : Componenter {
 
   override fun space(): Componenter =
     apply { append(Component.space()) }
+
+  override fun text(content: String): Componenter =
+    apply {
+      append(content.component())
+    }
+
+  override fun text(content: String, consumer: Styler.() -> Unit): Componenter =
+    apply {
+      val styler = StyleBuilder().apply(consumer)
+      val gradientImpl = styler.getGradient() as? GradientImpl
+      if (gradientImpl != null && gradientImpl.colors.size >= 2) {
+        val colors = gradientImpl.colors
+        val weights = if (gradientImpl.weights.size == colors.size) {
+          gradientImpl.weights
+        } else {
+          List(colors.size) { 1.0 }
+        }
+
+        val totalWeight = weights.sum()
+        val cumulativeWeights = mutableListOf<Double>()
+        var currentSum = 0.0
+        weights.forEach {
+          currentSum += it
+          cumulativeWeights.add(currentSum)
+        }
+
+        val textBuilder = Component.text()
+        val style = styler.build()
+
+        for (i in content.indices) {
+          val progress = if (content.length > 1) {
+            (i.toDouble() / (content.length - 1) + gradientImpl.phase)
+          } else {
+            gradientImpl.phase.toDouble()
+          }
+          // Wrap progress to [0, 1] range, but keep 1.0 as 1.0 (not 0.0) if it was exactly 1.0 initially (phase 0, last char)
+          val wrappedProgress = when {
+            progress < 0.0 -> (progress % 1.0 + 1.0) % 1.0
+            progress >= 1.0 -> if (progress % 1.0 == 0.0) 1.0 else progress % 1.0
+            else -> progress
+          }
+          val weightedProgress = wrappedProgress * totalWeight
+
+          val colorIndex = cumulativeWeights.indexOfFirst { it >= weightedProgress }.coerceIn(0, colors.size - 1)
+
+          val color = if (colorIndex == 0) {
+            val p = (weightedProgress / cumulativeWeights[0]).toFloat().coerceIn(0f, 1f)
+            interpolate(colors.first(), colors[colorIndex], p) // colorIndex is 0, so interpolate(colors[0], colors[0], p) which is colors[0]
+          } else {
+            val p = ((weightedProgress - cumulativeWeights[colorIndex - 1]) / (cumulativeWeights[colorIndex] - cumulativeWeights[colorIndex - 1])).toFloat().coerceIn(0f, 1f)
+            interpolate(colors[colorIndex - 1], colors[colorIndex], p)
+          }
+
+          textBuilder.append(content[i].toString().component(style.color(color)))
+        }
+        append(textBuilder.build())
+      } else {
+        append(content.component(styler.build()))
+      }
+    }
+
+  private fun interpolate(from: TextColor, to: TextColor, ratio: Float): TextColor {
+    val r = (from.red() + (to.red() - from.red()) * ratio).toInt().coerceIn(0, 255)
+    val g = (from.green() + (to.green() - from.green()) * ratio).toInt().coerceIn(0, 255)
+    val b = (from.blue() + (to.blue() - from.blue()) * ratio).toInt().coerceIn(0, 255)
+    return TextColor.color(r, g, b)
+  }
 
   override fun whenTrue(
     condition: Boolean,

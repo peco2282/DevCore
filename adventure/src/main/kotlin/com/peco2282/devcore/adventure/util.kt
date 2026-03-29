@@ -1,6 +1,7 @@
 package com.peco2282.devcore.adventure
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.ComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
@@ -93,6 +94,8 @@ enum class ComponentType(private val serializer: ComponentSerializer<Component, 
  * @see ComponentType.get
  */
 fun String.component(): Component = ComponentType.get(this).deserialize(this)
+
+fun String.component(style: Style): Component = component().style(style)
 
 /**
  * Serializes this component into a string using the specified format.

@@ -1,6 +1,7 @@
 package com.peco2282.devcore.adventure
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.NamedTextColor
@@ -193,5 +194,55 @@ class ComponentDslTest {
       .build()
 
     assertEquals(expected, actual)
+  }
+
+  @Test
+  fun `gradient text`() {
+    val actual = component {
+      text("Gradient") {
+        gradient(NamedTextColor.RED, NamedTextColor.BLUE)
+      }
+    }
+
+    // 文字列 "Gradient" は 8 文字
+    // 補間されるため、各文字が異なる色を持つはず
+    assertEquals(8, (actual as TextComponent).children().size)
+    val firstChild = actual.children()[0] as TextComponent
+    val lastChild = actual.children()[7] as TextComponent
+    
+    assertEquals(NamedTextColor.RED, firstChild.color())
+    assertEquals(NamedTextColor.BLUE, lastChild.color())
+  }
+
+  @Test
+  fun `rainbow text`() {
+    val actual = component {
+      text("Rainbow") {
+        rainbow()
+      }
+    }
+    assertEquals(7, (actual as TextComponent).children().size)
+  }
+
+  @Test
+  fun `weighted gradient text`() {
+    val actual = component {
+      text("Weighted") {
+        gradient {
+          colors(NamedTextColor.RED, NamedTextColor.GREEN, NamedTextColor.BLUE)
+          weights(1.0, 10.0, 1.0)
+        }
+      }
+    }
+    assertEquals(8, (actual as TextComponent).children().size)
+    
+    // 真ん中あたり (index 4) は GREEN に近いはず (1.0 + 10.0 + 1.0 = 12.0 total weight)
+    // index 4 / 7 = 0.57... 0.57 * 12.0 = 6.85...
+    // 6.85 は 1.0 (RED) の後、GREEN (10.0) の範囲内。
+    val middleChild = actual.children()[4] as TextComponent
+    val color = middleChild.color()!!
+    // GREEN は #00FF00 (0, 255, 0)
+    // 完全な一致は難しいので、緑成分が一番大きいことを確認
+    assert(color.green() > color.red() && color.green() > color.blue())
   }
 }

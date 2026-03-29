@@ -128,22 +128,36 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
     apply { builder = builder.decoration(TextDecoration.UNDERLINED, false) }
 
   override fun reset(): Styler =
-    apply { builder = Style.style() }
+    apply {
+      builder = Style.style()
+      gradient = null
+    }
+
+  private var gradient: GradientImpl? = null
 
   override fun gradient(vararg colors: TextColor): Styler = apply {
-    // Note: Adventure Style doesn't support gradient directly.
-    // This is a placeholder or should be handled by the component builder if possible.
-    // For now, we set the first color or a representation.
-    if (colors.isNotEmpty()) color(colors[0])
+    this.gradient = GradientImpl().apply { colors(*colors) }
   }
 
   override fun gradient(gradient: Gradient.() -> Unit): Styler = apply {
-    // Same as above
+    this.gradient = GradientImpl().apply(gradient)
   }
 
   override fun rainbow(): Styler = apply {
-    // Same as above
+    this.gradient = GradientImpl().apply {
+      colors(
+        TextColor.color(0xFF0000), // Red
+        TextColor.color(0xFFAA00), // Gold
+        TextColor.color(0xFFFF00), // Yellow
+        TextColor.color(0x00FF00), // Green
+        TextColor.color(0x00AAAA), // Aqua
+        TextColor.color(0x0000FF), // Blue
+        TextColor.color(0xAA00AA)  // Light Purple
+      )
+    }
   }
+
+  override fun getGradient(): Gradient? = gradient
 
   fun build(): Style = builder.build()
 }

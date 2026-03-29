@@ -486,4 +486,9 @@ interface Styler {
    * @return this Styler instance for chaining
    */
   fun rainbow(): Styler
+
+  /**
+   * Internal method to retrieve the gradient implementation.
+   */
+  fun getGradient(): Gradient?
 }
