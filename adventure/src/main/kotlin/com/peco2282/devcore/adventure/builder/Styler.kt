@@ -219,7 +219,7 @@ interface Styler {
    * @param consumer the function to build the hover text component
    * @return this Styler instance for chaining
    */
-  fun showText(consumer: Componenter.() -> Unit): Styler
+  fun showText(consumer: ComponentBuilder.() -> Unit): Styler
 
   /**
    * Applies a hover event that shows an entity.

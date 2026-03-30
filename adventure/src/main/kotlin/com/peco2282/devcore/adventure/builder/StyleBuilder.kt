@@ -87,7 +87,7 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
   override fun showText(component: Component): Styler =
     apply { builder = builder.hoverEvent(HoverEvent.showText(component)) }
 
-  override fun showText(consumer: Componenter.() -> Unit): Styler =
+  override fun showText(consumer: ComponentBuilder.() -> Unit): Styler =
     apply { builder = builder.hoverEvent(HoverEvent.showText(component(consumer))) }
 
   override fun showEntity(key: HoverEvent.ShowEntity): Styler =
