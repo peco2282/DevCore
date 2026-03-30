@@ -1,6 +1,6 @@
 package com.peco2282.devcore.adventure
 
-import com.peco2282.devcore.adventure.builder.Componenter
+import com.peco2282.devcore.adventure.builder.ComponentBuilder
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
@@ -305,86 +305,86 @@ fun Style.white(): Style = apply { color(NamedTextColor.WHITE) }
 /**
  * Sets the text color to red.
  */
-fun Componenter.red(): Componenter = withColor(NamedTextColor.RED)
+fun ComponentBuilder.red(): ComponentBuilder = withColor(NamedTextColor.RED)
 
 /**
  * Sets the text color to green.
  */
-fun Componenter.green(): Componenter = withColor(NamedTextColor.GREEN)
+fun ComponentBuilder.green(): ComponentBuilder = withColor(NamedTextColor.GREEN)
 
 /**
  * Sets the text color to yellow.
  */
-fun Componenter.yellow(): Componenter = withColor(NamedTextColor.YELLOW)
+fun ComponentBuilder.yellow(): ComponentBuilder = withColor(NamedTextColor.YELLOW)
 
 /**
  * Sets the text color to blue.
  */
-fun Componenter.blue(): Componenter = withColor(NamedTextColor.BLUE)
+fun ComponentBuilder.blue(): ComponentBuilder = withColor(NamedTextColor.BLUE)
 
 /**
  * Sets the text color to dark blue.
  */
-fun Componenter.darkBlue(): Componenter = withColor(NamedTextColor.DARK_BLUE)
+fun ComponentBuilder.darkBlue(): ComponentBuilder = withColor(NamedTextColor.DARK_BLUE)
 
 /**
  * Sets the text color to light purple.
  */
-fun Componenter.purple(): Componenter = withColor(NamedTextColor.LIGHT_PURPLE)
+fun ComponentBuilder.purple(): ComponentBuilder = withColor(NamedTextColor.LIGHT_PURPLE)
 
 /**
  * Sets the text color to dark purple.
  */
-fun Componenter.darkPurple(): Componenter = withColor(NamedTextColor.DARK_PURPLE)
+fun ComponentBuilder.darkPurple(): ComponentBuilder = withColor(NamedTextColor.DARK_PURPLE)
 
 /**
  * Sets the text color to aqua.
  */
-fun Componenter.aqua(): Componenter = withColor(NamedTextColor.AQUA)
+fun ComponentBuilder.aqua(): ComponentBuilder = withColor(NamedTextColor.AQUA)
 
 /**
  * Sets the text color to gray.
  */
-fun Componenter.gray(): Componenter = withColor(NamedTextColor.GRAY)
+fun ComponentBuilder.gray(): ComponentBuilder = withColor(NamedTextColor.GRAY)
 
 /**
  * Sets the text color to dark gray.
  */
-fun Componenter.darkGray(): Componenter = withColor(NamedTextColor.DARK_GRAY)
+fun ComponentBuilder.darkGray(): ComponentBuilder = withColor(NamedTextColor.DARK_GRAY)
 
 /**
  * Sets the text color to white.
  */
-fun Componenter.white(): Componenter = withColor(NamedTextColor.WHITE)
+fun ComponentBuilder.white(): ComponentBuilder = withColor(NamedTextColor.WHITE)
 
 /**
  * Sets the text color to black.
  */
-fun Componenter.black(): Componenter = withColor(NamedTextColor.BLACK)
+fun ComponentBuilder.black(): ComponentBuilder = withColor(NamedTextColor.BLACK)
 
 /**
  * Sets the text color to gold.
  */
-fun Componenter.gold(): Componenter = withColor(NamedTextColor.GOLD)
+fun ComponentBuilder.gold(): ComponentBuilder = withColor(NamedTextColor.GOLD)
 
 /**
  * Sets the text color to dark red.
  */
-fun Componenter.darkRed(): Componenter = withColor(NamedTextColor.DARK_RED)
+fun ComponentBuilder.darkRed(): ComponentBuilder = withColor(NamedTextColor.DARK_RED)
 
 /**
  * Sets the text color to dark green.
  */
-fun Componenter.darkGreen(): Componenter = withColor(NamedTextColor.DARK_GREEN)
+fun ComponentBuilder.darkGreen(): ComponentBuilder = withColor(NamedTextColor.DARK_GREEN)
 
 /**
  * Sets the text color to dark aqua.
  */
-fun Componenter.darkAqua(): Componenter = withColor(NamedTextColor.DARK_AQUA)
+fun ComponentBuilder.darkAqua(): ComponentBuilder = withColor(NamedTextColor.DARK_AQUA)
 
 /// library
 
-fun Componenter.errorMessage(text: String) {
+fun ComponentBuilder.errorMessage(text: String) {
   text("Error: ") {
     red(); bold()
   }

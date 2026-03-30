@@ -1,7 +1,7 @@
 package com.peco2282.devcore.adventure
 
+import com.peco2282.devcore.adventure.builder.ComponentBuilderImpl
 import com.peco2282.devcore.adventure.builder.ComponentBuilder
-import com.peco2282.devcore.adventure.builder.Componenter
 import com.peco2282.devcore.adventure.builder.StyleBuilder
 import com.peco2282.devcore.adventure.builder.Styler
 import net.kyori.adventure.text.Component
@@ -12,7 +12,7 @@ import net.kyori.adventure.text.format.Style
  * Creates a text component using a DSL builder pattern.
  *
  * This function provides a convenient way to construct Adventure text components using
- * a builder DSL. The consumer lambda receives a [Componenter] instance that allows
+ * a builder DSL. The consumer lambda receives a [ComponentBuilder] instance that allows
  * building the component structure declaratively.
  *
  * @param consumer A lambda with receiver that configures the component builder
@@ -28,8 +28,8 @@ import net.kyori.adventure.text.format.Style
  * }
  * ```
  */
-fun component(consumer: Componenter.() -> Unit): Component =
-  ComponentBuilder().apply(consumer).join()
+fun component(consumer: ComponentBuilder.() -> Unit): Component =
+  ComponentBuilderImpl().apply(consumer).join()
 
 
 /**
@@ -39,12 +39,12 @@ fun component(consumer: Componenter.() -> Unit): Component =
  * a builder DSL with a customizable joining strategy. Unlike the simpler [component] overload,
  * this allows you to specify how the built components should be combined.
  *
- * The consumer lambda receives a [Componenter] instance that allows building the component
+ * The consumer lambda receives a [ComponentBuilder] instance that allows building the component
  * structure declaratively. The joiner function determines how the components are assembled
  * into the final [Component] result.
  *
- * @param joiner A function that takes a [Componenter] and returns a [Component]. This controls
- *               how the built components are joined together. Defaults to [Componenter.join]
+ * @param joiner A function that takes a [ComponentBuilder] and returns a [Component]. This controls
+ *               how the built components are joined together. Defaults to [ComponentBuilder.join]
  *               which concatenates components without a separator.
  * @param consumer A lambda with receiver that configures the component builder
  * @return The built [Component] instance as determined by the joiner function
@@ -69,7 +69,7 @@ fun component(consumer: Componenter.() -> Unit): Component =
  *
  * Example usage with collect joiner:
  * ```kotlin
- * val collected = component(joiner = Componenter::collect) {
+ * val collected = component(joiner = ComponentBuilder::collect) {
  *     append("First")
  *     append("Second")
  *     append("Third")
@@ -90,12 +90,12 @@ fun component(consumer: Componenter.() -> Unit): Component =
  * // Result: "[A, B, C]"
  * ```
  */
-fun component(joiner: (Componenter) -> Component = Componenter::join, consumer: Componenter.() -> Unit): Component =
-  ComponentBuilder().apply(consumer).let(joiner)
+fun component(joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, consumer: ComponentBuilder.() -> Unit): Component =
+  ComponentBuilderImpl().apply(consumer).let(joiner)
 
 @JvmName("componentJoinConfiguration")
-fun component(joiner: JoinConfiguration.Builder.() -> Unit, consumer: Componenter.() -> Unit): Component =
-  ComponentBuilder().apply(consumer).join(JoinConfiguration.builder().apply(joiner).build())
+fun component(joiner: JoinConfiguration.Builder.() -> Unit, consumer: ComponentBuilder.() -> Unit): Component =
+  ComponentBuilderImpl().apply(consumer).join(JoinConfiguration.builder().apply(joiner).build())
 
 /**
  * Creates a text style using a DSL builder pattern.

@@ -8,7 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
-import com.peco2282.devcore.adventure.builder.Componenter
+import com.peco2282.devcore.adventure.builder.ComponentBuilder
 import com.peco2282.devcore.adventure.component
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
@@ -25,7 +25,7 @@ object GlobalErrorHandler {
   /**
    * The default error message handler.
    */
-  var errorHandler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit = { context, consumer ->
+  var errorHandler: (CommandContext<CommandSourceStack>, ComponentBuilder.() -> Unit) -> Unit = { context, consumer ->
     context.source.sender.sendMessage(
       component {
         text("✘ ") { red() }
@@ -39,7 +39,7 @@ object GlobalErrorHandler {
    *
    * @param handler the handler to use
    */
-  fun updateErrorHandler(handler: (CommandContext<CommandSourceStack>, Componenter.() -> Unit) -> Unit) {
+  fun updateErrorHandler(handler: (CommandContext<CommandSourceStack>, ComponentBuilder.() -> Unit) -> Unit) {
     errorHandler = handler
   }
 }
@@ -472,14 +472,14 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    *
    * @param consumer the configuration block for the component
    */
-  fun CommandContext<CommandSourceStack>.sendMessage(consumer: Componenter.() -> Unit) {
+  fun CommandContext<CommandSourceStack>.sendMessage(consumer: ComponentBuilder.() -> Unit) {
     source.sender.sendMessage(component(consumer = consumer))
   }
 
   /**
    * Sends a success message to the command sender.
    */
-  fun CommandContext<CommandSourceStack>.sendSuccess(consumer: Componenter.() -> Unit) {
+  fun CommandContext<CommandSourceStack>.sendSuccess(consumer: ComponentBuilder.() -> Unit) {
     sendMessage {
       text("✔ ") { green() }
       create(consumer)
@@ -489,7 +489,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Sends an error message to the command sender.
    */
-  fun CommandContext<CommandSourceStack>.sendError(consumer: Componenter.() -> Unit) {
+  fun CommandContext<CommandSourceStack>.sendError(consumer: ComponentBuilder.() -> Unit) {
     GlobalErrorHandler.errorHandler(this, consumer)
   }
 
@@ -504,7 +504,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    */
   fun CommandContext<CommandSourceStack>.guard(
     condition: Boolean,
-    errorMessage: Componenter.() -> Unit,
+    errorMessage: ComponentBuilder.() -> Unit,
     block: () -> Int
   ): Int {
     return if (condition) {
