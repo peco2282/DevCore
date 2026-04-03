@@ -85,6 +85,26 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     builder.then(c.builder)
   }
 
+  
+  /**
+   * DSL operator to add a literal subcommand to the command.
+   *
+   * Example:
+   * ```kotlin
+   * "subcommand" {
+   *   executes { ... }
+   * }
+   * ```
+   *
+   * @param creator the configuration block for the subcommand identified by the literal string
+   */
+  inline infix operator fun String.invoke(creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit) = apply {
+    val command = LiteralArgumentBuilder.literal<CommandSourceStack>(this)
+    val c = CommandCreator(command)
+    c.creator()
+    builder.then(c.builder)
+  }
+
   /**
    * Adds multiple literal aliases to the command that all execute the same block.
    *
