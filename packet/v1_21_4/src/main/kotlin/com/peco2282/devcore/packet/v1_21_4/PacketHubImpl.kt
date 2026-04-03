@@ -323,7 +323,7 @@ class PacketHubImpl : PacketHub {
           MetadataType.QUATERNION -> EntityDataSerializers.QUATERNION
         }
         @Suppress("UNCHECKED_CAST")
-        dataValues.add(SynchedEntityData.DataValue(index, serializer as EntityDataSerializer<Any>, value))
+        dataValues.add(SynchedEntityData.DataValue(index, serializer as EntityDataSerializer<Any>, value as Any))
       }
 
       override fun setGlowing(glowing: Boolean) {
