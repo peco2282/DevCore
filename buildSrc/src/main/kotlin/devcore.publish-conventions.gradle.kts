@@ -55,10 +55,10 @@ tasks.withType<PublishToMavenRepository>().configureEach {
   onlyIf {
     if (project.name.lowercase().contains("test")) return@onlyIf false
     if (project.name == "scoreboard") return@onlyIf false
-    val artifactId = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
+    val artifactIdValue = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
     val groupPath = project.group.toString().replace(".", "/")
     val remoteUrl =
-      "${repository.url}${groupPath}/${artifactId}/${project.version}/${artifactId}-${project.version}.pom"
+      "${repository.url}${groupPath}/${artifactIdValue}/${project.version}/${artifactIdValue}-${project.version}.pom"
 
     checkLog(project, remoteUrl)
 
@@ -100,6 +100,7 @@ publishing {
           }
           val javaExtension = project.extensions.getByType<JavaPluginExtension>()
           javaExtension.withSourcesJar()
+          artifact(tasks.named("sourcesJar"))
 
           pom.withXml {
             val dependenciesNode = asNode().appendNode("dependencies")
