@@ -11,12 +11,12 @@ interface PacketListener {
   fun <T : Any> onReceive(type: Class<T>, action: T.(PacketEvent) -> Unit)
 
   /**
-   * 送信されるパケットをNettyレベルで横取りして書き換えます。
+   * Intercepts and transforms packets being sent at the Netty level.
    */
   fun <T : Any> transformSend(transformer: (T) -> T)
 
   /**
-   * 受信したパケットをNettyレベルで横取りして書き換えます。
+   * Intercepts and transforms received packets at the Netty level.
    */
   fun <T : Any> transformReceive(transformer: (T) -> T)
 

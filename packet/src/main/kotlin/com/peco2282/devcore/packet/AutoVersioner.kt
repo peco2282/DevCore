@@ -3,21 +3,21 @@ package com.peco2282.devcore.packet
 import org.bukkit.Bukkit
 
 /**
- * サーバーのバージョンに応じて適切なパケットや NMS オブジェクトを生成するためのファクトリ。
+ * Factory for creating appropriate packets or NMS objects according to the server version.
  */
 object AutoVersioner {
   private val version = Bukkit.getServer().javaClass.`package`.name.split(".")[3]
 
   /**
-   * クラス名からバージョンに応じたクラスを取得します。
-   * 例: "net.minecraft.network.protocol.game.ClientboundChatPacket"
+   * Gets the class according to the version from the class name.
+   * Example: "net.minecraft.network.protocol.game.ClientboundChatPacket"
    */
   fun getNMSClass(className: String): Class<*> {
     return Class.forName(className)
   }
 
   /**
-   * 指定したクラスのインスタンスを生成します。
+   * Creates an instance of the specified class.
    */
   fun <T> create(className: String, vararg args: Any?): T {
     val clazz = getNMSClass(className)

@@ -190,10 +190,10 @@ object Packets : Listener {
       @Suppress("UNCHECKED_CAST")
       globalTransformersSend.add { msg ->
         try {
-          // 型チェックをより安全に行うための試行
-          // reified T が使えないため、ClassCastException をキャッチするか、
-          // 呼び出し側から KClass を渡してもらう必要があるが、
-          // 現状のDSLを維持するためにはこのアプローチをとる
+          // Attempt to perform type check safely.
+          // Since reified T cannot be used here, we catch ClassCastException
+          // or would need to pass KClass from the caller side.
+          // We take this approach to maintain the current DSL.
           transformer(msg as T)
         } catch (e: Exception) {
           msg

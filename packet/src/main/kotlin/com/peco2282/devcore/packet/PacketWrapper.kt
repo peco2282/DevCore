@@ -7,13 +7,13 @@ interface PacketWrapper {
   val original: Any
 }
 
-// 共通 API からは Minecraft の Packet クラスへの直接依存を排除し、Any として扱う。
-// サブモジュール側で必要に応じてキャストして使用する。
+// Eliminate direct dependency on Minecraft's Packet class from the common API and treat it as Any.
+// Cast and use as needed on the submodule side.
 
 private val fieldCache = ConcurrentHashMap<Class<*>, Map<String, Field>>()
 
 /**
- * リフレクションを使用してフィールドの値を取得します。
+ * Gets the field value using reflection.
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> Any.getFieldValue(fieldName: String): T {
@@ -27,7 +27,7 @@ fun <T> Any.getFieldValue(fieldName: String): T {
 }
 
 /**
- * リフレクションを使用してフィールドの値を設定します。
+ * Sets the field value using reflection.
  */
 fun Any.setFieldValue(fieldName: String, value: Any?) {
   val clazz = this::class.java
@@ -40,6 +40,6 @@ fun Any.setFieldValue(fieldName: String, value: Any?) {
 }
 
 /**
- * パケットからフィールドを型安全に取得するためのヘルパー。
+ * Helper for safely getting a field from a packet.
  */
 inline fun <reified T> Any.packetField(fieldName: String): T = getFieldValue(fieldName)
