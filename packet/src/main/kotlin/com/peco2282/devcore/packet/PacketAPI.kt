@@ -18,12 +18,12 @@ object PacketAPI: PacketHub {
     "com.peco2282.devcore.packet.v${version.replace(".", "_")}.PacketHubImpl"
 
   fun init(plugin: Plugin) {
-    val version = Bukkit.getMinecraftVersion()
+    val version = Version(Bukkit.getMinecraftVersion())
     val className = when (version) {
-      in "1.20.4"..<"1.20.6" -> className("1.20.4")
-      in "1.20.6"..<"1.21.4" -> className("1.20.6")
-      in "1.21.4"..<"1.21.11" -> className("1.21.4")
-      in "1.21.11"..<"1.22" -> className("1.21.11")
+      in Version("1.20.4")..<Version("1.20.6") -> className("1.20.4")
+      in Version("1.20.6")..<Version("1.21.4") -> className("1.20.6")
+      in Version("1.21.4")..<Version("1.21.11") -> className("1.21.4")
+      in Version("1.21.11")..<Version("1.22") -> className("1.21.11")
       // 他のバージョンも同様に追加
       else -> {
         plugin.logger.warning("Unsupported version for Packet NMS: $version")
@@ -42,6 +42,7 @@ object PacketAPI: PacketHub {
 
     if (delegate != null) {
       plugin.logger.info("Packet NMS initialized for version: $version")
+      plugin.logger.info("Packet API initialized for version: ${delegate?.javaClass}")
     }
   }
 
