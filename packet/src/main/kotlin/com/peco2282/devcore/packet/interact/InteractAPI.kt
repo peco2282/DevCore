@@ -5,53 +5,64 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
+/** DSL marker annotation for the interact DSL scope. */
 @DslMarker
 annotation class PacketInteractDsl
 
 /**
- * 偽のUI・操作系に関するパケット操作のインターフェース。
- * 偽ブロック操作・インベントリスロットロック・クレジット演出を制御する。
+ * Hub interface for packet-based player interaction manipulation.
+ *
+ * Provides methods to place/remove fake blocks, lock inventory slots,
+ * force held slot changes, and control the credits screen — all via packets
+ * without modifying actual server state.
  */
 interface InteractHub {
   /**
-   * 特定プレイヤーに偽のブロックを設置し、インタラクションを傍受できるようにする。
-   * @param player 対象プレイヤー
-   * @param location 偽ブロックの座標
-   * @param material 偽ブロックの種類
+   * Sends a fake block placement packet to the player at the given location.
+   *
+   * @param player The target player.
+   * @param location The location where the fake block appears.
+   * @param material The material of the fake block.
    */
   fun placeFakeBlock(player: Player, location: Location, material: Material)
 
   /**
-   * 特定プレイヤーの偽ブロックを削除する。
-   * @param player 対象プレイヤー
-   * @param location 削除する偽ブロックの座標
+   * Sends a fake block removal packet to the player at the given location,
+   * restoring the appearance of the original block.
+   *
+   * @param player The target player.
+   * @param location The location of the fake block to remove.
    */
   fun removeFakeBlock(player: Player, location: Location)
 
   /**
-   * 特定プレイヤーのインベントリスロットに偽のアイテムを固定表示する。
-   * @param player 対象プレイヤー
-   * @param slot スロット番号
-   * @param item 表示するアイテム（nullで非表示）
+   * Locks an inventory slot for the player by sending a fake item packet.
+   *
+   * @param player The target player.
+   * @param slot The slot index to lock.
+   * @param item The item to display in the locked slot, or `null` to show empty.
    */
   fun lockInventorySlot(player: Player, slot: Int, item: ItemStack?)
 
   /**
-   * 特定プレイヤーのホットバースロット選択を強制変更する。
-   * @param player 対象プレイヤー
-   * @param slot ホットバースロット番号 (0-8)
+   * Forces the player's held item slot to the specified index via a packet.
+   *
+   * @param player The target player.
+   * @param slot The hotbar slot index (0–8) to force.
    */
   fun forceHeldSlot(player: Player, slot: Int)
 
   /**
-   * クレジット画面（エンドロール）を任意のタイミングで表示する。
-   * @param player 対象プレイヤー
+   * Shows the end credits screen to the player via a packet.
+   *
+   * @param player The target player.
    */
   fun showCredits(player: Player)
 
   /**
-   * クレジット画面を非表示にする。
-   * @param player 対象プレイヤー
+   * Hides the end credits screen for the player via a packet.
+   *
+   * @param player The target player.
    */
   fun hideCredits(player: Player)
 }

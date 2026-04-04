@@ -19,27 +19,37 @@ import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 /**
- * Send a packet to the player.
+ * Sends a raw NMS packet to the player via [PacketAPI].
+ *
+ * @param packet The NMS packet instance.
  */
 fun Player.sendPacket(packet: Any) {
   PacketAPI.sendPacket(this, packet)
 }
 
 /**
- * Event for packet intercepting.
+ * Represents a packet event that can be inspected or cancelled during interception.
+ *
+ * @property player The player associated with this packet.
+ * @property packet The intercepted packet object.
+ * @property isCancelled Whether the packet has been cancelled and should not be forwarded.
  */
 class PacketEvent(
   val player: Player,
   val packet: Any,
   var isCancelled: Boolean = false
 ) {
+  /** Cancels this packet, preventing it from being forwarded through the pipeline. */
   fun cancel() {
     isCancelled = true
   }
 }
 
 /**
- * DSL for building packets and handling packet events.
+ * Central singleton for managing packet interception, player injection, and global packet handlers.
+ *
+ * Must be initialized via [init] before use. Automatically injects and removes players
+ * on join/quit events.
  */
 object Packets : Listener {
   private const val HANDLER_NAME = "devcore_packet_handler"
@@ -47,7 +57,11 @@ object Packets : Listener {
   private var isInitialized = false
 
   /**
-   * Initialize the packet listener.
+   * Initializes the packet system, registers Bukkit events, and injects all online players.
+   *
+   * Must be called once during plugin startup. Subsequent calls are no-ops.
+   *
+   * @param plugin The owning plugin instance.
    */
   fun init(plugin: Plugin) {
     if (isInitialized) return
@@ -72,11 +86,19 @@ object Packets : Listener {
     PacketAPI.injectPlayer(player)
   }
 
+  /** Default [NetworkSettings] implementation used when no version-specific one is available. */
   class NetworkSettingsImpl : NetworkSettings {
     override var latency: Long = 0L
     override var packetLoss: Double = 0.0
   }
 
+  /**
+   * Netty [ChannelDuplexHandler] that intercepts inbound and outbound packets for a player.
+   *
+   * Applies transformers, fires [PacketEvent] handlers, and supports latency/packet-loss simulation.
+   *
+   * @property player The player this handler is attached to.
+   */
   class PacketHandler(val player: Player) : ChannelDuplexHandler() {
     val settings = NetworkSettingsImpl()
     var logPackets: Boolean = false
@@ -236,14 +258,22 @@ object Packets : Listener {
   }
 
   /**
-   * Subscribe to packet events for a player.
+   * Subscribes to all packet events (both sent and received) for the given player.
+   *
+   * @param player The player to observe.
+   * @param handler Called for each packet event with the [PacketEvent] as receiver.
    */
   fun onPacket(player: Player, handler: PacketEvent.() -> Unit) {
     packetHandlers.getOrPut(player.uniqueId) { mutableListOf() }.add(handler)
   }
 
   /**
-   * Subscribe to specific packet events for a player asynchronously.
+   * Subscribes to packet events of type [T] for the given player and handles them asynchronously
+   * on the player's Netty event-loop dispatcher (falls back to [Dispatchers.Default]).
+   *
+   * @param T The packet type to listen for.
+   * @param player The player to observe.
+   * @param handler Suspend function called with the typed packet as argument.
    */
   inline fun <reified T> onPacketAsync(player: Player, crossinline handler: suspend PacketEvent.(T) -> Unit) {
     onPacket(player) {

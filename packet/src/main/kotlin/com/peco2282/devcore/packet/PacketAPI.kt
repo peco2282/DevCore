@@ -1,22 +1,43 @@
 package com.peco2282.devcore.packet
 
+import com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder
 import io.netty.buffer.ByteBuf
 import kotlinx.coroutines.CoroutineDispatcher
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
 
+/**
+ * Singleton facade that delegates all [PacketHub] operations to the version-specific
+ * [PacketHub] implementation loaded at runtime.
+ *
+ * Call [init] once during plugin startup to resolve and load the correct NMS implementation
+ * for the running server version. All methods throw [UnsupportedOperationException] if
+ * called before a compatible implementation is found.
+ */
 object PacketAPI: PacketHub {
   private var delegate: PacketHub? = null
 
+  /** Builds the fully-qualified class name for the version-specific [PacketHub] implementation. */
   private fun className(version: String) =
     "com.peco2282.devcore.packet.v${version.replace(".", "_")}.PacketHubImpl"
 
+  /**
+   * Resolves and loads the version-specific [PacketHub] implementation for the running server.
+   *
+   * Supported ranges: 1.20.4–1.20.6, 1.20.6–1.21.4, 1.21.4–1.21.11, 1.21.11–1.22.
+   * Logs a warning if the version is unsupported or the class cannot be instantiated.
+   *
+   * @param plugin The owning plugin used for logging.
+   */
   fun init(plugin: Plugin) {
     val version = Version(Bukkit.getMinecraftVersion())
     val className = when (version) {
@@ -24,7 +45,6 @@ object PacketAPI: PacketHub {
       in Version("1.20.6")..<Version("1.21.4") -> className("1.20.6")
       in Version("1.21.4")..<Version("1.21.11") -> className("1.21.4")
       in Version("1.21.11")..<Version("1.22") -> className("1.21.11")
-      // 他のバージョンも同様に追加
       else -> {
         plugin.logger.warning("Unsupported version for Packet NMS: $version")
         null
@@ -50,6 +70,9 @@ object PacketAPI: PacketHub {
   override fun removePlayer(player: Player) = delegate?.removePlayer(player) ?: throw UnsupportedOperationException("Player removal is not supported on this version")
   override fun sendPacket(player: Player, packet: Any) = delegate?.sendPacket(player, packet) ?: throw UnsupportedOperationException("Packet sending is not supported on this version")
 
+  /**
+   * Creates a new [PacketListener] instance backed by the global Netty pipeline hooks.
+   */
   fun createPacketListener(): PacketListener = Packets.createPacketListener()
 
   override fun createFakeEntityBuilder(player: Player, type: EntityType, location: Location): FakeEntityBuilder {
@@ -127,8 +150,8 @@ object PacketAPI: PacketHub {
   override fun fakeEquipment(
     player: Player,
     entityId: Int,
-    slot: org.bukkit.inventory.EquipmentSlot,
-    item: org.bukkit.inventory.ItemStack
+    slot: EquipmentSlot,
+    item: ItemStack
   ) {
     delegate?.fakeEquipment(player, entityId, slot, item)
   }
@@ -141,7 +164,7 @@ object PacketAPI: PacketHub {
     delegate?.updateInventoryTitle(player, title)
   }
 
-  override fun fakeItemSlot(player: Player, windowId: Int, slot: Int, item: org.bukkit.inventory.ItemStack) {
+  override fun fakeItemSlot(player: Player, windowId: Int, slot: Int, item: ItemStack) {
     delegate?.fakeItemSlot(player, windowId, slot, item)
   }
 
@@ -164,7 +187,7 @@ object PacketAPI: PacketHub {
   override fun resetWorldBorder(player: Player) {
     delegate?.resetWorldBorder(player)
   }
-  override fun setFakeWorldBorder(player: Player, builder: com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder.() -> Unit) {
+  override fun setFakeWorldBorder(player: Player, builder: FakeWorldBorderBuilder.() -> Unit) {
     delegate?.setFakeWorldBorder(player, builder)
   }
 
@@ -180,7 +203,7 @@ object PacketAPI: PacketHub {
     player: Player,
     entityId: Int,
     eating: Boolean,
-    item: org.bukkit.inventory.ItemStack?
+    item: ItemStack?
   ) {
     delegate?.setEatingAnimation(player, entityId, eating, item)
   }
@@ -193,11 +216,11 @@ object PacketAPI: PacketHub {
     delegate?.setGuardPose(player, entityId, guarding)
   }
 
-  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: org.bukkit.Location?) {
+  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: Location?) {
     delegate?.setSleepAnimation(player, entityId, sleeping, bedLocation)
   }
 
-  override fun setEntityMotion(player: Player, entityId: Int, velocity: org.bukkit.util.Vector) {
+  override fun setEntityMotion(player: Player, entityId: Int, velocity: Vector) {
     delegate?.setEntityMotion(player, entityId, velocity)
   }
 
@@ -209,7 +232,7 @@ object PacketAPI: PacketHub {
     delegate?.fakeExperienceBar(player, level, progress)
   }
 
-  override fun setItemCooldown(player: Player, material: org.bukkit.Material, ticks: Int) {
+  override fun setItemCooldown(player: Player, material: Material, ticks: Int) {
     delegate?.setItemCooldown(player, material, ticks)
   }
 
@@ -227,7 +250,7 @@ object PacketAPI: PacketHub {
   override fun setEntityGlowing(player: Player, entityId: Int, glowing: Boolean) {
     delegate?.setEntityGlowing(player, entityId, glowing)
   }
-  override fun transformEntityType(player: Player, entityId: Int, type: org.bukkit.entity.EntityType) {
+  override fun transformEntityType(player: Player, entityId: Int, type: EntityType) {
     delegate?.transformEntityType(player, entityId, type)
   }
   override fun setEntityScale(player: Player, entityId: Int, scale: Float) {
@@ -238,13 +261,13 @@ object PacketAPI: PacketHub {
   }
 
   // --- interact ---
-  override fun placeFakeBlock(player: Player, location: org.bukkit.Location, material: org.bukkit.Material) {
+  override fun placeFakeBlock(player: Player, location: Location, material: Material) {
     delegate?.placeFakeBlock(player, location, material)
   }
-  override fun removeFakeBlock(player: Player, location: org.bukkit.Location) {
+  override fun removeFakeBlock(player: Player, location: Location) {
     delegate?.removeFakeBlock(player, location)
   }
-  override fun lockInventorySlot(player: Player, slot: Int, item: org.bukkit.inventory.ItemStack?) {
+  override fun lockInventorySlot(player: Player, slot: Int, item: ItemStack?) {
     delegate?.lockInventorySlot(player, slot, item)
   }
   override fun forceHeldSlot(player: Player, slot: Int) {
@@ -258,19 +281,19 @@ object PacketAPI: PacketHub {
   }
 
   // --- vfx ---
-  override fun setBlockCrack(player: Player, location: org.bukkit.Location, stage: Int) {
+  override fun setBlockCrack(player: Player, location: Location, stage: Int) {
     delegate?.setBlockCrack(player, location, stage)
   }
   override fun setEntityOnFire(player: Player, entityId: Int, onFire: Boolean) {
     delegate?.setEntityOnFire(player, entityId, onFire)
   }
-  override fun fakeExplosion(player: Player, location: org.bukkit.Location, power: Float) {
+  override fun fakeExplosion(player: Player, location: Location, power: Float) {
     delegate?.fakeExplosion(player, location, power)
   }
-  override fun fakeLightning(player: Player, location: org.bukkit.Location) {
+  override fun fakeLightning(player: Player, location: Location) {
     delegate?.fakeLightning(player, location)
   }
-  override fun localSound(player: Player, sound: org.bukkit.Sound, location: org.bukkit.Location, volume: Float, pitch: Float) {
+  override fun localSound(player: Player, sound: Sound, location: Location, volume: Float, pitch: Float) {
     delegate?.localSound(player, sound, location, volume, pitch)
   }
 }

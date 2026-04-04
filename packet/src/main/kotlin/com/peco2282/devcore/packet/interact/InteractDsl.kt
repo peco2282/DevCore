@@ -7,70 +7,67 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 /**
- * 偽のUI・操作系DSLのビルダークラス。
+ * DSL builder for sending packet-based interaction effects to a [Player].
+ *
+ * Obtain an instance via the [Player.interact] extension function.
+ *
+ * @param player The target player for all operations in this builder.
  */
 @PacketInteractDsl
 class InteractBuilder(private val player: Player) {
-
   /**
-   * 偽のブロックを設置し、インタラクションを傍受できるようにする。
-   * @param location 偽ブロックの座標
-   * @param material 偽ブロックの種類
+   * Sends a fake block placement packet to the player.
+   *
+   * @param location The location where the fake block appears.
+   * @param material The material of the fake block.
    */
   fun fakeBlock(location: Location, material: Material) {
     PacketAPI.placeFakeBlock(player, location, material)
   }
 
   /**
-   * 偽のブロックを削除する。
-   * @param location 削除する偽ブロックの座標
+   * Sends a fake block removal packet to the player, restoring the original block appearance.
+   *
+   * @param location The location of the fake block to remove.
    */
   fun removeFakeBlock(location: Location) {
     PacketAPI.removeFakeBlock(player, location)
   }
 
   /**
-   * インベントリスロットに偽のアイテムを固定表示する。
-   * @param slot スロット番号
-   * @param item 表示するアイテム（nullで非表示）
+   * Locks an inventory slot for the player by sending a fake item packet.
+   *
+   * @param slot The slot index to lock.
+   * @param item The item to display in the locked slot, or `null` to show empty.
    */
   fun lockSlot(slot: Int, item: ItemStack?) {
     PacketAPI.lockInventorySlot(player, slot, item)
   }
 
   /**
-   * ホットバースロット選択を強制変更する。
-   * @param slot ホットバースロット番号 (0-8)
+   * Forces the player's held item slot to the specified index via a packet.
+   *
+   * @param slot The hotbar slot index (0–8) to force.
    */
   fun forceHeldSlot(slot: Int) {
     PacketAPI.forceHeldSlot(player, slot)
   }
 
-  /**
-   * クレジット画面（エンドロール）を表示する。
-   */
+  /** Shows the end credits screen to the player via a packet. */
   fun showCredits() {
     PacketAPI.showCredits(player)
   }
 
-  /**
-   * クレジット画面を非表示にする。
-   */
+  /** Hides the end credits screen for the player via a packet. */
   fun hideCredits() {
     PacketAPI.hideCredits(player)
   }
 }
 
 /**
- * プレイヤーのUI・操作を偽装するDSLエントリポイント。
+ * Entry point for the interact DSL. Applies [action] to an [InteractBuilder] for this player.
  *
- * ```kotlin
- * player.interact {
- *   fakeBlock(location, Material.CHEST)
- *   lockSlot(4, ItemStack(Material.BARRIER))
- *   showCredits()
- * }
- * ```
+ * @param action DSL block for sending packet-based interaction effects.
  */
 fun Player.interact(action: InteractBuilder.() -> Unit) {
   InteractBuilder(this).apply(action)

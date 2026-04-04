@@ -3,56 +3,67 @@ package com.peco2282.devcore.packet.view
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 
+/** DSL marker annotation for the view DSL scope. */
 @DslMarker
 annotation class PacketViewDsl
 
 /**
- * 視覚的ハックに関するパケット操作のインターフェース。
- * カメラ・発光フィルタ・エンティティ変換を個人単位で制御する。
+ * Hub interface for packet-based visual perspective and entity appearance manipulation.
+ *
+ * Provides methods to control the player's camera, toggle entity glowing,
+ * transform entity types, and adjust entity scale and orientation — all via
+ * packets without modifying actual server state.
  */
 interface ViewHub {
   /**
-   * プレイヤーの視点を特定エンティティに強制固定する（シネマティックカメラ）。
-   * @param player 対象プレイヤー
-   * @param entityId 視点を固定するエンティティID
+   * Sets the player's camera to spectate the specified entity.
+   *
+   * @param player The target player.
+   * @param entityId The entity ID to attach the camera to.
    */
   fun setCameraEntity(player: Player, entityId: Int)
 
   /**
-   * プレイヤーの視点を自分自身に戻す。
-   * @param player 対象プレイヤー
+   * Resets the player's camera back to their own perspective.
+   *
+   * @param player The target player.
    */
   fun resetCamera(player: Player)
 
   /**
-   * 特定プレイヤーにだけエンティティを発光させる。
-   * @param player 対象プレイヤー
-   * @param entityId 発光させるエンティティID
-   * @param glowing 発光させるか
+   * Sets the glowing visual effect on an entity for the player via a metadata packet.
+   *
+   * @param player The target player.
+   * @param entityId The entity to update.
+   * @param glowing Whether the entity should appear glowing.
    */
   fun setEntityGlowing(player: Player, entityId: Int, glowing: Boolean)
 
   /**
-   * 特定プレイヤーにだけエンティティの見た目を別の種類に変える。
-   * @param player 対象プレイヤー
-   * @param entityId 変換するエンティティID
-   * @param type 見せかけのエンティティタイプ
+   * Sends a fake entity type transformation to the player, making the entity appear
+   * as a different type without changing it server-side.
+   *
+   * @param player The target player.
+   * @param entityId The entity to transform.
+   * @param type The entity type to display.
    */
   fun transformEntityType(player: Player, entityId: Int, type: EntityType)
 
   /**
-   * 特定プレイヤーにだけエンティティのスケールを変える。
-   * @param player 対象プレイヤー
-   * @param entityId 対象エンティティID
-   * @param scale スケール倍率
+   * Sets the display scale of an entity for the player via a metadata packet.
+   *
+   * @param player The target player.
+   * @param entityId The entity to scale.
+   * @param scale The scale factor (1.0 = normal size).
    */
   fun setEntityScale(player: Player, entityId: Int, scale: Float)
 
   /**
-   * 特定プレイヤーにだけエンティティを逆さまに表示する。
-   * @param player 対象プレイヤー
-   * @param entityId 対象エンティティID
-   * @param upsideDown 逆さまにするか
+   * Sets whether an entity appears upside-down for the player via a metadata packet.
+   *
+   * @param player The target player.
+   * @param entityId The entity to update.
+   * @param upsideDown Whether the entity should appear upside-down.
    */
   fun setEntityUpsideDown(player: Player, entityId: Int, upsideDown: Boolean)
 }

@@ -8,62 +8,71 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
 /**
- * 高度な視覚効果DSLのビルダークラス。
+ * DSL builder for sending packet-based visual and audio effects to a [Player].
+ *
+ * Obtain an instance via the [Player.vfx] extension function.
+ *
+ * @param player The target player for all operations in this builder.
  */
 @PacketVfxDsl
 class VfxBuilder(private val player: Player) {
-
   /**
-   * ブロックのひび割れ（破壊クラック）を表示する。
-   * @param location ひび割れを表示するブロックの座標
-   * @param stage ひび割れの段階 (0-9、-1で非表示)
+   * Sends a block crack (mining progress) animation to the player.
+   *
+   * @param location The location of the block being cracked.
+   * @param stage The crack stage (0–9, where 9 is fully cracked; -1 resets).
    */
   fun blockCrack(location: Location, stage: Int) {
     PacketAPI.setBlockCrack(player, location, stage)
   }
 
   /**
-   * エンティティの装備を偽装する。
-   * @param entityId 対象エンティティID
-   * @param slot 装備スロット
-   * @param item 偽装するアイテム
+   * Sends a fake equipment packet to the player for the specified entity slot.
+   *
+   * @param entityId The entity whose equipment is faked.
+   * @param slot The equipment slot to modify.
+   * @param item The item to display in the slot.
    */
   fun fakeEquipment(entityId: Int, slot: EquipmentSlot, item: ItemStack) {
     PacketAPI.fakeEquipment(player, entityId, slot, item)
   }
 
   /**
-   * エンティティの燃焼エフェクトを表示・非表示にする。
-   * @param entityId 対象エンティティID
-   * @param onFire 燃焼エフェクトを表示するか
+   * Sets the on-fire visual state of an entity for the player.
+   *
+   * @param entityId The entity to update.
+   * @param onFire Whether the entity should appear to be on fire.
    */
   fun onFire(entityId: Int, onFire: Boolean = true) {
     PacketAPI.setEntityOnFire(player, entityId, onFire)
   }
 
   /**
-   * 偽の爆発エフェクトを表示する（地形破壊なし）。
-   * @param location 爆発の座標
-   * @param power 爆発の大きさ
+   * Sends a fake explosion effect to the player at the given location.
+   *
+   * @param location The center of the explosion.
+   * @param power The explosion power (affects visual radius).
    */
   fun explosion(location: Location, power: Float = 1f) {
     PacketAPI.fakeExplosion(player, location, power)
   }
 
   /**
-   * 偽の雷エフェクトを表示・音を再生する。
-   * @param location 雷の座標
+   * Sends a fake lightning strike effect to the player at the given location.
+   *
+   * @param location The location of the lightning strike.
    */
   fun lightning(location: Location) {
     PacketAPI.fakeLightning(player, location)
   }
 
   /**
-   * 特定の座標から聞こえる偽の音を再生する。
-   * @param sound 再生するサウンド
-   * @param location 再生する座標
-   * @param volume 音量
-   * @param pitch ピッチ
+   * Plays a sound at a specific location for the player only.
+   *
+   * @param sound The sound to play.
+   * @param location The location from which the sound originates.
+   * @param volume The volume level.
+   * @param pitch The pitch level.
    */
   fun localSound(sound: Sound, location: Location, volume: Float = 1f, pitch: Float = 1f) {
     PacketAPI.localSound(player, sound, location, volume, pitch)
@@ -71,16 +80,9 @@ class VfxBuilder(private val player: Player) {
 }
 
 /**
- * プレイヤーへの視覚効果を制御するDSLエントリポイント。
+ * Entry point for the visual effects DSL. Applies [action] to a [VfxBuilder] for this player.
  *
- * ```kotlin
- * player.vfx {
- *   blockCrack(location, stage = 5)
- *   explosion(location, power = 2f)
- *   lightning(strikeLocation)
- *   localSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, location)
- * }
- * ```
+ * @param action DSL block for sending packet-based visual and audio effects.
  */
 fun Player.vfx(action: VfxBuilder.() -> Unit) {
   VfxBuilder(this).apply(action)

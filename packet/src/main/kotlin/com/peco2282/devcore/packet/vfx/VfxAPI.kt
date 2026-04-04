@@ -6,61 +6,71 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
+/** DSL marker annotation for the visual effects DSL scope. */
 @DslMarker
 annotation class PacketVfxDsl
 
 /**
- * 高度な視覚効果に関するパケット操作のインターフェース。
- * ブロック破壊クラック・装備偽装・音響エフェクトのローカライズを制御する。
+ * Hub interface for packet-based visual and audio effects.
+ *
+ * Provides methods to send block crack animations, entity fire states,
+ * fake explosions, lightning strikes, equipment faking, and positional sounds
+ * to individual players without affecting the actual server state.
  */
 interface VfxHub {
   /**
-   * 特定プレイヤーにだけブロックのひび割れ（破壊クラック）を表示する。
-   * @param player 対象プレイヤー
-   * @param location ひび割れを表示するブロックの座標
-   * @param stage ひび割れの段階 (0-9、-1で非表示)
+   * Sends a block crack (mining progress) animation to the player.
+   *
+   * @param player The target player.
+   * @param location The location of the block being cracked.
+   * @param stage The crack stage (0–9, where 9 is fully cracked; -1 resets).
    */
   fun setBlockCrack(player: Player, location: Location, stage: Int)
 
   /**
-   * 特定プレイヤーにだけエンティティの装備を偽装する。
-   * @param player 対象プレイヤー
-   * @param entityId 対象エンティティID
-   * @param slot 装備スロット
-   * @param item 偽装するアイテム
+   * Sends a fake equipment packet to the player for the specified entity slot.
+   *
+   * @param player The target player.
+   * @param entityId The entity whose equipment is faked.
+   * @param slot The equipment slot to modify.
+   * @param item The item to display in the slot.
    */
   fun fakeEquipment(player: Player, entityId: Int, slot: EquipmentSlot, item: ItemStack)
 
   /**
-   * 特定プレイヤーにだけエンティティの燃焼エフェクトを表示・非表示にする。
-   * @param player 対象プレイヤー
-   * @param entityId 対象エンティティID
-   * @param onFire 燃焼エフェクトを表示するか
+   * Sets the on-fire visual state of an entity for the player via a metadata packet.
+   *
+   * @param player The target player.
+   * @param entityId The entity to update.
+   * @param onFire Whether the entity should appear to be on fire.
    */
   fun setEntityOnFire(player: Player, entityId: Int, onFire: Boolean)
 
   /**
-   * 特定プレイヤーにだけ偽の爆発エフェクトを表示する（地形破壊なし）。
-   * @param player 対象プレイヤー
-   * @param location 爆発の座標
-   * @param power 爆発の大きさ
+   * Sends a fake explosion effect to the player at the given location.
+   *
+   * @param player The target player.
+   * @param location The center of the explosion.
+   * @param power The explosion power (affects visual radius).
    */
   fun fakeExplosion(player: Player, location: Location, power: Float)
 
   /**
-   * 特定プレイヤーにだけ偽の雷エフェクトを表示・音を再生する。
-   * @param player 対象プレイヤー
-   * @param location 雷の座標
+   * Sends a fake lightning strike effect to the player at the given location.
+   *
+   * @param player The target player.
+   * @param location The location of the lightning strike.
    */
   fun fakeLightning(player: Player, location: Location)
 
   /**
-   * 特定プレイヤーにだけ偽の音を再生する。
-   * @param player 対象プレイヤー
-   * @param sound 再生するサウンド
-   * @param location 再生する座標
-   * @param volume 音量
-   * @param pitch ピッチ
+   * Plays a sound at a specific location for the player only, without affecting other players.
+   *
+   * @param player The target player.
+   * @param sound The sound to play.
+   * @param location The location from which the sound originates.
+   * @param volume The volume level.
+   * @param pitch The pitch level.
    */
   fun localSound(player: Player, sound: Sound, location: Location, volume: Float = 1f, pitch: Float = 1f)
 }

@@ -3,71 +3,80 @@ package com.peco2282.devcore.packet.environment
 import org.bukkit.entity.Player
 
 /**
- * 環境偽装に関するパケット操作のインターフェース。
- * 天候・時刻・バイオーム・ワールドボーダーを個人単位で制御する。
+ * Hub interface for packet-based environment manipulation.
+ *
+ * Provides methods to send fake weather, time, biome, and world border
+ * updates to individual players without affecting the actual server state.
  */
 interface EnvironmentHub {
   /**
-   * 特定プレイヤーに偽の天候を送信する。
-   * @param player 対象プレイヤー
-   * @param rain 雨を降らせるか
-   * @param thunder 雷雨にするか
+   * Sends a fake weather state to the player.
+   *
+   * @param player The target player.
+   * @param rain Whether it should appear to be raining.
+   * @param thunder Whether thunder should be active.
    */
   fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean)
 
   /**
-   * 特定プレイヤーに偽の時刻を送信する。
-   * @param player 対象プレイヤー
-   * @param time ゲーム内時刻 (0-24000)
-   * @param locked 時刻を固定するか
+   * Sends a fake time update to the player.
+   *
+   * @param player The target player.
+   * @param time The time of day in ticks (0–24000).
+   * @param locked Whether the time should be frozen.
    */
   fun setFakeTime(player: Player, time: Long, locked: Boolean = false)
 
   /**
-   * 特定プレイヤーに偽のバイオームを送信し、霧・空の色を変える。
-   * @param player 対象プレイヤー
-   * @param biomeKey バイオームのリソースキー (例: "minecraft:nether_wastes")
+   * Sends a fake biome override to the player for their current chunk.
+   *
+   * @param player The target player.
+   * @param biomeKey The namespaced biome key (e.g. `"minecraft:desert"`).
    */
   fun setFakeBiome(player: Player, biomeKey: String)
 
   /**
-   * 特定プレイヤーに偽のワールドボーダーを表示する。
-   * @param player 対象プレイヤー
-   * @param builder ワールドボーダーの設定
+   * Sends a fake world border configuration to the player.
+   *
+   * @param player The target player.
+   * @param builder DSL block for configuring the fake world border.
    */
   fun setFakeWorldBorder(player: Player, builder: FakeWorldBorderBuilder.() -> Unit)
 
   /**
-   * 特定プレイヤーのワールドボーダーをリセットする。
-   * @param player 対象プレイヤー
+   * Resets the player's world border to the server's actual world border.
+   *
+   * @param player The target player.
    */
   fun resetWorldBorder(player: Player)
 
   /**
-   * 雨・雷の強度を設定する。
-   * @param player 対象プレイヤー
-   * @param rainLevel 雨の強度 (0.0-1.0)
-   * @param thunderLevel 雷の強度 (0.0-1.0)
+   * Sets the rain and thunder intensity levels for the player via packets.
+   *
+   * @param player The target player.
+   * @param rainLevel The rain intensity (0.0–1.0).
+   * @param thunderLevel The thunder intensity (0.0–1.0).
    */
   fun setWeatherLevel(player: Player, rainLevel: Float, thunderLevel: Float)
 }
 
 /**
- * 偽のワールドボーダー設定ビルダー。
+ * DSL builder for configuring a fake world border sent to a player.
+ *
+ * @property centerX The X coordinate of the border center.
+ * @property centerZ The Z coordinate of the border center.
+ * @property size The current border diameter in blocks.
+ * @property oldSize The previous border diameter (used for lerp animation).
+ * @property lerpTime The transition duration in milliseconds.
+ * @property warningBlocks The distance from the border at which the warning overlay appears.
+ * @property warningTime The time in seconds before the border reaches the player that the warning appears.
  */
 interface FakeWorldBorderBuilder {
-  /** ボーダーの中心X座標 */
   var centerX: Double
-  /** ボーダーの中心Z座標 */
   var centerZ: Double
-  /** ボーダーのサイズ（直径） */
   var size: Double
-  /** 変化前のサイズ（アニメーション用） */
   var oldSize: Double
-  /** サイズ変化にかかる時間（ミリ秒） */
   var lerpTime: Long
-  /** 警告距離（ブロック数） */
   var warningBlocks: Int
-  /** 警告時間（秒） */
   var warningTime: Int
 }
