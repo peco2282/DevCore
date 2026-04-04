@@ -34,6 +34,7 @@ dependencies {
   implementation(project(":scoreboard:scoreboard-api"))
   implementation(project(":scoreboard:scoreboard-nms"))
   implementation(project(":world"))
+  implementation(project(":entity"))
 }
 
 tasks {

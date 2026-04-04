@@ -10,6 +10,13 @@ import com.peco2282.devcore.cooldown.Cooldowns
 import com.peco2282.devcore.gui.fill
 import com.peco2282.devcore.gui.gui
 import com.peco2282.devcore.gui.GuiListener
+import com.peco2282.devcore.scheduler.ticks
+import com.peco2282.devcore.entity.isNoAi
+import com.peco2282.devcore.entity.onDeath
+import com.peco2282.devcore.entity.onTick
+import com.peco2282.devcore.entity.removeAfter
+import com.peco2282.devcore.entity.spawn
+import com.peco2282.devcore.entity.targetNearestPlayer
 import com.peco2282.devcore.packet.EntityAnimation
 import com.peco2282.devcore.packet.Packets
 import com.peco2282.devcore.packet.onPacket
@@ -21,6 +28,7 @@ import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Zombie
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
@@ -246,6 +254,23 @@ class TestPlugin : JavaPlugin() {
             player.sendMessage(Component.text("You are in world: ${player.world.name}"))
             1
           }
+        }
+      }
+      literal("entity") {
+        requireOp()
+        executesPlayer { player, _ ->
+          player.location.spawn<Zombie> {
+            this.isNoAi = true
+            this.onDeath(this@TestPlugin) {
+              player.sendMessage(Component.text("The dummy zombie died!", NamedTextColor.RED))
+            }
+            this.onTick(this@TestPlugin, 20.ticks) {
+              this.targetNearestPlayer(10.0)
+            }
+            this.removeAfter(this@TestPlugin, 60.seconds)
+          }
+          player.sendMessage(Component.text("Spawned a dummy zombie with custom AI/Lifecycle!", NamedTextColor.GREEN))
+          1
         }
       }
     }
