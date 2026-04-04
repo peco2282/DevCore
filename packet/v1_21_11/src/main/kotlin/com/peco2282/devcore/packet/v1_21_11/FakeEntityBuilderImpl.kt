@@ -28,6 +28,8 @@ import java.util.*
 import net.minecraft.world.entity.EquipmentSlot as NMSEquipmentSlot
 import com.mojang.datafixers.util.Pair as DataPair
 import com.peco2282.devcore.packet.setFieldValue
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec3
 import org.bukkit.Bukkit
 
 class FakeEntityBuilderImpl(
@@ -79,8 +81,8 @@ class FakeEntityBuilderImpl(
     val packet = ClientboundTeleportEntityPacket(
       entityId,
       PositionMoveRotation(
-        net.minecraft.world.phys.Vec3(location.x, location.y, location.z),
-        net.minecraft.world.phys.Vec3.ZERO,
+        Vec3(location.x, location.y, location.z),
+        Vec3.ZERO,
         location.yaw,
         location.pitch
       ),
@@ -104,7 +106,7 @@ class FakeEntityBuilderImpl(
 
     // Head rotation
     headRotation?.let {
-      val headPacket = ClientboundRotateHeadPacket(player as net.minecraft.world.entity.Entity, (it * 256.0f / 360.0f).toInt().toByte())
+      val headPacket = ClientboundRotateHeadPacket(player.handle as Entity, (it * 256.0f / 360.0f).toInt().toByte())
       headPacket.setFieldValue("entityId", entityId)
       connection.send(headPacket)
     }
@@ -158,7 +160,7 @@ class FakeEntityBuilderImpl(
         location.yaw,
         craftPlayer.handle.type, 
         0,
-        net.minecraft.world.phys.Vec3.ZERO,
+        Vec3.ZERO,
         location.yaw.toDouble()
     )
     connection.send(spawnPacket)

@@ -149,19 +149,23 @@ object PacketAPI: PacketHub {
     delegate?.fakeFurnaceProgress(player, windowId, progress, maxProgress)
   }
 
-  override fun setFakeWorldBorder(
-    player: Player,
-    size: Double,
-    centerX: Double,
-    centerZ: Double,
-    warningBlocks: Int,
-    warningTime: Int
-  ) {
-    delegate?.setFakeWorldBorder(player, size, centerX, centerZ, warningBlocks, warningTime)
-  }
-
   override fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean) {
     delegate?.setFakeWeather(player, rain, thunder)
+  }
+  override fun setWeatherLevel(player: Player, rainLevel: Float, thunderLevel: Float) {
+    delegate?.setWeatherLevel(player, rainLevel, thunderLevel)
+  }
+  override fun setFakeTime(player: Player, time: Long, locked: Boolean) {
+    delegate?.setFakeTime(player, time, locked)
+  }
+  override fun setFakeBiome(player: Player, biomeKey: String) {
+    delegate?.setFakeBiome(player, biomeKey)
+  }
+  override fun resetWorldBorder(player: Player) {
+    delegate?.resetWorldBorder(player)
+  }
+  override fun setFakeWorldBorder(player: Player, builder: com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder.() -> Unit) {
+    delegate?.setFakeWorldBorder(player, builder)
   }
 
   override fun setFakeSkyColor(player: Player, color: Int) {
@@ -211,5 +215,62 @@ object PacketAPI: PacketHub {
 
   override fun showFakeDeathScreen(player: Player, message: String) {
     delegate?.showFakeDeathScreen(player, message)
+  }
+
+  // --- view ---
+  override fun setCameraEntity(player: Player, entityId: Int) {
+    delegate?.setCameraEntity(player, entityId)
+  }
+  override fun resetCamera(player: Player) {
+    delegate?.resetCamera(player)
+  }
+  override fun setEntityGlowing(player: Player, entityId: Int, glowing: Boolean) {
+    delegate?.setEntityGlowing(player, entityId, glowing)
+  }
+  override fun transformEntityType(player: Player, entityId: Int, type: org.bukkit.entity.EntityType) {
+    delegate?.transformEntityType(player, entityId, type)
+  }
+  override fun setEntityScale(player: Player, entityId: Int, scale: Float) {
+    delegate?.setEntityScale(player, entityId, scale)
+  }
+  override fun setEntityUpsideDown(player: Player, entityId: Int, upsideDown: Boolean) {
+    delegate?.setEntityUpsideDown(player, entityId, upsideDown)
+  }
+
+  // --- interact ---
+  override fun placeFakeBlock(player: Player, location: org.bukkit.Location, material: org.bukkit.Material) {
+    delegate?.placeFakeBlock(player, location, material)
+  }
+  override fun removeFakeBlock(player: Player, location: org.bukkit.Location) {
+    delegate?.removeFakeBlock(player, location)
+  }
+  override fun lockInventorySlot(player: Player, slot: Int, item: org.bukkit.inventory.ItemStack?) {
+    delegate?.lockInventorySlot(player, slot, item)
+  }
+  override fun forceHeldSlot(player: Player, slot: Int) {
+    delegate?.forceHeldSlot(player, slot)
+  }
+  override fun showCredits(player: Player) {
+    delegate?.showCredits(player)
+  }
+  override fun hideCredits(player: Player) {
+    delegate?.hideCredits(player)
+  }
+
+  // --- vfx ---
+  override fun setBlockCrack(player: Player, location: org.bukkit.Location, stage: Int) {
+    delegate?.setBlockCrack(player, location, stage)
+  }
+  override fun setEntityOnFire(player: Player, entityId: Int, onFire: Boolean) {
+    delegate?.setEntityOnFire(player, entityId, onFire)
+  }
+  override fun fakeExplosion(player: Player, location: org.bukkit.Location, power: Float) {
+    delegate?.fakeExplosion(player, location, power)
+  }
+  override fun fakeLightning(player: Player, location: org.bukkit.Location) {
+    delegate?.fakeLightning(player, location)
+  }
+  override fun localSound(player: Player, sound: org.bukkit.Sound, location: org.bukkit.Location, volume: Float, pitch: Float) {
+    delegate?.localSound(player, sound, location, volume, pitch)
   }
 }

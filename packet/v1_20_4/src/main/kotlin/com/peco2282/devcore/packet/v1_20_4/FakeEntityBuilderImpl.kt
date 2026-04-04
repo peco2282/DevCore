@@ -27,6 +27,7 @@ import java.util.*
 import net.minecraft.world.entity.EquipmentSlot as NMSEquipmentSlot
 import com.mojang.datafixers.util.Pair as DataPair
 import com.peco2282.devcore.packet.setFieldValue
+import net.minecraft.world.entity.Entity
 import org.bukkit.Bukkit
 
 class FakeEntityBuilderImpl(
@@ -75,7 +76,7 @@ class FakeEntityBuilderImpl(
   }
 
   override fun move(location: Location, onGround: Boolean) {
-    val packet = ClientboundTeleportEntityPacket(player as net.minecraft.world.entity.Entity)
+    val packet = ClientboundTeleportEntityPacket(player as Entity)
     packet.setFieldValue("id", entityId)
     packet.setFieldValue("x", location.x)
     packet.setFieldValue("y", location.y)
