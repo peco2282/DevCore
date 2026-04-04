@@ -371,7 +371,6 @@ class PacketHubImpl : PacketHub {
   }
 
   override fun setFakeBiome(player: Player, biomeKey: String) {
-    // バイオーム偽裁E�EチャンクチE�Eタの再送が忁E��なため、現バ�Eジョンでは未実裁E
   }
 
   override fun resetWorldBorder(player: Player) {
@@ -423,11 +422,9 @@ class PacketHubImpl : PacketHub {
   }
 
   override fun transformEntityType(player: Player, entityId: Int, type: org.bukkit.entity.EntityType) {
-    // エンチE��チE��タイプ変換はスポ�EンパケチE��の再送が忁E��なため、現バ�Eジョンでは未実裁E
   }
 
   override fun setEntityScale(player: Player, entityId: Int, scale: Float) {
-    // v1_20_4ではスケール属性が未対応�Eため未実裁E
   }
 
   override fun setEntityUpsideDown(player: Player, entityId: Int, upsideDown: Boolean) {
