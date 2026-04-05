@@ -10,7 +10,7 @@ dependencies {
   // これにより循環参照を回避しつつ、jarタスクで成果物を集約する。
 
   compileOnly(libs.paper.api.common)
-  compileOnly("io.netty:netty-all:4.1.100.Final")
+  compileOnly("io.netty:netty-all:4.2.12.Final")
   testImplementation(libs.kotlin.test)
 }
 
