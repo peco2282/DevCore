@@ -1,10 +1,12 @@
 package com.peco2282.devcore.packet.vfx
 
 import org.bukkit.Location
+import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.Vector
 
 /** DSL marker annotation for the visual effects DSL scope. */
 @DslMarker
@@ -73,4 +75,44 @@ interface VfxHub {
    * @param pitch The pitch level.
    */
   fun localSound(player: Player, sound: Sound, location: Location, volume: Float = 1f, pitch: Float = 1f)
+
+  /**
+   * Sends a named sound effect to the player via a packet.
+   *
+   * @param player The target player.
+   * @param type The sound to play.
+   * @param volume The volume level.
+   * @param pitch The pitch level.
+   * @param relative Whether the sound position is relative to the player.
+   * @param offset The positional offset of the sound.
+   */
+  fun sendSound(
+    player: Player,
+    type: Sound,
+    volume: Float,
+    pitch: Float,
+    relative: Boolean,
+    offset: Vector
+  )
+
+  /**
+   * Sends a particle effect to the player via a packet.
+   *
+   * @param player The target player.
+   * @param type The particle type.
+   * @param location The location to spawn particles at.
+   * @param amount The number of particles.
+   * @param offset The spread offset of the particles.
+   * @param extra Extra data (e.g. speed).
+   * @param data Optional particle data (e.g. `DustOptions`).
+   */
+  fun sendParticles(
+    player: Player,
+    type: Particle,
+    location: Location,
+    amount: Int,
+    offset: Vector,
+    extra: Double,
+    data: Any?
+  )
 }

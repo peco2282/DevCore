@@ -1,6 +1,11 @@
 package com.peco2282.devcore.packet.environment
 
+import org.bukkit.Location
 import org.bukkit.entity.Player
+
+/** DSL marker annotation for the environment DSL scope. */
+@DslMarker
+annotation class PacketEnvironmentDsl
 
 /**
  * Hub interface for packet-based environment manipulation.
@@ -58,6 +63,37 @@ interface EnvironmentHub {
    * @param thunderLevel The thunder intensity (0.0–1.0).
    */
   fun setWeatherLevel(player: Player, rainLevel: Float, thunderLevel: Float)
+
+  /**
+   * Sends a world border update packet to the player.
+   *
+   * @param player The target player.
+   * @param builder DSL block for configuring the world border.
+   */
+  fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit)
+}
+
+/**
+ * DSL builder for configuring a world border sent to a player.
+ */
+interface WorldBorderBuilder {
+  /** Sets the center of the world border. */
+  fun center(location: Location)
+
+  /** The X coordinate of the border center. */
+  var centerX: Double
+  /** The Z coordinate of the border center. */
+  var centerZ: Double
+  /** The diameter of the border. */
+  var size: Double
+  /** The damage per block for players outside the border. */
+  var damageAmount: Double
+  /** The distance from the border at which damage begins. */
+  var damageBuffer: Double
+  /** The distance from the border at which the warning appears. */
+  var warningDistance: Int
+  /** The time in seconds before the border reaches the player that the warning appears. */
+  var warningTime: Int
 }
 
 /**

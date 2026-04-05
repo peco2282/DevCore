@@ -43,7 +43,7 @@ class PacketBuilder(private val player: Player) {
    */
   fun title(builder: TitleBuilder.() -> Unit) {
     val titleBuilder = TitleBuilder().apply(builder)
-    PacketAPI.sendTitle(
+    PacketAPI.view.sendTitle(
       player,
       titleBuilder.title,
       titleBuilder.subtitle,
@@ -58,9 +58,7 @@ class PacketBuilder(private val player: Player) {
    *
    * @param message The text to display in the action bar.
    */
-  fun actionBar(message: String) {
-    PacketAPI.sendActionBar(player, message)
-  }
+  fun actionBar(message: String) = PacketAPI.view.sendActionBar(player, message)
 
   /**
    * Sends a sound effect to the player.
@@ -70,7 +68,7 @@ class PacketBuilder(private val player: Player) {
   fun sound(builder: SoundBuilder.() -> Unit) {
     val soundBuilder = SoundBuilder().apply(builder)
     val sound = soundBuilder.type ?: return
-    PacketAPI.sendSound(
+    PacketAPI.vfx.sendSound(
       player,
       sound,
       soundBuilder.volume,
@@ -88,7 +86,7 @@ class PacketBuilder(private val player: Player) {
    * @param builder DSL block for configuring the fake entity.
    */
   fun sendFakeEntity(type: EntityType, location: Location, builder: FakeEntityBuilder.() -> Unit) {
-    val fakeEntityBuilder = PacketAPI.createFakeEntityBuilder(player, type, location).apply(builder)
+    val fakeEntityBuilder = PacketAPI.entity.createFakeEntityBuilder(player, type, location).apply(builder)
     fakeEntityBuilder.spawn()
   }
 
@@ -100,7 +98,7 @@ class PacketBuilder(private val player: Player) {
    */
   fun particles(type: Particle, builder: ParticleBuilder.() -> Unit) {
     val particleBuilder = ParticleBuilder(type).apply(builder)
-    PacketAPI.sendParticles(
+    PacketAPI.vfx.sendParticles(
       player,
       particleBuilder.type,
       particleBuilder.location ?: player.location,
@@ -116,8 +114,8 @@ class PacketBuilder(private val player: Player) {
    *
    * @param builder DSL block for specifying fake block positions and materials.
    */
-  fun fakeBlocks(builder: FakeBlockBuilder.() -> Unit) {
-    PacketAPI.sendFakeBlocks(player, builder)
+  fun fakeBlocks(builder: com.peco2282.devcore.packet.interact.FakeBlockBuilder.() -> Unit) {
+    PacketAPI.interact.sendFakeBlocks(player, builder)
   }
 
   /**
@@ -125,17 +123,15 @@ class PacketBuilder(private val player: Player) {
    *
    * @param entityId The entity ID to attach the camera to.
    */
-  fun camera(entityId: Int) {
-    PacketAPI.sendCamera(player, entityId)
-  }
+  fun camera(entityId: Int) = PacketAPI.view.sendCamera(player, entityId)
 
   /**
    * Sends a world border update to the player.
    *
    * @param builder DSL block for configuring the world border.
    */
-  fun worldBorder(builder: WorldBorderBuilder.() -> Unit) {
-    PacketAPI.sendWorldBorder(player, builder)
+  fun worldBorder(builder: com.peco2282.devcore.packet.environment.WorldBorderBuilder.() -> Unit) {
+    PacketAPI.environment.sendWorldBorder(player, builder)
   }
 
   /**
@@ -175,11 +171,11 @@ class PacketBuilder(private val player: Player) {
   fun fakeItemSlot(windowId: Int, slot: Int, item: ItemStack) =
     PacketAPI.fakeItemSlot(player, windowId, slot, item)
 
-  fun fakeFurnaceProgress(windowId: Int, progress: Int, maxProgress: Int) =
-    PacketAPI.fakeFurnaceProgress(player, windowId, progress, maxProgress)
+  fun fakeFurnaceProgress(cookProgress: Int, fuelProgress: Int) =
+    PacketAPI.inventory.fakeFurnaceProgress(player, cookProgress, fuelProgress)
 
   fun fakeWorldBorder(size: Double, centerX: Double, centerZ: Double, warningBlocks: Int = 5, warningTime: Int = 15) =
-    PacketAPI.setFakeWorldBorder(player) {
+    PacketAPI.environment.setFakeWorldBorder(player) {
       this.size = size
       this.centerX = centerX
       this.centerZ = centerZ
@@ -187,44 +183,44 @@ class PacketBuilder(private val player: Player) {
       this.warningTime = warningTime
     }
 
-  fun fakeWorldBorder(builder: FakeWorldBorderBuilder.() -> Unit) =
-    PacketAPI.setFakeWorldBorder(player, builder)
+  fun fakeWorldBorder(builder: com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder.() -> Unit) =
+    PacketAPI.environment.setFakeWorldBorder(player, builder)
 
   fun weather(rain: Boolean, thunder: Boolean = false) =
-    PacketAPI.setFakeWeather(player, rain, thunder)
+    PacketAPI.environment.setFakeWeather(player, rain, thunder)
 
   fun skyColor(color: Int) =
-    PacketAPI.setFakeSkyColor(player, color)
+    PacketAPI.view.setFakeSkyColor(player, color)
 
   fun setCamera(entityId: Int) =
-    PacketAPI.setCamera(player, entityId)
+    PacketAPI.view.setCameraEntity(player, entityId)
 
-  fun eatingAnimation(entityId: Int, eating: Boolean, item: ItemStack? = null) =
-    PacketAPI.setEatingAnimation(player, entityId, eating, item)
+  fun eatingAnimation(entityId: Int) =
+    PacketAPI.entity.setEatingAnimation(player, entityId)
 
-  fun bowAnimation(entityId: Int, pulling: Boolean) =
-    PacketAPI.setBowAnimation(player, entityId, pulling)
+  fun bowAnimation(entityId: Int) =
+    PacketAPI.entity.setBowAnimation(player, entityId)
 
-  fun guardPose(entityId: Int, guarding: Boolean) =
-    PacketAPI.setGuardPose(player, entityId, guarding)
+  fun guardPose(entityId: Int) =
+    PacketAPI.entity.setGuardPose(player, entityId)
 
-  fun sleepAnimation(entityId: Int, sleeping: Boolean, bedLocation: Location? = null) =
-    PacketAPI.setSleepAnimation(player, entityId, sleeping, bedLocation)
+  fun sleepAnimation(entityId: Int, location: Location) =
+    PacketAPI.entity.setSleepAnimation(player, entityId, location)
 
   fun entityMotion(entityId: Int, velocity: Vector) =
-    PacketAPI.setEntityMotion(player, entityId, velocity)
+    PacketAPI.entity.setEntityMotion(player, entityId, velocity)
 
-  fun statistic(category: String, statistic: String, value: Int) =
-    PacketAPI.fakeStatistic(player, category, statistic, value)
+  fun statistic(statistic: org.bukkit.Statistic, value: Int) =
+    PacketAPI.misc.fakeStatistic(player, statistic, value)
 
-  fun experienceBar(level: Int, progress: Float) =
-    PacketAPI.fakeExperienceBar(player, level, progress)
+  fun experienceBar(bar: Float, level: Int, experience: Int) =
+    PacketAPI.misc.fakeExperienceBar(player, bar, level, experience)
 
   fun itemCooldown(material: Material, ticks: Int) =
-    PacketAPI.setItemCooldown(player, material, ticks)
+    PacketAPI.inventory.setItemCooldown(player, material, ticks)
 
   fun deathScreen(message: String) =
-    PacketAPI.showFakeDeathScreen(player, message)
+    PacketAPI.misc.showFakeDeathScreen(player, message)
 }
 
 /**

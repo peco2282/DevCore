@@ -1,6 +1,14 @@
 package com.peco2282.devcore.packet
 
+import com.peco2282.devcore.packet.entity.EntityManagerHub
+import com.peco2282.devcore.packet.environment.EnvironmentHub
 import com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder
+import com.peco2282.devcore.packet.environment.WorldBorderBuilder
+import com.peco2282.devcore.packet.interact.FakeBlockBuilder
+import com.peco2282.devcore.packet.interact.InteractHub
+import com.peco2282.devcore.packet.inventory.InventoryHub
+import com.peco2282.devcore.packet.vfx.VfxHub
+import com.peco2282.devcore.packet.view.ViewHub
 import io.netty.buffer.ByteBuf
 import kotlinx.coroutines.CoroutineDispatcher
 import org.bukkit.Bukkit
@@ -18,13 +26,28 @@ import org.bukkit.util.Vector
 /**
  * Singleton facade that delegates all [PacketHub] operations to the version-specific
  * [PacketHub] implementation loaded at runtime.
- *
- * Call [init] once during plugin startup to resolve and load the correct NMS implementation
- * for the running server version. All methods throw [UnsupportedOperationException] if
- * called before a compatible implementation is found.
  */
 object PacketAPI: PacketHub {
   private var delegate: PacketHub? = null
+
+  /** Access to connection-related packet operations. */
+  val connection: ConnectionHub get() = this
+  /** Access to entity-related packet operations. */
+  val entity: EntityManagerHub get() = this
+  /** Access to environment-related packet operations. */
+  val environment: EnvironmentHub get() = this
+  /** Access to interaction-related packet operations. */
+  val interact: InteractHub get() = this
+  /** Access to inventory-related packet operations. */
+  val inventory: InventoryHub get() = this
+  /** Access to visual effect packet operations. */
+  val vfx: VfxHub get() = this
+  /** Access to view and perspective packet operations. */
+  val view: ViewHub get() = this
+  /** Access to miscellaneous packet operations. */
+  val misc: MiscHub get() = this
+
+  private fun requireDelegate(): PacketHub = delegate ?: throw UnsupportedOperationException("Packet NMS implementation not loaded for this version")
 
   /** Builds the fully-qualified class name for the version-specific [PacketHub] implementation. */
   private fun className(version: String) =
@@ -86,7 +109,7 @@ object PacketAPI: PacketHub {
     delegate?.sendRawPacket(player, channel, buf)
   }
 
-  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? = delegate?.getCoroutineDispatcher(player)
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher = delegate?.getCoroutineDispatcher(player) ?: throw UnsupportedOperationException("CoroutineDispatcher is not supported on this version")
 
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
     delegate?.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut)
@@ -135,8 +158,8 @@ object PacketAPI: PacketHub {
     delegate?.sendOpenSign(player, location, front)
   }
 
-  override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {
-    delegate?.sendMetadata(player, entityId, builder)
+  override fun sendMetadata(player: Player, entityId: Int, data: Any) {
+    delegate?.sendMetadata(player, entityId, data)
   }
 
   override fun hideEntity(player: Player, entityId: Int) {
@@ -156,8 +179,8 @@ object PacketAPI: PacketHub {
     delegate?.fakeEquipment(player, entityId, slot, item)
   }
 
-  override fun fakePlayerName(player: Player, target: Player, newName: String) {
-    delegate?.fakePlayerName(player, target, newName)
+  override fun fakePlayerName(player: Player, target: Player, name: String) {
+    delegate?.fakePlayerName(player, target, name)
   }
 
   override fun updateInventoryTitle(player: Player, title: String) {
@@ -168,8 +191,8 @@ object PacketAPI: PacketHub {
     delegate?.fakeItemSlot(player, windowId, slot, item)
   }
 
-  override fun fakeFurnaceProgress(player: Player, windowId: Int, progress: Int, maxProgress: Int) {
-    delegate?.fakeFurnaceProgress(player, windowId, progress, maxProgress)
+  override fun fakeFurnaceProgress(player: Player, cookProgress: Int, fuelProgress: Int) {
+    delegate?.fakeFurnaceProgress(player, cookProgress, fuelProgress)
   }
 
   override fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean) {
@@ -195,45 +218,39 @@ object PacketAPI: PacketHub {
     delegate?.setFakeSkyColor(player, color)
   }
 
-  override fun setCamera(player: Player, entityId: Int) {
-    delegate?.setCamera(player, entityId)
-  }
-
   override fun setEatingAnimation(
     player: Player,
-    entityId: Int,
-    eating: Boolean,
-    item: ItemStack?
+    entityId: Int
   ) {
-    delegate?.setEatingAnimation(player, entityId, eating, item)
+    delegate?.setEatingAnimation(player, entityId)
   }
 
-  override fun setBowAnimation(player: Player, entityId: Int, pulling: Boolean) {
-    delegate?.setBowAnimation(player, entityId, pulling)
+  override fun setBowAnimation(player: Player, entityId: Int) {
+    delegate?.setBowAnimation(player, entityId)
   }
 
-  override fun setGuardPose(player: Player, entityId: Int, guarding: Boolean) {
-    delegate?.setGuardPose(player, entityId, guarding)
+  override fun setGuardPose(player: Player, entityId: Int) {
+    delegate?.setGuardPose(player, entityId)
   }
 
-  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: Location?) {
-    delegate?.setSleepAnimation(player, entityId, sleeping, bedLocation)
+  override fun setSleepAnimation(player: Player, entityId: Int, location: Location) {
+    delegate?.setSleepAnimation(player, entityId, location)
   }
 
   override fun setEntityMotion(player: Player, entityId: Int, velocity: Vector) {
     delegate?.setEntityMotion(player, entityId, velocity)
   }
 
-  override fun fakeStatistic(player: Player, category: String, statistic: String, value: Int) {
-    delegate?.fakeStatistic(player, category, statistic, value)
+  override fun fakeStatistic(player: Player, statistic: org.bukkit.Statistic, value: Int) {
+    delegate?.fakeStatistic(player, statistic, value)
   }
 
-  override fun fakeExperienceBar(player: Player, level: Int, progress: Float) {
-    delegate?.fakeExperienceBar(player, level, progress)
+  override fun fakeExperienceBar(player: Player, bar: Float, level: Int, experience: Int) {
+    delegate?.fakeExperienceBar(player, bar, level, experience)
   }
 
-  override fun setItemCooldown(player: Player, material: Material, ticks: Int) {
-    delegate?.setItemCooldown(player, material, ticks)
+  override fun setItemCooldown(player: Player, item: org.bukkit.Material, ticks: Int) {
+    delegate?.setItemCooldown(player, item, ticks)
   }
 
   override fun showFakeDeathScreen(player: Player, message: String) {

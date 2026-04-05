@@ -66,4 +66,40 @@ interface ViewHub {
    * @param upsideDown Whether the entity should appear upside-down.
    */
   fun setEntityUpsideDown(player: Player, entityId: Int, upsideDown: Boolean)
+
+  /**
+   * Sends a title and subtitle to the player via packets.
+   *
+   * @param player The target player.
+   * @param title The main title text.
+   * @param subtitle The subtitle text.
+   * @param fadeIn Fade-in duration in ticks.
+   * @param stay Display duration in ticks.
+   * @param fadeOut Fade-out duration in ticks.
+   */
+  fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int)
+
+  /**
+   * Sends an action bar message to the player via a packet.
+   *
+   * @param player The target player.
+   * @param message The action bar text.
+   */
+  fun sendActionBar(player: Player, message: String)
+
+  /**
+   * Sets the player's camera to the specified entity.
+   *
+   * @param player The target player.
+   * @param entityId The entity ID to attach the camera to.
+   */
+  fun sendCamera(player: Player, entityId: Int)
+
+  /**
+   * Sends a fake sky/fog color to the player (via biome hack or similar).
+   *
+   * @param player The target player.
+   * @param color The ARGB color integer.
+   */
+  fun setFakeSkyColor(player: Player, color: Int)
 }

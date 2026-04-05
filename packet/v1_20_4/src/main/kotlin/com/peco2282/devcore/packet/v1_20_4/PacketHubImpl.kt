@@ -84,9 +84,9 @@ class PacketHubImpl : PacketHub {
     player.spawnParticle(type, location, amount, offset.x, offset.y, offset.z, extra, data)
   }
 
-  override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
+  override fun sendFakeBlocks(player: Player, builder: com.peco2282.devcore.packet.interact.FakeBlockBuilder.() -> Unit) {
     val connection = (player as CraftPlayer).handle.connection
-    val handler = object : FakeBlockBuilder {
+    val handler = object : com.peco2282.devcore.packet.interact.FakeBlockBuilder {
       val blocks = mutableMapOf<BlockPos, BlockState>()
 
       override fun set(location: Location, material: Material) {
@@ -127,7 +127,7 @@ class PacketHubImpl : PacketHub {
     player.sendPluginMessage(Bukkit.getPluginManager().getPlugin("DevCore")!!, channel, friendlyByteBuf.array())
   }
 
-  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher {
     val craftPlayer = player as CraftPlayer
     return craftPlayer.handle.connection.connection.channel.eventLoop().asCoroutineDispatcher()
   }
@@ -156,9 +156,9 @@ class PacketHubImpl : PacketHub {
   }
 
   override fun sendCamera(player: Player, entityId: Int) {}
-  override fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit) {}
+  override fun sendWorldBorder(player: Player, builder: com.peco2282.devcore.packet.environment.WorldBorderBuilder.() -> Unit) {}
   override fun sendOpenSign(player: Player, location: Location, front: Boolean) {}
-  override fun sendMetadata(player: Player, entityId: Int, builder: MetadataBuilder.() -> Unit) {}
+  override fun sendMetadata(player: Player, entityId: Int, data: MetadataBuilder.() -> Unit) {}
 
   override fun hideEntity(player: Player, entityId: Int) {
     (player as CraftPlayer).handle.connection.send(
@@ -230,10 +230,10 @@ class PacketHubImpl : PacketHub {
     )
   }
 
-  override fun fakeFurnaceProgress(player: Player, windowId: Int, progress: Int, maxProgress: Int) {
+  override fun fakeFurnaceProgress(player: Player, cookProgress: Int, fuelProgress: Int) {
     val connection = (player as CraftPlayer).handle.connection
-    connection.send(net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket(windowId, 2, progress))
-    connection.send(net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket(windowId, 3, maxProgress))
+    connection.send(net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket(0, 2, cookProgress))
+    connection.send(net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket(0, 3, fuelProgress))
   }
 
   override fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean) {
@@ -264,48 +264,28 @@ class PacketHubImpl : PacketHub {
     )
   }
 
-  override fun setCamera(player: Player, entityId: Int) {
+  fun setCamera(player: Player, entityId: Int) {
     val craftPlayer = player as CraftPlayer
     val entity = craftPlayer.handle.level().getEntity(entityId) ?: return
     craftPlayer.handle.connection.send(net.minecraft.network.protocol.game.ClientboundSetCameraPacket(entity))
   }
 
-  override fun setEatingAnimation(
-    player: Player,
-    entityId: Int,
-    eating: Boolean,
-    item: org.bukkit.inventory.ItemStack?
-  ) {
-    if (eating && item != null) {
-      val nmsItem = CraftItemStack.asNMSCopy(item)
-      sendMetadata(player, entityId) { set(8, MetadataType.ITEM, nmsItem) }
-    } else {
-      sendMetadata(player, entityId) { set(8, MetadataType.ITEM, net.minecraft.world.item.ItemStack.EMPTY) }
-    }
+  override fun setEatingAnimation(player: Player, entityId: Int) {
+    sendMetadata(player, entityId) { set(8, MetadataType.ITEM, net.minecraft.world.item.ItemStack.EMPTY) }
   }
 
-  override fun setBowAnimation(player: Player, entityId: Int, pulling: Boolean) {
-    sendMetadata(player, entityId) {
-      set(8, MetadataType.ITEM, if (pulling)
-        CraftItemStack.asNMSCopy(org.bukkit.inventory.ItemStack(Material.BOW))
-      else
-        net.minecraft.world.item.ItemStack.EMPTY
-      )
-    }
+  override fun setBowAnimation(player: Player, entityId: Int) {
+    sendMetadata(player, entityId) { set(8, MetadataType.ITEM, net.minecraft.world.item.ItemStack.EMPTY) }
   }
-  override fun setGuardPose(player: Player, entityId: Int, guarding: Boolean) {
-    sendMetadata(player, entityId) {
-      set(8, MetadataType.BYTE, (if (guarding) 0x01.or(0x02) else 0x00).toByte())
-    }
+
+  override fun setGuardPose(player: Player, entityId: Int) {
+    sendMetadata(player, entityId) { set(8, MetadataType.BYTE, 0x01.toByte()) }
   }
-  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: org.bukkit.Location?) {
+
+  override fun setSleepAnimation(player: Player, entityId: Int, location: Location) {
     sendMetadata(player, entityId) {
-      if (sleeping && bedLocation != null) {
-        val pos = net.minecraft.core.BlockPos(bedLocation.blockX, bedLocation.blockY, bedLocation.blockZ)
-        set(14, MetadataType.OPTPOSITION, java.util.Optional.of(pos))
-      } else {
-        set(14, MetadataType.OPTPOSITION, java.util.Optional.empty<net.minecraft.core.BlockPos>())
-      }
+      val pos = net.minecraft.core.BlockPos(location.blockX, location.blockY, location.blockZ)
+      set(14, MetadataType.OPTPOSITION, java.util.Optional.of(pos))
     }
   }
 
@@ -318,23 +298,13 @@ class PacketHubImpl : PacketHub {
     )
   }
 
-  override fun fakeStatistic(player: Player, category: String, statistic: String, value: Int) {
-    val nsKey = org.bukkit.NamespacedKey.fromString(statistic) ?: return
-    val minecraftKey = org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey.toMinecraft(nsKey)
-    val stat = net.minecraft.stats.Stats.CUSTOM.get(minecraftKey) ?: return
-    @Suppress("UNCHECKED_CAST")
-    val statsMap = it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap<net.minecraft.stats.Stat<*>>()
-    statsMap[stat as net.minecraft.stats.Stat<*>] = value
-    (player as CraftPlayer).handle.connection.send(
-      net.minecraft.network.protocol.game.ClientboundAwardStatsPacket(statsMap)
-    )
-  }
+  override fun fakeStatistic(player: Player, statistic: org.bukkit.Statistic, value: Int) {}
 
-  override fun fakeExperienceBar(player: Player, level: Int, progress: Float) {
+  override fun fakeExperienceBar(player: Player, bar: Float, level: Int, experience: Int) {
     (player as CraftPlayer).handle.connection.send(
       net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(
-        progress,
-        0,
+        bar,
+        experience,
         level
       )
     )

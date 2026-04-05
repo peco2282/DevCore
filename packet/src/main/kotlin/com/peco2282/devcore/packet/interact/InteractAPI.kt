@@ -65,4 +65,31 @@ interface InteractHub {
    * @param player The target player.
    */
   fun hideCredits(player: Player)
+
+  /**
+   * Opens a sign editor for the player at the given location.
+   *
+   * @param player The target player.
+   * @param location The location of the sign block.
+   * @param front Whether to open the front face of the sign.
+   */
+  fun sendOpenSign(player: Player, location: Location, front: Boolean)
+
+  /**
+   * Sends fake block changes to the player using a [FakeBlockBuilder].
+   *
+   * @param player The target player.
+   * @param builder DSL block for specifying fake block positions and materials.
+   */
+  fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit)
+}
+
+/**
+ * DSL builder for specifying multiple fake block changes.
+ */
+interface FakeBlockBuilder {
+  /** Sets a fake block at the given location. */
+  fun set(location: Location, material: Material)
+  /** Fills a region with fake blocks of the specified material. */
+  fun fill(from: Location, to: Location, material: Material)
 }

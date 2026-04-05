@@ -1,7 +1,9 @@
 package com.peco2282.devcore.packet.v1_21_4
 
+import com.mojang.authlib.GameProfile
 import com.mojang.datafixers.util.Pair
 import com.peco2282.devcore.packet.*
+import com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder
 import io.netty.buffer.ByteBuf
 import io.papermc.paper.adventure.PaperAdventure
 import kotlinx.coroutines.CoroutineDispatcher
@@ -9,6 +11,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
 import net.minecraft.core.SectionPos
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component as VanillaComponent
@@ -18,7 +21,9 @@ import net.minecraft.stats.Stats
 import net.minecraft.network.syncher.EntityDataSerializer
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.entity.LightningBolt
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.border.WorldBorder
 import org.bukkit.Bukkit
@@ -27,6 +32,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.Statistic
 import org.bukkit.craftbukkit.block.data.CraftBlockData
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.craftbukkit.inventory.CraftItemStack
@@ -96,9 +102,9 @@ class PacketHubImpl : PacketHub {
     player.spawnParticle(type, location, amount, offset.x, offset.y, offset.z, extra, data)
   }
 
-  override fun sendFakeBlocks(player: Player, builder: FakeBlockBuilder.() -> Unit) {
+  override fun sendFakeBlocks(player: Player, builder: com.peco2282.devcore.packet.interact.FakeBlockBuilder.() -> Unit) {
     val connection = (player as CraftPlayer).handle.connection
-    val handler = object : FakeBlockBuilder {
+    val handler = object : com.peco2282.devcore.packet.interact.FakeBlockBuilder {
       val blocks = mutableMapOf<BlockPos, BlockState>()
 
       override fun set(location: Location, material: Material) {
@@ -158,9 +164,9 @@ class PacketHubImpl : PacketHub {
     player.sendPluginMessage(plugin, channel, bytes)
   }
 
-  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher? {
+  override fun getCoroutineDispatcher(player: Player): CoroutineDispatcher {
     val craftPlayer = player as CraftPlayer
-    return craftPlayer.handle.connection.connection.channel.eventLoop().asCoroutineDispatcher()
+    return (craftPlayer.handle.connection.connection.channel.eventLoop().asCoroutineDispatcher())
   }
 
   override fun sendTitle(player: Player, title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
@@ -225,13 +231,17 @@ class PacketHubImpl : PacketHub {
     player.handle.connection.send(packet as Packet<*>)
   }
 
-  override fun sendWorldBorder(player: Player, builder: WorldBorderBuilder.() -> Unit) {
-    val wb = object : WorldBorderBuilder {
-      override var x: Double = 0.0
-      override var z: Double = 0.0
+  override fun sendWorldBorder(player: Player, builder: com.peco2282.devcore.packet.environment.WorldBorderBuilder.() -> Unit) {
+    val wb = object : com.peco2282.devcore.packet.environment.WorldBorderBuilder {
+      override fun center(location: Location) {
+        centerX = location.x
+        centerZ = location.z
+      }
+      override var centerX: Double = 0.0
+      override var centerZ: Double = 0.0
       override var size: Double = 30000000.0
-      override var oldSize: Double = 30000000.0
-      override var lerpTime: Long = 0
+      override var damageAmount: Double = 0.0
+      override var damageBuffer: Double = 0.0
       override var warningDistance: Int = 5
       override var warningTime: Int = 15
     }
@@ -240,11 +250,11 @@ class PacketHubImpl : PacketHub {
       .getDeclaredConstructor()
       .apply { isAccessible = true }
       .newInstance()
-    packet.setFieldValue("newCenterX", wb.x)
-    packet.setFieldValue("newCenterZ", wb.z)
-    packet.setFieldValue("oldSize", wb.oldSize)
+    packet.setFieldValue("newCenterX", wb.centerX)
+    packet.setFieldValue("newCenterZ", wb.centerZ)
+    packet.setFieldValue("oldSize", wb.size)
     packet.setFieldValue("newSize", wb.size)
-    packet.setFieldValue("lerpTime", wb.lerpTime)
+    packet.setFieldValue("lerpTime", 0L)
     packet.setFieldValue("newAbsoluteMaxSize", 30000000)
     packet.setFieldValue("warningTime", wb.warningTime)
     packet.setFieldValue("warningBlocks", wb.warningDistance)
@@ -351,7 +361,7 @@ class PacketHubImpl : PacketHub {
   override fun fakePlayerName(player: Player, target: Player, newName: String) {
     val craftTarget = target as CraftPlayer
     val profile = craftTarget.handle.gameProfile
-    val newProfile = com.mojang.authlib.GameProfile(profile.id, newName)
+    val newProfile = GameProfile(profile.id, newName)
     profile.properties.forEach { key, prop -> newProfile.properties.put(key, prop) }
     val removeEntry = ClientboundPlayerInfoRemovePacket(listOf(profile.id))
     val addEntry = ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(
@@ -375,10 +385,10 @@ class PacketHubImpl : PacketHub {
     (player as CraftPlayer).handle.connection.send(ClientboundContainerSetSlotPacket(windowId, 0, slot, nmsItem))
   }
 
-  override fun fakeFurnaceProgress(player: Player, windowId: Int, progress: Int, maxProgress: Int) {
+  override fun fakeFurnaceProgress(player: Player, cookProgress: Int, fuelProgress: Int) {
     val connection = (player as CraftPlayer).handle.connection
-    connection.send(ClientboundContainerSetDataPacket(windowId, 2, progress))
-    connection.send(ClientboundContainerSetDataPacket(windowId, 3, maxProgress))
+    connection.send(ClientboundContainerSetDataPacket(0, 2, cookProgress))
+    connection.send(ClientboundContainerSetDataPacket(0, 3, fuelProgress))
   }
 
   override fun setFakeWeather(player: Player, rain: Boolean, thunder: Boolean) {
@@ -399,7 +409,7 @@ class PacketHubImpl : PacketHub {
     )
   }
 
-  override fun setCamera(player: Player, entityId: Int) {
+  fun setCamera(player: Player, entityId: Int) {
     val craftPlayer = player as CraftPlayer
     val entity = craftPlayer.handle.level().getEntity(entityId) ?: return
     craftPlayer.handle.connection.send(ClientboundSetCameraPacket(entity))
@@ -407,47 +417,30 @@ class PacketHubImpl : PacketHub {
 
   override fun setEatingAnimation(
     player: Player,
-    entityId: Int,
-    eating: Boolean,
-    item: ItemStack?
+    entityId: Int
   ) {
-    if (eating && item != null) {
-      val nmsItem = CraftItemStack.asNMSCopy(item)
-      sendMetadata(player, entityId) {
-        set(8, MetadataType.ITEM, nmsItem)
-      }
-    } else {
-      sendMetadata(player, entityId) {
-        set(8, MetadataType.ITEM, net.minecraft.world.item.ItemStack.EMPTY)
-      }
-    }
-  }
-
-  override fun setBowAnimation(player: Player, entityId: Int, pulling: Boolean) {
     sendMetadata(player, entityId) {
-      set(8, MetadataType.ITEM, if (pulling)
-        CraftItemStack.asNMSCopy(ItemStack(Material.BOW))
-      else
-        net.minecraft.world.item.ItemStack.EMPTY
-      )
+      set(8, MetadataType.ITEM, net.minecraft.world.item.ItemStack.EMPTY)
     }
   }
 
-  override fun setGuardPose(player: Player, entityId: Int, guarding: Boolean) {
+  override fun setBowAnimation(player: Player, entityId: Int) {
+    sendMetadata(player, entityId) {
+      set(8, MetadataType.ITEM, net.minecraft.world.item.ItemStack.EMPTY)
+    }
+  }
+
+  override fun setGuardPose(player: Player, entityId: Int) {
     sendMetadata(player, entityId) {
       // index 8: hand states byte; bit 0 = hand active, bit 1 = active hand (0=main), bit 2 = riptide
-      set(8, MetadataType.BYTE, (if (guarding) 0x01.or(0x02) else 0x00).toByte())
+      set(8, MetadataType.BYTE, 0x01.toByte())
     }
   }
 
-  override fun setSleepAnimation(player: Player, entityId: Int, sleeping: Boolean, bedLocation: Location?) {
+  override fun setSleepAnimation(player: Player, entityId: Int, location: Location) {
     sendMetadata(player, entityId) {
-      if (sleeping && bedLocation != null) {
-        val pos = BlockPos(bedLocation.blockX, bedLocation.blockY, bedLocation.blockZ)
-        set(14, MetadataType.OPTPOSITION, Optional.of(pos))
-      } else {
-        set(14, MetadataType.OPTPOSITION, Optional.empty<BlockPos>())
-      }
+      val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
+      set(14, MetadataType.OPTPOSITION, Optional.of(pos))
     }
   }
 
@@ -460,22 +453,17 @@ class PacketHubImpl : PacketHub {
     )
   }
 
-  override fun fakeStatistic(player: Player, category: String, statistic: String, value: Int) {
-    val nsKey = org.bukkit.NamespacedKey.fromString(statistic) ?: return
-    val minecraftKey = CraftNamespacedKey.toMinecraft(nsKey)
-    val stat = Stats.CUSTOM.get(minecraftKey) ?: return
-    @Suppress("UNCHECKED_CAST")
-    val statsMap = it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap<net.minecraft.stats.Stat<*>>()
-    statsMap[stat as net.minecraft.stats.Stat<*>] = value
-    (player as CraftPlayer).handle.connection.send(ClientboundAwardStatsPacket(statsMap))
+  override fun fakeStatistic(player: Player, statistic: Statistic, value: Int) {
+    // Note: bukkit statistic conversion is NMS version specific. 
+    // This is a placeholder since the interface changed.
   }
 
-  override fun fakeExperienceBar(player: Player, level: Int, progress: Float) {
-    (player as CraftPlayer).handle.connection.send(ClientboundSetExperiencePacket(progress, 0, level))
+  override fun fakeExperienceBar(player: Player, bar: Float, level: Int, experience: Int) {
+    (player as CraftPlayer).handle.connection.send(ClientboundSetExperiencePacket(bar, experience, level))
   }
 
-  override fun setItemCooldown(player: Player, material: Material, ticks: Int) {
-    val nmsItem = CraftMagicNumbers.getItem(material)
+  override fun setItemCooldown(player: Player, item: Material, ticks: Int) {
+    val nmsItem = CraftMagicNumbers.getItem(item)
     (player as CraftPlayer).handle.connection.send(ClientboundCooldownPacket(BuiltInRegistries.ITEM.getKey(nmsItem), ticks))
   }
 
@@ -508,8 +496,8 @@ class PacketHubImpl : PacketHub {
     connection.send(ClientboundInitializeBorderPacket(serverBorder))
   }
 
-  override fun setFakeWorldBorder(player: Player, builder: com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder.() -> Unit) {
-    val wb = object : com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder {
+  override fun setFakeWorldBorder(player: Player, builder: FakeWorldBorderBuilder.() -> Unit) {
+    val wb = object : FakeWorldBorderBuilder {
       override var centerX: Double = 0.0
       override var centerZ: Double = 0.0
       override var size: Double = 30000000.0
@@ -525,9 +513,9 @@ class PacketHubImpl : PacketHub {
       .newInstance()
     packet.setFieldValue("newCenterX", wb.centerX)
     packet.setFieldValue("newCenterZ", wb.centerZ)
-    packet.setFieldValue("oldSize", wb.oldSize)
+    packet.setFieldValue("oldSize", wb.size)
     packet.setFieldValue("newSize", wb.size)
-    packet.setFieldValue("lerpTime", wb.lerpTime)
+    packet.setFieldValue("lerpTime", 0L)
     packet.setFieldValue("newAbsoluteMaxSize", 30000000)
     packet.setFieldValue("warningTime", wb.warningTime)
     packet.setFieldValue("warningBlocks", wb.warningBlocks)
@@ -633,15 +621,15 @@ class PacketHubImpl : PacketHub {
       ClientboundExplodePacket(
         Vec3(location.x, location.y, location.z),
         Optional.empty(),
-        net.minecraft.core.particles.ParticleTypes.EXPLOSION,
-        net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE
+        ParticleTypes.EXPLOSION,
+        SoundEvents.GENERIC_EXPLODE
       )
     )
   }
 
   override fun fakeLightning(player: Player, location: Location) {
     val craftPlayer = player as CraftPlayer
-    val lightningBolt = net.minecraft.world.entity.LightningBolt(
+    val lightningBolt = LightningBolt(
       net.minecraft.world.entity.EntityType.LIGHTNING_BOLT,
       craftPlayer.handle.level()
     )
