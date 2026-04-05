@@ -2,8 +2,8 @@
 adventure = "4.25.0"
 kotlin = "2.1.10"
 # Gradle 9.3+ compatibility with KGP 2.1.10 (Latest)
-paper = "1.21.4-R0.1-20250925.065901-231"
-paper-api-common = "1.20.4-R0.1-SNAPSHOT"
+paper = "1.21.11-R0.1-SNAPSHOT"
+paper-api-common = "1.21.11-R0.1-SNAPSHOT"
 kotlinx-coroutine = "1.10.2"
 dokka = "2.0.0"
 shadow = "8.3.0"
