@@ -25,6 +25,12 @@ profile:
 
 exclude:
   - name: "UnusedSymbol"
+  - paths:
+      - "**/build"
+      - "**/.gradle"
+      - "**/out"
+      - "**/.idea"
+      - "**/gradle"
 
 projectJDK: "21" #(Applied in CI/CD pipeline)
 
