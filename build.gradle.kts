@@ -1,7 +1,7 @@
 plugins {
   id("org.jetbrains.kotlin.jvm") apply false
   id("org.jetbrains.dokka")
-  id("io.papermc.paperweight.userdev") version "2.0.0-beta.19" apply false
+  id("io.papermc.paperweight.userdev") version "2.0.0-SNAPSHOT" apply false
 }
 
 group = "com.peco2282.devcore"
