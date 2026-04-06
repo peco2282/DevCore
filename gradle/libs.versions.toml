@@ -6,7 +6,7 @@ paper = "1.21.4-R0.1-20250925.065901-231"
 paper-api-common = "1.20.4-R0.1-SNAPSHOT"
 kotlinx-coroutine = "1.10.2"
 dokka = "2.2.0"
-shadow = "8.3.0"
+shadow = "9.4.1"
 run-paper = "2.3.1"
 
 [libraries]
