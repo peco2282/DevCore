@@ -1,7 +1,7 @@
 plugins {
-  id("org.jetbrains.kotlin.jvm") apply false
-  id("org.jetbrains.dokka")
-  id("io.papermc.paperweight.userdev") version "2.0.0-SNAPSHOT" apply false
+  alias(libs.plugins.kotlin.jvm) apply false
+  alias(libs.plugins.dokka)
+  alias(libs.plugins.paperweight) apply false
 }
 
 group = "com.peco2282.devcore"
