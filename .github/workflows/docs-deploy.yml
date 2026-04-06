@@ -36,7 +36,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Dokka 2.0.0 のデフォルト出力先 (マルチモジュール)
           path: 'build/dokka/html'
