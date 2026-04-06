@@ -1,6 +1,6 @@
-package com.peco2282.adventure
+package com.peco2282.devcore.adventure
 
-import com.peco2282.adventure.builder.Componenter
+import com.peco2282.devcore.adventure.builder.Componenter
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style

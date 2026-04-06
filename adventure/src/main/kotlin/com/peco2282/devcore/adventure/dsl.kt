@@ -1,9 +1,9 @@
-package com.peco2282.adventure
+package com.peco2282.devcore.adventure
 
-import com.peco2282.adventure.builder.ComponentBuilder
-import com.peco2282.adventure.builder.Componenter
-import com.peco2282.adventure.builder.StyleBuilder
-import com.peco2282.adventure.builder.Styler
+import com.peco2282.devcore.adventure.builder.ComponentBuilder
+import com.peco2282.devcore.adventure.builder.Componenter
+import com.peco2282.devcore.adventure.builder.StyleBuilder
+import com.peco2282.devcore.adventure.builder.Styler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.Style
 
