@@ -9,4 +9,10 @@ tasks.register<Jar>("dokkaJar") {
 
 dokka {
   moduleName.set(project.name)
+
+  dokkaSourceSets {
+    configureEach {
+      enableAndroidDocumentationLink.set(false)
+    }
+  }
 }
