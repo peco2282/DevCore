@@ -7,6 +7,13 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+    ignore:
+      - dependency-name: "org.jetbrains.kotlin*"
+      - dependency-name: "io.papermc.paper*"
+
+    reviewers:
+      - peco2282
+
 
   - package-ecosystem: "gradle"
     directory: "/TestPlugin"
@@ -16,6 +23,11 @@ updates:
     labels:
       - "dependencies"
       - "test-plugin"
+    ignore:
+      - dependency-name: "org.jetbrains.kotlin*"
+      - dependency-name: "io.papermc.paper*"
+    reviewers:
+      - peco2282
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -25,3 +37,5 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    reviewers:
+      - peco2282
