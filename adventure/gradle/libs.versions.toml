@@ -1,9 +1,0 @@
-[versions]
-adventure = "4.25.0"
-
-[libraries]
-adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
-serializer-plugin = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure"}
-
-[plugins]
-idea = { id = "idea" }
