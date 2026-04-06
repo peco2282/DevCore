@@ -3,9 +3,6 @@ package com.peco2282.devcore.packet.environment
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
-/** DSL marker annotation for the environment DSL scope. */
-@DslMarker
-annotation class PacketEnvironmentDsl
 
 /**
  * Hub interface for packet-based environment manipulation.
