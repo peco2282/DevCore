@@ -158,7 +158,7 @@ object PacketAPI: PacketHub {
     delegate?.sendOpenSign(player, location, front)
   }
 
-  override fun sendMetadata(player: Player, entityId: Int, data: Any) {
+  override fun sendMetadata(player: Player, entityId: Int, data: MetadataBuilder.() -> Unit) {
     delegate?.sendMetadata(player, entityId, data)
   }
 
