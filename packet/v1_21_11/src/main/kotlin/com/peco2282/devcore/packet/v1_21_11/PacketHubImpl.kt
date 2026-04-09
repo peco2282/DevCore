@@ -125,7 +125,7 @@ class PacketHubImpl : PacketHub {
 
       override fun set(location: Location, material: Material) {
         val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
-        blocks[pos] = (material as CraftBlockData).state
+        blocks[pos] = CraftBlockData.newData(material.asBlockType(), null).state
       }
 
       override fun fill(from: Location, to: Location, material: Material) {
@@ -136,7 +136,7 @@ class PacketHubImpl : PacketHub {
         val minZ = minOf(from.blockZ, to.blockZ)
         val maxZ = maxOf(from.blockZ, to.blockZ)
 
-        val state = (material as CraftBlockData).state
+        val state = CraftBlockData.newData(material.asBlockType(), null).state
         for (x in minX..maxX) {
           for (y in minY..maxY) {
             for (z in minZ..maxZ) {
@@ -155,7 +155,7 @@ class PacketHubImpl : PacketHub {
   }
 
   override fun sendRawPacket(player: Player, channel: String, buf: ByteBuf) {
-    val friendlyByteBuf = if (buf is FriendlyByteBuf) buf else FriendlyByteBuf(buf)
+    val friendlyByteBuf = buf as? FriendlyByteBuf ?: FriendlyByteBuf(buf)
     player.sendPluginMessage(Bukkit.getPluginManager().getPlugin("DevCore")!!, channel, friendlyByteBuf.array())
   }
 

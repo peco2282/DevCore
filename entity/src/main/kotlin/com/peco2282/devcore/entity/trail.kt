@@ -36,9 +36,8 @@ fun Entity.addTrail(
       if (!onlyOnMove || lastLoc.distanceSquared(currentLoc) > 0.0001) {
         this.world.spawnParticle(particle, currentLoc, count, offset, offset, offset, extra)
       }
-      lastLoc = currentLoc
     }
   }
   handle = plugin.scheduler.timer(0.ticks, 1.ticks, task)
-  return handle!!
+  return handle
 }

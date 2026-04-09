@@ -449,7 +449,7 @@ class PacketHubImpl : PacketHub {
   override fun placeFakeBlock(player: Player, location: Location, material: Material) {
     val connection = (player as CraftPlayer).handle.connection
     val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
-    val state = CraftBlockData.newData(material.asBlockType(), null).state
+    @Suppress("UnstableApiUsage") val state = CraftBlockData.newData(material.asBlockType(), null).state
     connection.send(ClientboundBlockUpdatePacket(pos, state))
   }
 

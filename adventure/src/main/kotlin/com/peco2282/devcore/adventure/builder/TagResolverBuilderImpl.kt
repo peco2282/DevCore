@@ -9,7 +9,7 @@ internal class TagResolverBuilderImpl : TagResolverBuilder {
     resolvers.add(resolver)
   }
 
-  override fun append(resolver: Array<TagResolver>): TagResolverBuilder = apply {
+  override fun append(resolver: Array<out TagResolver>): TagResolverBuilder = apply {
     resolvers.addAll(resolver)
   }
 

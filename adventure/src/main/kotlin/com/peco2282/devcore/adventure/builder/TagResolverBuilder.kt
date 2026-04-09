@@ -4,10 +4,10 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
 interface TagResolverBuilder {
   infix fun append(resolver: TagResolver): TagResolverBuilder
-  infix fun append(resolver: Array<TagResolver>): TagResolverBuilder
+  infix fun append(resolver: Array<out TagResolver>): TagResolverBuilder
   fun empty(): TagResolverBuilder = append(TagResolver.empty())
   fun standard(): TagResolverBuilder = append(TagResolver.standard())
-  fun resolvers(vararg resolvers: TagResolver): TagResolverBuilder = append(resolvers as Array<TagResolver>)
+  fun resolvers(vararg resolvers: TagResolver): TagResolverBuilder = append(resolvers)
 
   operator fun TagResolver.unaryPlus(): TagResolverBuilder = append(this)
   operator fun Array<TagResolver>.unaryPlus(): TagResolverBuilder = append(this)

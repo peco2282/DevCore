@@ -84,6 +84,7 @@ class FakeEntityBuilderImpl(
     packet.setFieldValue("yRot", (location.yaw * 256.0f / 360.0f).toInt().toByte())
     packet.setFieldValue("xRot", (location.pitch * 256.0f / 360.0f).toInt().toByte())
     packet.setFieldValue("onGround", onGround)
+    @Suppress("KotlinConstantConditions")
     (player as CraftPlayer).handle.connection.send(packet)
   }
 

@@ -102,6 +102,7 @@ class PacketHubImpl : PacketHub {
     player.spawnParticle(type, location, amount, offset.x, offset.y, offset.z, extra, data)
   }
 
+  @Suppress("UnstableApiUsage")
   override fun sendFakeBlocks(player: Player, builder: com.peco2282.devcore.packet.interact.FakeBlockBuilder.() -> Unit) {
     val connection = (player as CraftPlayer).handle.connection
     val handler = object : com.peco2282.devcore.packet.interact.FakeBlockBuilder {
@@ -561,7 +562,7 @@ class PacketHubImpl : PacketHub {
   override fun placeFakeBlock(player: Player, location: Location, material: Material) {
     val connection = (player as CraftPlayer).handle.connection
     val pos = BlockPos(location.blockX, location.blockY, location.blockZ)
-    val state = CraftBlockData.newData(material.asBlockType(), null).state
+    @Suppress("UnstableApiUsage") val state = CraftBlockData.newData(material.asBlockType(), null).state
     connection.send(ClientboundBlockUpdatePacket(pos, state))
   }
 
