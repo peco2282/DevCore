@@ -117,7 +117,7 @@ class FakeEntityBuilderImpl(
     
     // Entity flags (Index 0)
     var flags: Byte = 0
-    if (isInvisible) flags = (flags.toInt() or 0x20).toByte()
+    if (isInvisible) flags = (0 or 0x20).toByte()
     if (isGlowing) flags = (flags.toInt() or 0x40).toByte()
     metadata.add(SynchedEntityData.DataValue(0, EntityDataSerializers.BYTE, flags))
 
