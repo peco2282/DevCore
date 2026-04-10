@@ -9,7 +9,7 @@ dependencies {
   // NMS実装はリフレクションで動的にロードされるため、コンパイル時のプロジェクト依存は不要。
   // これにより循環参照を回避しつつ、jarタスクで成果物を集約する。
 
-  compileOnly(libs.paper.api.common)
+  compileOnly(libs.paper.api)
   compileOnly("io.netty:netty-all:4.2.12.Final")
   testImplementation(libs.kotlin.test)
 }
