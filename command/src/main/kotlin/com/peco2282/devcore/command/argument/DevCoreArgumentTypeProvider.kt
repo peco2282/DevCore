@@ -2,6 +2,12 @@ package com.peco2282.devcore.command.argument
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
+import com.mojang.brigadier.arguments.BoolArgumentType
+import com.mojang.brigadier.arguments.DoubleArgumentType
+import com.mojang.brigadier.arguments.FloatArgumentType
+import com.mojang.brigadier.arguments.IntegerArgumentType
+import com.mojang.brigadier.arguments.LongArgumentType
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.suggestion.Suggestions
@@ -9,19 +15,12 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.command.argument.DevCoreArgumentTypeProvider.ResultConverter
 import com.peco2282.devcore.util.DevCoreInternal
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
-//import io.papermc.paper.command.brigadier.argument.AxisSet
 import io.papermc.paper.command.brigadier.argument.SignedMessageResolver
-//import io.papermc.paper.command.brigadier.argument.predicate.BlockInWorldPredicate
 import io.papermc.paper.command.brigadier.argument.predicate.ItemStackPredicate
 import io.papermc.paper.command.brigadier.argument.range.DoubleRangeProvider
 import io.papermc.paper.command.brigadier.argument.range.IntegerRangeProvider
-//import io.papermc.paper.command.brigadier.argument.resolvers.AngleResolver
 import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver
-//import io.papermc.paper.command.brigadier.argument.resolvers.ColumnBlockPositionResolver
-//import io.papermc.paper.command.brigadier.argument.resolvers.ColumnFinePositionResolver
-//import io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver
 import io.papermc.paper.command.brigadier.argument.resolvers.PlayerProfileListResolver
-//import io.papermc.paper.command.brigadier.argument.resolvers.RotationResolver
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
 import io.papermc.paper.entity.LookAnchor
@@ -46,6 +45,25 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 
 interface DevCoreArgumentTypeProvider {
+  // Bridger Argument-types: start
+  fun integer(): IntegerArgumentType = IntegerArgumentType.integer()
+  fun integer(min: Int): IntegerArgumentType = IntegerArgumentType.integer(min)
+  fun integer(min: Int, max: Int): IntegerArgumentType = IntegerArgumentType.integer(min, max)
+  fun double(): DoubleArgumentType = DoubleArgumentType.doubleArg()
+  fun double(min: Double): DoubleArgumentType = DoubleArgumentType.doubleArg(min)
+  fun double(min: Double, max: Double): DoubleArgumentType = DoubleArgumentType.doubleArg(min, max)
+  fun float(): FloatArgumentType = FloatArgumentType.floatArg()
+  fun float(min: Float): FloatArgumentType = FloatArgumentType.floatArg(min)
+  fun float(min: Float, max: Float): FloatArgumentType = FloatArgumentType.floatArg(min, max)
+  fun long(): LongArgumentType = LongArgumentType.longArg()
+  fun long(min: Long): LongArgumentType = LongArgumentType.longArg(min)
+  fun long(min: Long, max: Long): LongArgumentType = LongArgumentType.longArg(min, max)
+  fun boolean(): BoolArgumentType = BoolArgumentType.bool()
+  fun string(): StringArgumentType = StringArgumentType.string()
+  fun greedyString(): StringArgumentType = StringArgumentType.greedyString()
+  fun word(): StringArgumentType = StringArgumentType.word()
+  // Bukkit Argument-types: end
+
   fun entity(): ArgumentType<EntitySelectorArgumentResolver> = ArgumentTypes.entity()
 
   fun player(): ArgumentType<PlayerSelectorArgumentResolver> = ArgumentTypes.player()
