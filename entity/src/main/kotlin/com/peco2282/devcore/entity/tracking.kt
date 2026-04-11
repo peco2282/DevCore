@@ -48,33 +48,33 @@ fun Entity.follow(
   return handle
 }
 
-/**
- * Makes this entity always look at another entity.
- *
- * @param plugin the plugin to register the task
- * @param target the entity to look at
- * @return a [TaskHandle] to control the look-at task
- */
-fun Entity.lookAt(
-  plugin: Plugin,
-  target: Entity
-): TaskHandle {
-  var handle: TaskHandle? = null
-  val task: () -> Unit = {
-    if (!this.isValid || !target.isValid || this.world != target.world) {
-      handle?.cancel()
-    } else {
-      if (this is LivingEntity) {
-        val loc = target.location
-        this.lookAt(loc.x, loc.y, loc.z, LookAnchor.EYES)
-      } else {
-        val location = this.location
-        val direction = target.location.toVector().subtract(location.toVector())
-        location.setDirection(direction)
-        this.teleport(location)
-      }
-    }
-  }
-  handle = plugin.scheduler.timer(0.ticks, 1.ticks, task)
-  return handle
-}
+///**
+// * Makes this entity always look at another entity.
+// *
+// * @param plugin the plugin to register the task
+// * @param target the entity to look at
+// * @return a [TaskHandle] to control the look-at task
+// */
+//fun Entity.lookAt(
+//  plugin: Plugin,
+//  target: Entity
+//): TaskHandle {
+//  var handle: TaskHandle? = null
+//  val task: () -> Unit = {
+//    if (!this.isValid || !target.isValid || this.world != target.world) {
+//      handle?.cancel()
+//    } else {
+//      if (this is LivingEntity) {
+//        val loc = target.location
+//        this.lookAt(loc.x, loc.y, loc.z, LookAnchor.EYES)
+//      } else {
+//        val location = this.location
+//        val direction = target.location.toVector().subtract(location.toVector())
+//        location.setDirection(direction)
+//        this.teleport(location)
+//      }
+//    }
+//  }
+//  handle = plugin.scheduler.timer(0.ticks, 1.ticks, task)
+//  return handle
+//}
