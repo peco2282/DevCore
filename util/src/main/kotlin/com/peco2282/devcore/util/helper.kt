@@ -30,3 +30,6 @@ private fun isVersionAtLeast(current: String, target: String): Boolean {
 
   return true
 }
+
+@RequiresOptIn("This API is internal to DevCore and may change without a major version bump.")
+annotation class DevCoreInternal
