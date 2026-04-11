@@ -1,3 +1,5 @@
+@file:Suppress("NonExtendableApiUsage", "UnstableApiUsage")
+
 package com.peco2282.devcore.command.argument
 
 import com.peco2282.devcore.util.DevCoreInternal
@@ -8,7 +10,9 @@ import io.papermc.paper.math.FinePosition
 import io.papermc.paper.math.Position
 import org.bukkit.Axis
 import org.bukkit.block.Block
+import org.jetbrains.annotations.ApiStatus
 
+@ApiStatus.NonExtendable
 fun interface ColumnBlockPositionResolver : ArgumentResolver<ColumnBlockPosition>
 interface ColumnBlockPosition {
   val blockX: Int
@@ -17,8 +21,10 @@ interface ColumnBlockPosition {
   fun toPosition(y: Int): BlockPosition = Position.block(this.blockX, y, this.blockZ)
 }
 
+@ApiStatus.NonExtendable
 fun interface FinePositionResolver : ArgumentResolver<FinePosition>
 
+@ApiStatus.NonExtendable
 fun interface ColumnFinePositionResolver : ArgumentResolver<ColumnFinePosition>
 interface ColumnFinePosition {
   val x: Double
@@ -29,7 +35,7 @@ interface ColumnFinePosition {
   }
 }
 
-
+@ApiStatus.NonExtendable
 fun interface RotationResolver : ArgumentResolver<Rotation>
 interface Rotation {
   companion object {
@@ -41,12 +47,13 @@ interface Rotation {
   val yaw: Float
 }
 
-fun interface AngleResolver {
-  fun resolve(sourceStack: CommandSourceStack): Float
-}
+@ApiStatus.NonExtendable
+fun interface AngleResolver : ArgumentResolver<Float>
 
+@ApiStatus.NonExtendable
 interface AxisSet : Set<Axis>
 
+@ApiStatus.NonExtendable
 fun interface BlockInWorldPredicate {
   fun testBlock(block: Block): Result = this.testBlock(block, true)
 
