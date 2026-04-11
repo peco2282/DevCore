@@ -10,6 +10,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.ComponentBuilder
 import com.peco2282.devcore.adventure.component
+import com.peco2282.devcore.command.argument.DevCoreArgumentTypes
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
@@ -235,7 +236,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun player(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.player()) {
+  ) = argument(name, DevCoreArgumentTypes.player()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -246,7 +247,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun players(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.players()) {
+  ) = argument(name, DevCoreArgumentTypes.players()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -257,7 +258,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun entity(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.entity()) {
+  ) = argument(name, DevCoreArgumentTypes.entity()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -268,7 +269,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun entities(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.entities()) {
+  ) = argument(name, DevCoreArgumentTypes.entities()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -279,7 +280,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun world(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.world()) {
+  ) = argument(name, DevCoreArgumentTypes.world()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -290,7 +291,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun blockPos(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.blockPosition()) {
+  ) = argument(name, DevCoreArgumentTypes.blockPosition()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -301,7 +302,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun finePos(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.finePosition()) {
+  ) = argument(name, DevCoreArgumentTypes.finePosition(false)) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -312,7 +313,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun rotation(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.rotation()) {
+  ) = argument(name, DevCoreArgumentTypes.rotation()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -323,7 +324,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun singlePlayer(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.player()) {
+  ) = argument(name, DevCoreArgumentTypes.player()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -334,7 +335,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun multiplePlayers(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.players()) {
+  ) = argument(name, DevCoreArgumentTypes.players()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -345,7 +346,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun singleEntity(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.entity()) {
+  ) = argument(name, DevCoreArgumentTypes.entity()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
@@ -356,7 +357,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun multipleEntities(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, ArgumentTypes.entities()) {
+  ) = argument(name, DevCoreArgumentTypes.entities()) {
     @Suppress("UNCHECKED_CAST")
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
