@@ -9,13 +9,19 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.command.argument.*
-import com.peco2282.devcore.command.argument.DevCoreArgumentTypeProvider.ResultConverter
+import com.peco2282.devcore.command.argument.ResultConverter
 import io.papermc.paper.command.brigadier.PaperCommands
 import io.papermc.paper.util.MCUtil
+import it.unimi.dsi.fastutil.ints.IntList
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.AngleArgument
+import net.minecraft.commands.arguments.ObjectiveArgument
+import net.minecraft.commands.arguments.OperationArgument
+import net.minecraft.commands.arguments.SlotArgument
+import net.minecraft.commands.arguments.SlotsArgument
+import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument
 import net.minecraft.commands.arguments.coordinates.*
 import net.minecraft.network.chat.Component
@@ -23,8 +29,11 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.bukkit.Axis
+import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.CraftWorld
 import org.bukkit.craftbukkit.util.CraftLocation
+import org.bukkit.scoreboard.Objective
+import org.bukkit.scoreboard.Scoreboard
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -81,13 +90,7 @@ class DevCoreArgumentTypePrividerImpl : DevCoreArgumentTypeProvider {
       bukkitAxes.add(Axis.valueOf(nmsAxis.name))
     }
 
-    class AxisSetImpl(private val inner: EnumSet<Axis>) : ForwardingSet<Axis>(),
-      AxisSet {
-      override fun delegate(): MutableSet<Axis> = this.inner
-
-      override fun contains(element: Axis): Boolean = element in this.inner
-    }
-    AxisSetImpl(bukkitAxes)
+    Impl.AxisSetImpl(bukkitAxes)
   }
 
   override fun blockInWorldPredicate(): ArgumentType<BlockInWorldPredicate> = wrap(
@@ -161,6 +164,33 @@ class DevCoreArgumentTypePrividerImpl : DevCoreArgumentTypeProvider {
 
   private fun <B, C> wrap(type: ArgumentType<B>, converter: ResultConverter<B, C>): ArgumentType<C> =
     DevCoreArgumentType1(type, converter)
+
+  override fun team(): TeamArgumentType {
+    return wrap(
+      TeamArgument.team()
+    ) {
+      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)
+    }
+  }
+
+  override fun slot(): SlotArgumentType = wrap(
+    SlotArgument.slot()
+  ) {
+    it
+  }
+
+  override fun slots(): SlotsArgumentType = wrap(
+    SlotsArgument.slots()
+  ) {
+    Impl.SlotRangeImpl(it.serializedName, it.slots())
+
+  }
+
+  override fun objective(): ObjectiveArgumentType = wrap(
+    ObjectiveArgument.objective()
+  ) {
+    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)
+  }
 
   internal class DevCoreArgumentType1<B, C>(argType: ArgumentType<B>, converter: ResultConverter<B, C>) :
     DevCoreArgumentType<B, C>(argType, converter) {

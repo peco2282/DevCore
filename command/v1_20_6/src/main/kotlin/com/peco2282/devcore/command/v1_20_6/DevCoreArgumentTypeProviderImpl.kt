@@ -15,6 +15,10 @@ import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.AngleArgument
+import net.minecraft.commands.arguments.ObjectiveArgument
+import net.minecraft.commands.arguments.SlotArgument
+import net.minecraft.commands.arguments.SlotsArgument
+import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument
 import net.minecraft.commands.arguments.coordinates.ColumnPosArgument
 import net.minecraft.commands.arguments.coordinates.RotationArgument
@@ -25,6 +29,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.bukkit.Axis
+import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.CraftWorld
 import org.bukkit.craftbukkit.util.CraftLocation
 import java.util.*
@@ -81,13 +86,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
       bukkitAxes.add(Axis.valueOf(nmsAxis.name))
     }
 
-    class AxisSetImpl(private val inner: EnumSet<Axis>) : ForwardingSet<Axis>(),
-      AxisSet {
-      override fun delegate(): MutableSet<Axis> = this.inner
-
-      override fun contains(element: Axis): Boolean = element in this.inner
-    }
-    AxisSetImpl(bukkitAxes)
+    Impl.AxisSetImpl(bukkitAxes)
   }
 
   override fun blockInWorldPredicate(): ArgumentType<BlockInWorldPredicate> = wrap(
@@ -163,4 +162,31 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     argumentType: ArgumentType<T>,
     resultConverter: (T) -> R
   ): ArgumentType<R> = DevCoreArgumentType(argumentType, resultConverter)
+
+
+  override fun team(): TeamArgumentType {
+    return wrap(
+      TeamArgument.team()
+    ) {
+      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)
+    }
+  }
+
+  override fun slot(): SlotArgumentType = wrap(
+    SlotArgument.slot()
+  ) {
+    it
+  }
+
+  override fun slots(): SlotsArgumentType = wrap(
+    SlotsArgument.slots()
+  ) {
+    Impl.SlotRangeImpl(it.serializedName, it.slots())
+  }
+
+  override fun objective(): ObjectiveArgumentType = wrap(
+    ObjectiveArgument.objective()
+  ) {
+    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)
+  }
 }

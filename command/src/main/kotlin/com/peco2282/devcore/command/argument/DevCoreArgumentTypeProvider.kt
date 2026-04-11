@@ -9,10 +9,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.LongArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import com.peco2282.devcore.command.argument.DevCoreArgumentTypeProvider.ResultConverter
 import com.peco2282.devcore.util.DevCoreInternal
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.SignedMessageResolver
@@ -62,8 +60,16 @@ interface DevCoreArgumentTypeProvider {
   fun string(): StringArgumentType = StringArgumentType.string()
   fun greedyString(): StringArgumentType = StringArgumentType.greedyString()
   fun word(): StringArgumentType = StringArgumentType.word()
-  // Bukkit Argument-types: end
+  // Bridger Argument-types: end
 
+  // MC Argument-types: start
+  fun team(): TeamArgumentType
+  fun slot(): SlotArgumentType
+  fun slots(): SlotsArgumentType
+  fun objective(): ObjectiveArgumentType
+  // MC Argument-types: end
+
+  // Bukkit & Paper Argument-types: start
   fun entity(): ArgumentType<EntitySelectorArgumentResolver> = ArgumentTypes.entity()
 
   fun player(): ArgumentType<PlayerSelectorArgumentResolver> = ArgumentTypes.player()
@@ -137,12 +143,7 @@ interface DevCoreArgumentTypeProvider {
   fun <T> resourceKey(registryKey: RegistryKey<T>): ArgumentType<TypedKey<T>> = ArgumentTypes.resourceKey(registryKey)
 
   fun <T> resource(registryKey: RegistryKey<T>): ArgumentType<T> = ArgumentTypes.resource(registryKey)
-
-  fun interface ResultConverter<T, R> {
-    @Throws(CommandSyntaxException::class)
-    fun convert(var1: T): R
-  }
-
+  // Bukkit & Paper Argument-types: end
 }
 
 @DevCoreInternal

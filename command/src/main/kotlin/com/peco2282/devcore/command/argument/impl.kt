@@ -1,6 +1,9 @@
 package com.peco2282.devcore.command.argument
 
 import com.peco2282.devcore.util.DevCoreInternal
+import it.unimi.dsi.fastutil.ints.IntList
+import org.bukkit.Axis
+import java.util.EnumSet
 
 @DevCoreInternal
 object Impl {
@@ -18,4 +21,8 @@ object Impl {
     override val yaw: Float,
     override val pitch: Float
   ): Rotation
+
+  data class SlotRangeImpl(override val serializedName: String, override val slots: IntList) : SlotRange
+
+  data class AxisSetImpl(private val inner: EnumSet<Axis>) : AxisSet by inner
 }
