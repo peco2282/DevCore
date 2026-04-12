@@ -37,7 +37,7 @@ import org.bukkit.scoreboard.Scoreboard
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class DevCoreArgumentTypePrividerImpl : DevCoreArgumentTypeProvider {
+class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   override fun columnBlockPosition(): ArgumentType<ColumnBlockPositionResolver> = this.wrap(
     ColumnPosArgument.columnPos()
   ) {

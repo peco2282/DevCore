@@ -58,7 +58,7 @@ object DevCoreArgumentTypes: DevCoreArgumentTypeProvider by DevCoreArgumentTypes
     val className = if (version.startsWith("1.20")) {
       "com.peco2282.devcore.command.v1_20_6.DevCoreArgumentTypeProviderImpl"
     } else {
-      "com.peco2282.devcore.command.v1_21_1.DevCoreArgumentTypePrividerImpl"
+      "com.peco2282.devcore.command.v1_21_1.DevCoreArgumentTypeProviderImpl"
     }
 
     return try {
