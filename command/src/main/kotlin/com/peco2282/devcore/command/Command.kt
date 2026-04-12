@@ -2,7 +2,8 @@
 
 package com.peco2282.devcore.command
 
-import com.mojang.brigadier.arguments.*
+import com.mojang.brigadier.Command
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
@@ -11,8 +12,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.ComponentBuilder
 import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.command.argument.DevCoreArgumentTypes
+import com.peco2282.devcore.util.launch
 import io.papermc.paper.command.brigadier.CommandSourceStack
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import net.kyori.adventure.text.Component
 import org.bukkit.command.ConsoleCommandSender
@@ -52,11 +53,13 @@ object GlobalErrorHandler {
  * for defining command structures, including literals, arguments, requirements, and execution logic.
  *
  * @param T the type of Brigadier [ArgumentBuilder] being wrapped
+ * @property plugin the plugin instance for launching coroutines
  * @property builder the underlying Brigadier [ArgumentBuilder]
  */
 @Suppress("UnstableApiUsage")
 @CommandDsl
 class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
+  val plugin: Plugin,
   var builder: T
 ) {
   /**
@@ -81,12 +84,12 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
   ) = apply {
     val command = LiteralArgumentBuilder.literal<CommandSourceStack>(literal)
-    val c = CommandCreator(command)
+    val c = CommandCreator(plugin, command)
     c.creator()
     builder.then(c.builder)
   }
 
-  
+
   /**
    * DSL operator to add a literal subcommand to the command.
    *
@@ -99,12 +102,13 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    *
    * @param creator the configuration block for the subcommand identified by the literal string
    */
-  inline infix operator fun String.invoke(creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit) = apply {
-    val command = LiteralArgumentBuilder.literal<CommandSourceStack>(this)
-    val c = CommandCreator(command)
-    c.creator()
-    builder.then(c.builder)
-  }
+  inline infix operator fun String.invoke(creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit) =
+    apply {
+      val command = LiteralArgumentBuilder.literal<CommandSourceStack>(this)
+      val c = CommandCreator(plugin, command)
+      c.creator()
+      builder.then(c.builder)
+    }
 
   /**
    * Adds multiple literal aliases to the command that all execute the same block.
@@ -119,7 +123,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   ) = apply {
     aliases.forEach {
       val command = LiteralArgumentBuilder.literal<CommandSourceStack>(it)
-      val c = CommandCreator(command)
+      val c = CommandCreator(plugin, command)
       c.creator()
       builder.then(c.builder)
     }
@@ -140,31 +144,18 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, V>>.() -> Unit = {}
   ) = apply {
     val arg = RequiredArgumentBuilder.argument<CommandSourceStack, V>(name, type)
-    val c = CommandCreator(arg)
+    val c = CommandCreator(plugin, arg)
     c.creator()
     builder.then(c.builder)
   }
-
-  /**
-   * Adds a sub-command structure defined by a literal.
-   *
-   * @param name the literal for the sub-command
-   * @param creator the configuration block for the sub-command
-   * @return this [CommandCreator] instance for chaining
-   */
-  fun sub(
-    name: String,
-    creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit
-  ) = literal(name, creator)
 
   /**
    * Adds a string argument to the command.
    */
   fun string(
     name: String,
-    type: StringArgumentType = StringArgumentType.string(),
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, String>>.() -> Unit = {}
-  ) = argument(name, type, creator)
+  ) = argument(name, DevCoreArgumentTypes.string(), creator)
 
   /**
    * Adds a greedy string argument to the command.
@@ -172,7 +163,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun greedyString(
     name: String,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, String>>.() -> Unit = {}
-  ) = string(name, StringArgumentType.greedyString(), creator)
+  ) = argument(name, DevCoreArgumentTypes.greedyString(), creator)
 
   /**
    * Adds a word argument to the command.
@@ -180,7 +171,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun word(
     name: String,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, String>>.() -> Unit = {}
-  ) = string(name, StringArgumentType.word(), creator)
+  ) = argument(name, DevCoreArgumentTypes.word(), creator)
 
   /**
    * Adds an integer argument to the command.
@@ -190,7 +181,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     min: Int = Int.MIN_VALUE,
     max: Int = Int.MAX_VALUE,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Int>>.() -> Unit = {}
-  ) = argument(name, IntegerArgumentType.integer(min, max), creator)
+  ) = argument(name, DevCoreArgumentTypes.integer(min, max), creator)
 
   /**
    * Adds a boolean argument to the command.
@@ -198,27 +189,27 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   fun boolean(
     name: String,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Boolean>>.() -> Unit = {}
-  ) = argument(name, BoolArgumentType.bool(), creator)
+  ) = argument(name, DevCoreArgumentTypes.boolean(), creator)
 
   /**
    * Adds a double argument to the command.
    */
   fun double(
     name: String,
-    min: Double = -Double.MAX_VALUE,
+    min: Double = Double.MIN_VALUE,
     max: Double = Double.MAX_VALUE,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Double>>.() -> Unit = {}
-  ) = argument(name, DoubleArgumentType.doubleArg(min, max), creator)
+  ) = argument(name, DevCoreArgumentTypes.double(min, max), creator)
 
   /**
    * Adds a float argument to the command.
    */
   fun float(
     name: String,
-    min: Float = -Float.MAX_VALUE,
+    min: Float = Float.MIN_VALUE,
     max: Float = Float.MAX_VALUE,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Float>>.() -> Unit = {}
-  ) = argument(name, FloatArgumentType.floatArg(min, max), creator)
+  ) = argument(name, DevCoreArgumentTypes.float(min, max), creator)
 
   /**
    * Adds a long argument to the command.
@@ -228,7 +219,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     min: Long = Long.MIN_VALUE,
     max: Long = Long.MAX_VALUE,
     creator: CommandCreator<RequiredArgumentBuilder<CommandSourceStack, Long>>.() -> Unit = {}
-  ) = argument(name, LongArgumentType.longArg(min, max), creator)
+  ) = argument(name, DevCoreArgumentTypes.long(min, max), creator)
 
   /**
    * Adds a player argument to the command.
@@ -318,49 +309,34 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
   }
 
-  /**
-   * Adds a single player argument to the command.
-   */
-  fun singlePlayer(
-    name: String,
-    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, DevCoreArgumentTypes.player()) {
-    @Suppress("UNCHECKED_CAST")
-    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
-  }
+  fun gameMode(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.gameMode(), creator)
 
-  /**
-   * Adds a multiple players argument to the command.
-   */
-  fun multiplePlayers(
-    name: String,
-    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, DevCoreArgumentTypes.players()) {
-    @Suppress("UNCHECKED_CAST")
-    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
-  }
+  fun uuid(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.uuid(), creator)
 
-  /**
-   * Adds a single entity argument to the command.
-   */
-  fun singleEntity(
-    name: String,
-    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, DevCoreArgumentTypes.entity()) {
-    @Suppress("UNCHECKED_CAST")
-    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
-  }
+  fun namespacedKey(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.namespacedKey(), creator)
 
-  /**
-   * Adds a multiple entities argument to the command.
-   */
-  fun multipleEntities(
+  fun itemStack(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.itemStack(), creator)
+
+  fun component(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.component(), creator)
+
+  fun team(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.team(), creator)
+
+  fun objective(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.objective(), creator)
+
+  fun slot(name: String, creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}) =
+    argument(name, DevCoreArgumentTypes.slot(), creator)
+
+  fun columnBlockPos(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, DevCoreArgumentTypes.entities()) {
-    @Suppress("UNCHECKED_CAST")
-    (this as CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>).creator()
-  }
+  ) = argument(name, DevCoreArgumentTypes.columnBlockPosition(), creator)
 
   /**
    * Sets a requirement predicate for this command.
@@ -402,6 +378,9 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
       builder = builder.requires { it.sender.isOp && predicate(it) }
     }
 
+  fun requirePermissionOrOp(permission: String) =
+    requires { it.sender.isOp || it.sender.hasPermission(permission) }
+
   /**
    * Sets a permission requirement for this command.
    *
@@ -436,6 +415,16 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
       builder = builder.executes(block)
     }
 
+  infix fun executesSuspend(block: suspend (CommandContext<CommandSourceStack>) -> Int) =
+    apply {
+      builder = builder.executes { context ->
+        plugin.launch {
+          block(context)
+        }
+        Command.SINGLE_SUCCESS
+      }
+    }
+
   /**
    * Sets the execution handler for this command, limited to players only.
    *
@@ -451,6 +440,22 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
           0
         } else {
           block(player, context)
+        }
+      }
+    }
+
+  infix fun executesPlayerSuspend(block: suspend (Player, CommandContext<CommandSourceStack>) -> Int) =
+    apply {
+      builder = builder.executes { context ->
+        val player = context.source.sender as? Player
+        if (player == null) {
+          context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
+          0
+        } else {
+          plugin.launch {
+            block(player, context)
+          }
+          Command.SINGLE_SUCCESS
         }
       }
     }
@@ -474,19 +479,22 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
       }
     }
 
-  /**
-   * Adds a subcommand to this command.
-   *
-   * This is an alias for [literal] to improve readability in complex command trees.
-   *
-   * @param name the name of the subcommand
-   * @param creator the configuration block for the subcommand
-   * @return this [CommandCreator] instance for chaining
-   */
-  fun subcommand(
-    name: String,
-    creator: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit = {}
-  ) = literal(name, creator)
+  infix fun executesConsoleSuspend(block: suspend (ConsoleCommandSender, CommandContext<CommandSourceStack>) -> Int) =
+    apply {
+      builder = builder.executes { context ->
+        val console = context.source.sender as? ConsoleCommandSender
+        if (console == null) {
+          context.sendError { text("このコマンドはコンソールのみ実行可能です。") }
+          0
+        } else {
+          var result = 0
+          plugin.launch {
+            result = block(console, context)
+          }
+          result
+        }
+      }
+    }
 
   /**
    * Sends a message to the command sender using Adventure component DSL.
@@ -609,14 +617,19 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
    * This method must be called on the top-level [CommandCreator] (which should wrap a [LiteralArgumentBuilder])
    * to actually register the command with the Minecraft server.
    *
-   * @param plugin the [Plugin] instance to register the command under
+   * @param description the command description, or null if not provided
+   * @param aliases the command aliases, or empty list if not provided
    */
-  fun register(plugin: Plugin) {
+  fun register(description: String?, aliases: Collection<String>) {
     val currentBuilder = builder
     if (currentBuilder is LiteralArgumentBuilder<*>) {
       @Suppress("UNCHECKED_CAST")
       plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) {
-        it.registrar().register((currentBuilder as LiteralArgumentBuilder<CommandSourceStack>).build(), null)
+        it.registrar().register(
+          (currentBuilder as LiteralArgumentBuilder<CommandSourceStack>).build(),
+          if (description.isNullOrBlank() || description.isEmpty()) null else description,
+          aliases
+        )
       }
     } else {
       plugin.logger.warning("コマンドのトップレベルは LiteralArgumentBuilder である必要があります。")

@@ -2,13 +2,20 @@
 
 package com.peco2282.devcore.command
 
+import com.destroystokyo.paper.profile.PlayerProfile
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import com.peco2282.devcore.command.argument.AngleResolver
+import com.peco2282.devcore.command.argument.ColumnBlockPosition
+import com.peco2282.devcore.command.argument.ColumnBlockPositionResolver
 import com.peco2282.devcore.command.argument.FinePositionResolver
+import com.peco2282.devcore.command.argument.Rotation
+import com.peco2282.devcore.command.argument.RotationResolver
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver
+import io.papermc.paper.command.brigadier.argument.resolvers.PlayerProfileListResolver
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
 import org.bukkit.Location
@@ -35,12 +42,13 @@ annotation class CommandDsl
  */
 inline fun Plugin.command(
   name: String = this.name.lowercase(),
+  description: String? = null,
+  alias: Collection<String> = emptyList(),
   block: CommandCreator<LiteralArgumentBuilder<CommandSourceStack>>.() -> Unit
 ) {
   val builder = LiteralArgumentBuilder.literal<CommandSourceStack>(name)
-  val creator = CommandCreator(builder)
-  creator.block()
-  creator.register(this)
+  val creator = CommandCreator(this, builder).apply(block)
+  creator.register(description, alias)
 }
 
 /**
@@ -96,6 +104,22 @@ fun CommandContext<CommandSourceStack>.getFineLocation(name: String): Location =
  */
 fun CommandContext<CommandSourceStack>.getWorld(name: String): World =
   getArg(name)
+
+fun CommandContext<CommandSourceStack>.getRotation(name: String): Rotation =
+  getArg<RotationResolver>(name)
+    .resolve(source)
+
+fun CommandContext<CommandSourceStack>.getAngle(name: String): Float =
+  getArg<AngleResolver>(name)
+    .resolve(source)
+
+fun CommandContext<CommandSourceStack>.getColumnBlockPosition(name: String): ColumnBlockPosition =
+  getArg<ColumnBlockPositionResolver>(name)
+    .resolve(source)
+
+fun CommandContext<CommandSourceStack>.getPlayerProfiles(name: String): Collection<PlayerProfile> =
+  getArg<PlayerProfileListResolver>(name)
+    .resolve(source)
 
 /**
  * Registers a custom argument type to the DSL.
