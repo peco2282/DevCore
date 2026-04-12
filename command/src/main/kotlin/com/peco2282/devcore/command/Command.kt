@@ -59,7 +59,7 @@ object GlobalErrorHandler {
 @Suppress("UnstableApiUsage")
 @CommandDsl
 class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
-  val plugin: Plugin,
+  val plugin: Plugin?,
   var builder: T
 ) {
   /**
@@ -289,6 +289,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
 
   /**
    * Adds a fine position argument (with decimals) to the command.
+   * Equivalent to [finePos] with `centerIntegers = false`.
    */
   fun finePos(
     name: String,
@@ -337,6 +338,219 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
   ) = argument(name, DevCoreArgumentTypes.columnBlockPosition(), creator)
+
+  /**
+   * Adds a column fine position argument (2D decimal coordinates) to the command.
+   */
+  fun columnFinePos(
+    name: String,
+    centerIntegers: Boolean = false,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.columnFinePosition(centerIntegers), creator)
+
+  /**
+   * Adds a fine position argument with centerIntegers option to the command.
+   */
+  fun finePos(
+    name: String,
+    centerIntegers: Boolean,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.finePosition(centerIntegers), creator)
+
+  /**
+   * Adds an angle argument to the command.
+   */
+  fun angle(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.angle(), creator)
+
+  /**
+   * Adds an axes argument (set of X/Y/Z axes) to the command.
+   */
+  fun axes(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.axes(), creator)
+
+  /**
+   * Adds a block state argument to the command.
+   */
+  fun blockState(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.blockState(), creator)
+
+  /**
+   * Adds a block-in-world predicate argument to the command.
+   */
+  fun blockInWorldPredicate(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.blockInWorldPredicate(), creator)
+
+  /**
+   * Adds an item stack predicate argument to the command.
+   */
+  fun itemStackPredicate(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.itemStackPredicate(), creator)
+
+  /**
+   * Adds a named color argument to the command.
+   */
+  fun namedColor(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.namedColor(), creator)
+
+  /**
+   * Adds a hex color argument to the command.
+   */
+  fun hexColor(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.hexColor(), creator)
+
+  /**
+   * Adds a style argument to the command.
+   */
+  fun style(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.style(), creator)
+
+  /**
+   * Adds a signed message argument to the command.
+   */
+  fun signedMessage(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.signedMessage(), creator)
+
+  /**
+   * Adds a scoreboard display slot argument to the command.
+   */
+  fun scoreboardDisplaySlot(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.scoreboardDisplaySlot(), creator)
+
+  /**
+   * Adds a key argument to the command.
+   */
+  fun key(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.key(), creator)
+
+  /**
+   * Adds an integer range argument to the command.
+   */
+  fun integerRange(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.integerRange(), creator)
+
+  /**
+   * Adds a double range argument to the command.
+   */
+  fun doubleRange(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.doubleRange(), creator)
+
+  /**
+   * Adds a height map argument to the command.
+   */
+  fun heightMap(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.heightMap(), creator)
+
+  /**
+   * Adds an objective criteria argument to the command.
+   */
+  fun objectiveCriteria(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.objectiveCriteria(), creator)
+
+  /**
+   * Adds an entity anchor argument to the command.
+   */
+  fun entityAnchor(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.entityAnchor(), creator)
+
+  /**
+   * Adds a time argument to the command.
+   *
+   * @param minTicks the minimum allowed time in ticks
+   */
+  fun time(
+    name: String,
+    minTicks: Int = 0,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.time(minTicks), creator)
+
+  /**
+   * Adds a template mirror argument to the command.
+   */
+  fun templateMirror(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.templateMirror(), creator)
+
+  /**
+   * Adds a template rotation argument to the command.
+   */
+  fun templateRotation(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.templateRotation(), creator)
+
+  /**
+   * Adds a resource key argument to the command.
+   *
+   * @param T the type of registry entry
+   * @param registryKey the registry to use for validation
+   */
+  fun <T> resourceKey(
+    name: String,
+    registryKey: io.papermc.paper.registry.RegistryKey<T>,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.resourceKey(registryKey), creator)
+
+  /**
+   * Adds a resource argument to the command.
+   *
+   * @param T the type of registry entry
+   * @param registryKey the registry to use for lookup
+   */
+  fun <T> resource(
+    name: String,
+    registryKey: io.papermc.paper.registry.RegistryKey<T>,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.resource(registryKey), creator)
+
+  /**
+   * Adds a player profiles argument to the command.
+   */
+  fun playerProfiles(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.playerProfiles(), creator)
+
+  /**
+   * Adds a slots argument (multiple inventory slots) to the command.
+   */
+  fun slots(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.slots(), creator)
 
   /**
    * Sets a requirement predicate for this command.
@@ -418,7 +632,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   infix fun executesSuspend(block: suspend (CommandContext<CommandSourceStack>) -> Int) =
     apply {
       builder = builder.executes { context ->
-        plugin.launch {
+        plugin?.launch {
           block(context)
         }
         Command.SINGLE_SUCCESS
@@ -452,7 +666,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
           context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
           0
         } else {
-          plugin.launch {
+          plugin?.launch {
             block(player, context)
           }
           Command.SINGLE_SUCCESS
@@ -488,7 +702,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
           0
         } else {
           var result = 0
-          plugin.launch {
+          plugin?.launch {
             result = block(console, context)
           }
           result
@@ -573,7 +787,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   /**
    * Adds static suggestions for this command argument from an [Enum].
    *
-   * @param enumClass the class of the enum to suggest values from
+   * @param E the enum type whose values will be suggested (lowercase)
    * @return this [CommandCreator] instance for chaining
    */
   inline fun <reified E : Enum<E>> suggestion() =
@@ -624,7 +838,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     val currentBuilder = builder
     if (currentBuilder is LiteralArgumentBuilder<*>) {
       @Suppress("UNCHECKED_CAST")
-      plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) {
+      plugin?.lifecycleManager?.registerEventHandler(LifecycleEvents.COMMANDS) {
         it.registrar().register(
           (currentBuilder as LiteralArgumentBuilder<CommandSourceStack>).build(),
           if (description.isNullOrBlank() || description.isEmpty()) null else description,
@@ -632,7 +846,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
         )
       }
     } else {
-      plugin.logger.warning("コマンドのトップレベルは LiteralArgumentBuilder である必要があります。")
+      plugin?.logger?.warning("コマンドのトップレベルは LiteralArgumentBuilder である必要があります。")
     }
   }
 }

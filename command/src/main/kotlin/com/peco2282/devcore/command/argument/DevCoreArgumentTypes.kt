@@ -1,5 +1,8 @@
 package com.peco2282.devcore.command.argument
 
+import com.peco2282.devcore.command.CommandCreator
+import com.mojang.brigadier.arguments.ArgumentType
+import com.peco2282.devcore.util.getOrDefault
 import org.bukkit.Bukkit
 
 /**
@@ -32,7 +35,7 @@ import org.bukkit.Bukkit
  * }
  * ```
  *
- * You can also use it outside the DSL to obtain a raw [com.mojang.brigadier.arguments.ArgumentType]:
+ * You can also use it outside the DSL to obtain a raw [ArgumentType]:
  *
  * ```kotlin
  * val rotationType = DevCoreArgumentTypes.rotation()
@@ -41,32 +44,31 @@ import org.bukkit.Bukkit
  *
  * @see DevCoreArgumentTypeProvider for the full list of available argument types.
  */
-object DevCoreArgumentTypes: DevCoreArgumentTypeProvider by DevCoreArgumentTypes.getProvider() {
+object DevCoreArgumentTypes: DevCoreArgumentTypeProvider by getProvider()
 
-  /**
-   * Resolves and instantiates the version-specific [DevCoreArgumentTypeProvider] implementation.
-   *
-   * The implementation class is chosen based on the running Minecraft version string returned
-   * by [Bukkit.getMinecraftVersion]. The class is loaded reflectively so that the common API
-   * module does not need a compile-time dependency on any version-specific module.
-   *
-   * @return the [DevCoreArgumentTypeProvider] for the current server version
-   * @throws RuntimeException if the provider class cannot be found or instantiated
-   */
-  internal fun getProvider(): DevCoreArgumentTypeProvider {
-    val version = Bukkit.getMinecraftVersion()
-    val className = if (version.startsWith("1.20")) {
-      "com.peco2282.devcore.command.v1_20_6.DevCoreArgumentTypeProviderImpl"
-    } else {
-      "com.peco2282.devcore.command.v1_21_1.DevCoreArgumentTypeProviderImpl"
-    }
+/**
+ * Resolves and instantiates the version-specific [DevCoreArgumentTypeProvider] implementation.
+ *
+ * The implementation class is chosen based on the running Minecraft version string returned
+ * by [Bukkit.getMinecraftVersion]. The class is loaded reflectively so that the common API
+ * module does not need a compile-time dependency on any version-specific module.
+ *
+ * @return the [DevCoreArgumentTypeProvider] for the current server version
+ * @throws RuntimeException if the provider class cannot be found or instantiated
+ */
+internal fun getProvider(): DevCoreArgumentTypeProvider {
+  val version = getOrDefault("1.21.4") { Bukkit.getMinecraftVersion() }
+  val className = if (version.startsWith("1.20")) {
+    "com.peco2282.devcore.command.v1_20_6.DevCoreArgumentTypeProviderImpl"
+  } else {
+    "com.peco2282.devcore.command.v1_21_1.DevCoreArgumentTypeProviderImpl"
+  }
 
-    return try {
-      Class.forName(className)
-        .getDeclaredConstructor()
-        .newInstance() as DevCoreArgumentTypeProvider
-    } catch (e: Exception) {
-      throw RuntimeException("Failed to load DevCoreArgumentTypeProvider for version $version", e)
-    }
+  return try {
+    Class.forName(className)
+      .getDeclaredConstructor()
+      .newInstance() as DevCoreArgumentTypeProvider
+  } catch (e: Exception) {
+    throw RuntimeException("Failed to load DevCoreArgumentTypeProvider for version $version", e)
   }
 }
