@@ -71,3 +71,14 @@ fun Plugin.launch(
 ): Job {
   return this.scope.launch(context, block = block)
 }
+
+fun interface ThrowableGetter<T> {
+  @Throws(Throwable::class)
+  fun get(): T
+}
+
+fun <T> getOrDefault(default: T, getter: ThrowableGetter<T>): T = try {
+  getter.get()
+} catch (e: Throwable) {
+  default
+}
