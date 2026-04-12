@@ -1,6 +1,5 @@
 package com.peco2282.devcore.command.v1_21_1
 
-import com.google.common.collect.ForwardingSet
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
@@ -12,13 +11,11 @@ import com.peco2282.devcore.command.argument.*
 import com.peco2282.devcore.command.argument.ResultConverter
 import io.papermc.paper.command.brigadier.PaperCommands
 import io.papermc.paper.util.MCUtil
-import it.unimi.dsi.fastutil.ints.IntList
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.AngleArgument
 import net.minecraft.commands.arguments.ObjectiveArgument
-import net.minecraft.commands.arguments.OperationArgument
 import net.minecraft.commands.arguments.SlotArgument
 import net.minecraft.commands.arguments.SlotsArgument
 import net.minecraft.commands.arguments.TeamArgument
@@ -32,8 +29,6 @@ import org.bukkit.Axis
 import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.CraftWorld
 import org.bukkit.craftbukkit.util.CraftLocation
-import org.bukkit.scoreboard.Objective
-import org.bukkit.scoreboard.Scoreboard
 import java.util.*
 import java.util.concurrent.CompletableFuture
 

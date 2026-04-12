@@ -1,6 +1,5 @@
 package com.peco2282.devcore.command.v1_20_6
 
-import com.google.common.collect.ForwardingSet
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
@@ -14,11 +13,7 @@ import io.papermc.paper.util.MCUtil
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.AngleArgument
-import net.minecraft.commands.arguments.ObjectiveArgument
-import net.minecraft.commands.arguments.SlotArgument
-import net.minecraft.commands.arguments.SlotsArgument
-import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.commands.arguments.*
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument
 import net.minecraft.commands.arguments.coordinates.ColumnPosArgument
 import net.minecraft.commands.arguments.coordinates.RotationArgument
@@ -45,12 +40,13 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     }
 
   override fun finePosition(centerIntegers: Boolean): ArgumentType<FinePositionResolver> = wrap(
-    ColumnPosArgument.columnPos()) {
-      FinePositionResolver { sourceStack ->
-        val pos = it.getPosition(sourceStack as CommandSourceStack)
-        MCUtil.toPosition(pos)
-      }
+    ColumnPosArgument.columnPos()
+  ) {
+    FinePositionResolver { sourceStack ->
+      val pos = it.getPosition(sourceStack as CommandSourceStack)
+      MCUtil.toPosition(pos)
     }
+  }
 
   override fun columnFinePosition(centerIntegers: Boolean): ArgumentType<ColumnFinePositionResolver> = wrap(
     Vec2Argument.vec2(centerIntegers),
