@@ -7,6 +7,8 @@ dependencies {
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(libs.kotlin.test)
+  testImplementation(project(":command:v1_20_6"))
+  testImplementation(project(":command:v1_21_1"))
 }
 
 val nmsVersions = subprojects.filter { it.name.startsWith("v1_") }

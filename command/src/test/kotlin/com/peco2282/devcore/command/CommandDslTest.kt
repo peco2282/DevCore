@@ -10,7 +10,7 @@ class CommandDslTest {
   @Test
   fun testDslStructure() {
     val builder = LiteralArgumentBuilder.literal<CommandSourceStack>("test")
-    val creator = CommandCreator(builder)
+    val creator = CommandCreator(null, builder)
 
     creator.apply {
       permission("test.permission")
@@ -19,9 +19,9 @@ class CommandDslTest {
         executes { 1 }
       }
 
-      subcommand("sub") {
+      "sub" {
         integer("value", min = 1) {
-          executes { 1 }
+          executesSuspend { 1 }
         }
       }
 
