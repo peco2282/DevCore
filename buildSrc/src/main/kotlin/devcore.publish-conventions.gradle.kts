@@ -55,6 +55,7 @@ tasks.withType<PublishToMavenRepository>().configureEach {
   onlyIf {
     if (project.name.lowercase().contains("test")) return@onlyIf false
     if (project.name == "scoreboard") return@onlyIf false
+    if (project.name.startsWith("v1_")) return@onlyIf false
     val artifactIdValue = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
     val groupPath = project.group.toString().replace(".", "/")
     val remoteUrl =
