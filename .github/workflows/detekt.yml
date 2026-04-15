@@ -89,13 +89,11 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         dest=$( mktemp -d )
-        gh release download $DETEKT_RELEASE_TAG --repo detekt/detekt --pattern "detekt*" --dir "$dest"
+        gh release download $DETEKT_RELEASE_TAG --repo detekt/detekt --pattern "detekt-cli-*-all.jar" --dir "$dest"
         
-        cd "$dest"
-        actual_file=$(ls detekt*)
-        mv "$actual_file" detekt
-        
-        chmod a+x detekt
+        mv $dest/detekt-cli-*-all.jar $dest/detekt.jar
+        echo "DETEKT_JAR=$dest/detekt.jar" >> $GITHUB_ENV
+
         echo "$dest" >> $GITHUB_PATH
 
     # Performs static analysis using Detekt
