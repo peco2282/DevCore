@@ -85,15 +85,13 @@ jobs:
 
     # Sets up the detekt cli
     - name: Setup Detekt
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         dest=$( mktemp -d )
-        curl --request GET \
-          --url ${{ steps.detekt_info.outputs.download_url }} \
-          --silent \
-          --location \
-          --output $dest/detekt
-        chmod a+x $dest/detekt
-        echo $dest >> $GITHUB_PATH
+        gh release download $DETEKT_RELEASE_TAG --repo detekt/detekt --pattern "detekt" --output "$dest/detekt"
+        chmod a+x "$dest/detekt"
+        echo "$dest" >> $GITHUB_PATH
 
     # Performs static analysis using Detekt
     - name: Run Detekt
