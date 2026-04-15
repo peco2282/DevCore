@@ -170,6 +170,20 @@ player.sendFakeVisuals {
 }
 ```
 
+### entity
+
+Easy entity management, AI control, and lifecycle handling.
+[Detailed documentation](entity/README.md)
+
+```kotlin
+location.spawn<Zombie> {
+  isNoAi = true
+  onDeath(plugin) {
+    player.sendMessage("Died!")
+  }
+}
+```
+
 ### event
 
 DSL for defining Bukkit events concisely and type-safely.

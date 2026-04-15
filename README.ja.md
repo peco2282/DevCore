@@ -174,6 +174,20 @@ player.sendFakeVisuals {
 }
 ```
 
+### entity
+
+エンティティのスポーン、AI制御、ライフサイクル管理を簡単に行うためのモジュール。
+[詳細ドキュメント](entity/README.ja.md)
+
+```kotlin
+location.spawn<Zombie> {
+  isNoAi = true
+  onDeath(plugin) {
+    player.sendMessage("死亡しました！")
+  }
+}
+```
+
 ### event
 
 Bukkitイベントを簡潔かつ型安全に定義するためのDSL.
