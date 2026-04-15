@@ -204,6 +204,17 @@ Utility for particle effects and visual enhancements.
 Effects.spawnCloud(location)
 ```
 
+### util
+
+General utility module providing coroutine support, version checking, and common helpers.
+[Detailed documentation](util/README.md)
+
+```kotlin
+plugin.launch {
+  val data = fetchData()
+}
+```
+
 ### core
 
 Umbrella artifact to use all modules at once.

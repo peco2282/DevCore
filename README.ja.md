@@ -208,6 +208,17 @@ on<PlayerJoinEvent> {
 Effects.spawnCloud(location)
 ```
 
+### util
+
+コルーチンサポート、バージョンチェック、および一般的なヘルパーを提供する汎用ユーティリティ。
+[詳細ドキュメント](util/README.ja.md)
+
+```kotlin
+plugin.launch {
+  val data = fetchData()
+}
+```
+
 ### core
 
 全モジュールを一括利用するためのアンブレラアーティファクト。
