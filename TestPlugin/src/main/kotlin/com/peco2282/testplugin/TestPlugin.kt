@@ -1,5 +1,6 @@
 package com.peco2282.testplugin
 
+import com.peco2282.devcore.adventure.send
 import com.peco2282.devcore.command.command
 import com.peco2282.devcore.command.getWorld
 import com.peco2282.devcore.config.Configs
@@ -7,20 +8,15 @@ import com.peco2282.devcore.config.getConfigInstance
 import com.peco2282.devcore.config.reflection.TypeSerializers
 import com.peco2282.devcore.config.serializers.ComponentSerializer
 import com.peco2282.devcore.cooldown.Cooldowns
+import com.peco2282.devcore.entity.*
+import com.peco2282.devcore.gui.GuiListener
 import com.peco2282.devcore.gui.fill
 import com.peco2282.devcore.gui.gui
-import com.peco2282.devcore.gui.GuiListener
-import com.peco2282.devcore.scheduler.ticks
-import com.peco2282.devcore.entity.isNoAi
-import com.peco2282.devcore.entity.onDeath
-import com.peco2282.devcore.entity.onTick
-import com.peco2282.devcore.entity.removeAfter
-import com.peco2282.devcore.entity.spawn
-import com.peco2282.devcore.entity.targetNearestPlayer
 import com.peco2282.devcore.packet.EntityAnimation
 import com.peco2282.devcore.packet.Packets
 import com.peco2282.devcore.packet.onPacket
 import com.peco2282.devcore.packet.packet
+import com.peco2282.devcore.scheduler.ticks
 import com.peco2282.devcore.world.edit
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -262,14 +258,22 @@ class TestPlugin : JavaPlugin() {
           player.location.spawn<Zombie> {
             this.isNoAi = true
             this.onDeath(this@TestPlugin) {
-              player.sendMessage(Component.text("The dummy zombie died!", NamedTextColor.RED))
+              player.send {
+                text("The dummy zombie died!") {
+                  red()
+                }
+              }
             }
             this.onTick(this@TestPlugin, 20.ticks) {
               this.targetNearestPlayer(10.0)
             }
             this.removeAfter(this@TestPlugin, 60.seconds)
           }
-          player.sendMessage(Component.text("Spawned a dummy zombie with custom AI/Lifecycle!", NamedTextColor.GREEN))
+          player.send {
+            text("Spawned a dummy zombie with custom AI/Lifecycle!") {
+              green()
+            }
+          }
           1
         }
       }
