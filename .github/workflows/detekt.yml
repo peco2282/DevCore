@@ -62,15 +62,17 @@ jobs:
                     downloadUrl
                   }
                 }
-                tagCommit {
-                  oid
+                tag {
+                  target {
+                   oid
+                  }
                 }
               }
             }
           }
         ' 1> gh_response.json
 
-        DETEKT_RELEASE_SHA=$(jq --raw-output '.data.repository.release.releaseAssets.tagCommit.oid' gh_response.json)
+        DETEKT_RELEASE_SHA=$(jq --raw-output '.data.repository.release.tag.target.oid' gh_response.json)
         echo "DEBUG: Commit hash is [$DETEKT_RELEASE_SHA]"
         if [ $DETEKT_RELEASE_SHA != "046263730eb5368cb344489ac36543294e8e87bd" ]; then
           echo "Release tag doesn't match expected commit SHA"
