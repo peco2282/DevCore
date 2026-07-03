@@ -30,6 +30,7 @@ import org.bukkit.craftbukkit.util.CraftLocation
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
+@Suppress("UnstableApiUsage")
 class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   override fun columnBlockPosition(): ArgumentType<ColumnBlockPositionResolver> =
     wrap(ColumnPosArgument.columnPos()) {
