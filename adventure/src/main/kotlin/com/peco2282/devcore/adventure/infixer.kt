@@ -244,6 +244,42 @@ infix fun ComponentBuilder.withFont(font: Key): ComponentBuilder =
   styleLast(Style.style().font(font).build())
 
 /**
+ * Sets the hover text of the last component added to this ComponentBuilder.
+ */
+infix fun ComponentBuilder.withHover(text: String): ComponentBuilder =
+  styleLast(Style.style().hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(text.convert)).build())
+
+/**
+ * Sets the hover component of the last component added to this ComponentBuilder.
+ */
+infix fun ComponentBuilder.withHover(component: Component): ComponentBuilder =
+  styleLast(Style.style().hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(component)).build())
+
+/**
+ * Sets the click command of the last component added to this ComponentBuilder.
+ */
+infix fun ComponentBuilder.withCommand(command: String): ComponentBuilder =
+  styleLast(Style.style().clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(command)).build())
+
+/**
+ * Sets the suggest command of the last component added to this ComponentBuilder.
+ */
+infix fun ComponentBuilder.withSuggestion(command: String): ComponentBuilder =
+  styleLast(Style.style().clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(command)).build())
+
+/**
+ * Sets the URL of the last component added to this ComponentBuilder.
+ */
+infix fun ComponentBuilder.withUrl(url: String): ComponentBuilder =
+  styleLast(Style.style().clickEvent(net.kyori.adventure.text.event.ClickEvent.openUrl(url)).build())
+
+/**
+ * Sets the copy to clipboard text of the last component added to this ComponentBuilder.
+ */
+infix fun ComponentBuilder.withCopy(text: String): ComponentBuilder =
+  styleLast(Style.style().clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(text)).build())
+
+/**
  * Sets the font of the last component added to this ComponentBuilder using a font key string.
  */
 infix fun ComponentBuilder.withFont(font: String): ComponentBuilder =
@@ -278,3 +314,13 @@ fun ComponentBuilder.strikethrough(): ComponentBuilder =
  */
 fun ComponentBuilder.obfuscated(): ComponentBuilder =
   styleLast(Style.style(TextDecoration.OBFUSCATED))
+
+/**
+ * Applies the given styler to the last appended component.
+ * This operator allows for syntax like `+"string" { color(RED) }`.
+ *
+ * @param consumer the styling consumer
+ * @return this component builder for chaining
+ */
+operator fun ComponentBuilder.invoke(consumer: Styler.() -> Unit): ComponentBuilder = withStyle(consumer)
+

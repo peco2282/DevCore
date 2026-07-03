@@ -72,6 +72,13 @@ internal class ComponentBuilderImpl : ComponentBuilder {
     components.updateLast { it.style(style) }
   }
 
+  override fun withStyle(consumer: Styler.() -> Unit): ComponentBuilder = apply {
+    components.updateLast {
+      val style = StyleBuilder().apply(consumer).build()
+      it.style(style)
+    }
+  }
+
   override fun selector(key: String): ComponentBuilder =
     apply {
       append(Component.selector(key))
@@ -88,6 +95,16 @@ internal class ComponentBuilderImpl : ComponentBuilder {
 
   override fun space(): ComponentBuilder =
     apply { append(Component.space()) }
+
+  override fun space(count: Int): ComponentBuilder = apply {
+    repeat(count) { space() }
+  }
+
+  override fun repeat(count: Int, consumer: ComponentBuilder.(Int) -> Unit): ComponentBuilder = apply {
+    for (i in 0 until count) {
+      consumer(i)
+    }
+  }
 
   override fun text(content: String): ComponentBuilder =
     apply {

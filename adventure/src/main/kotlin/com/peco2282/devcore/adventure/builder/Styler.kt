@@ -285,6 +285,36 @@ interface Styler {
   infix fun insertion(text: String): Styler
 
   /**
+   * Applies the given style to the text.
+   *
+   * @param style the style to apply
+   * @return this Styler instance for chaining
+   */
+  fun style(style: Style): Styler = mergeStyle(style)
+
+  /**
+   * Applies the style from the given component to the text.
+   *
+   * @param component the component to get the style from
+   * @return this Styler instance for chaining
+   */
+  fun style(component: Component): Styler = mergeStyle(component)
+
+  /**
+   * Applies styling if the given value is not null.
+   *
+   * @param T the type of value
+   * @param value the value to check
+   * @param consumer the styling function to apply if value is not null
+   * @return this Styler instance for chaining
+   */
+  fun <T : Any> ifPresent(value: T?, consumer: Styler.(T) -> Unit): Styler = apply {
+    if (value != null) {
+      consumer(value)
+    }
+  }
+
+  /**
    * Applies styling conditionally when the condition is true.
    *
    * @param condition the condition to evaluate
@@ -302,6 +332,34 @@ interface Styler {
    */
   fun whenFalse(condition: Boolean, overrider: Styler.() -> Unit): Styler =
     whenTrue(!condition, overrider)
+
+  /**
+   * Applies gold color to the text.
+   *
+   * @return this Styler instance for chaining
+   */
+  fun gold(): Styler = color(NamedTextColor.GOLD)
+
+  /**
+   * Applies dark green color to the text.
+   *
+   * @return this Styler instance for chaining
+   */
+  fun darkGreen(): Styler = color(NamedTextColor.DARK_GREEN)
+
+  /**
+   * Applies dark red color to the text.
+   *
+   * @return this Styler instance for chaining
+   */
+  fun darkRed(): Styler = color(NamedTextColor.DARK_RED)
+
+  /**
+   * Applies dark aqua color to the text.
+   *
+   * @return this Styler instance for chaining
+   */
+  fun darkAqua(): Styler = color(NamedTextColor.DARK_AQUA)
 
   /**
    * Applies red color to the text.
@@ -381,6 +439,13 @@ interface Styler {
   fun white(): Styler = color(NamedTextColor.WHITE)
 
   /**
+   * Applies light purple color to the text.
+   *
+   * @return this Styler instance for chaining
+   */
+  fun lightPurple(): Styler = color(NamedTextColor.LIGHT_PURPLE)
+
+  /**
    * Applies black color to the text.
    *
    * @return this Styler instance for chaining
@@ -421,6 +486,24 @@ interface Styler {
    * @return this Styler instance for chaining
    */
   fun underline(): Styler = decoration(TextDecoration.UNDERLINED)
+
+  /**
+   * Toggles a text decoration.
+   *
+   * @param decoration the decoration to toggle
+   * @param state the state to set
+   * @return this Styler instance for chaining
+   */
+  fun decoration(decoration: TextDecoration, state: Boolean): Styler
+
+  /**
+   * Toggles a text decoration.
+   *
+   * @param decoration the decoration to toggle
+   * @param state the state to set
+   * @return this Styler instance for chaining
+   */
+  fun decoration(decoration: TextDecoration, state: TextDecoration.State): Styler
 
   /**
    * Removes obfuscated text decoration.

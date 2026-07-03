@@ -108,6 +108,12 @@ internal class StyleBuilder @PublishedApi internal constructor() : Styler {
   ): Styler =
     apply { if (condition) mergeStyle(style(overrider)) }
 
+  override fun decoration(decoration: TextDecoration, state: Boolean): StyleBuilder =
+    apply { builder = builder.decoration(decoration, state) }
+
+  override fun decoration(decoration: TextDecoration, state: TextDecoration.State): StyleBuilder =
+    apply { builder = builder.decoration(decoration, state) }
+
   override fun noObfuscated(): Styler =
     apply { builder = builder.decoration(TextDecoration.OBFUSCATED, false) }
 

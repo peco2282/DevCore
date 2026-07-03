@@ -19,6 +19,13 @@ import org.jetbrains.annotations.ApiStatus
 @ComponentDsl
 interface ComponentBuilder {
   /**
+   * Appends an empty component.
+   *
+   * @return this component builder for chaining
+   */
+  fun empty(): ComponentBuilder = append(Component.empty())
+
+  /**
    * Appends a MiniMessage string content to this component builder with optional tag resolvers.
    *
    * @param content the MiniMessage string content
@@ -142,6 +149,19 @@ interface ComponentBuilder {
    * @return this component builder for chaining
    */
   fun whenFalse(condition: Boolean, consumer: ComponentBuilder.() -> Unit): ComponentBuilder = whenTrue(!condition, consumer)
+
+  /**
+   * Conditionally applies one of two consumer lambdas to this component builder based on a predicate result.
+   * Evaluates the predicate function and applies the ifTrue consumer if the result is true,
+   * or the ifFalse consumer if the result is false.
+   *
+   * @param predicate the function that returns a boolean to determine which consumer to apply
+   * @param ifTrue the consumer lambda that operates on a component builder, executed when predicate returns true
+   * @param ifFalse the consumer lambda that operates on a component builder, executed when predicate returns false
+   * @return this component builder for chaining
+   */
+
+  fun compute(predicate: () -> Boolean, ifTrue: ComponentBuilder.() -> Unit, ifFalse: ComponentBuilder.() -> Unit): ComponentBuilder = if (predicate()) apply(ifTrue) else apply(ifFalse)
 
   /**
    * Appends a text component with the specified string content.
@@ -366,8 +386,15 @@ interface ComponentBuilder {
   operator fun Component.unaryPlus(): ComponentBuilder = this@ComponentBuilder.append(this)
 
   /**
-   * Applies a style to the most recently appended component in this component builder.
-   * This allows retroactive styling of the last added component.
+   * Operator function that returns this component builder.
+   * This is useful for syntax like `+"string" { style }`.
+   *
+   * @return this component builder for chaining
+   */
+  operator fun unaryPlus(): ComponentBuilder = this
+
+  /**
+   * Retroactively applies a styling consumer to the most recently appended component.
    *
    * @param style the style to apply to the last component
    * @return this component builder for chaining
@@ -418,6 +445,27 @@ interface ComponentBuilder {
   fun space(): ComponentBuilder
 
   /**
+   * Appends specified number of space components.
+   *
+   * @param count the number of spaces to append
+   * @return this component builder for chaining
+   */
+  fun space(count: Int): ComponentBuilder = apply { repeat(count) { space() } }
+
+  /**
+   * Repeats the given action specified number of times.
+   *
+   * @param count the number of times to repeat
+   * @param consumer the action to repeat
+   * @return this component builder for chaining
+   */
+  fun repeat(count: Int, consumer: ComponentBuilder.(Int) -> Unit): ComponentBuilder = apply {
+    for (i in 0 until count) {
+      consumer(i)
+    }
+  }
+
+  /**
    * Appends a tab component to this component builder.
    *
    * @return this component builder for chaining
@@ -443,6 +491,117 @@ interface ComponentBuilder {
    * @return this component builder for chaining
    */
   fun <T> forEach(iterable: Iterable<T>, action: ComponentBuilder.(T) -> Unit): ComponentBuilder
+  fun <T> forEach(array: Array<T>, action: ComponentBuilder.(T) -> Unit): ComponentBuilder = forEach(array.toList(), action)
+
+  /**
+   * Appends a text component that shows the given text when hovered.
+   *
+   * @param text the text content to append
+   * @param hover the text to show when the player hovers over this component
+   * @return this component builder for chaining
+   */
+  fun textWithHover(text: String, hover: String): ComponentBuilder = text(text) { showText(hover) }
+
+  /**
+   * Appends a text component that shows the given component when hovered.
+   *
+   * @param text the text content to append
+   * @param hover the component to show when the player hovers over this component
+   * @return this component builder for chaining
+   */
+  fun textWithHover(text: String, hover: Component): ComponentBuilder = text(text) { showText(hover) }
+
+  /**
+   * Appends a text component that opens the given URL when clicked.
+   *
+   * @param text the text content to append
+   * @param url the URL to open when clicked
+   * @return this component builder for chaining
+   */
+  fun textWithUrl(text: String, url: String): ComponentBuilder = text(text) { openUrl(url) }
+
+  /**
+   * Appends a text component that runs the given command when clicked.
+   *
+   * @param text the text content to append
+   * @param command the command to run when clicked
+   * @return this component builder for chaining
+   */
+  fun textWithCommand(text: String, command: String): ComponentBuilder = text(text) { runCommand(command) }
+
+  /**
+   * Appends a text component that suggests the given command when clicked.
+   *
+   * @param text the text content to append
+   * @param command the command to suggest when clicked
+   * @return this component builder for chaining
+   */
+  fun textWithSuggestion(text: String, command: String): ComponentBuilder = text(text) { suggestCommand(command) }
+
+  /**
+   * Appends a text component that copies the given text to the clipboard when clicked.
+   *
+   * @param text the text content to append
+   * @param copy the text to copy to the clipboard
+   * @return this component builder for chaining
+   */
+  fun textWithCopy(text: String, copy: String): ComponentBuilder = text(text) { copyToClipboard(copy) }
+
+  /**
+   * Applies the given styler to the last appended component.
+   */
+  operator fun (Styler.() -> Unit).invoke(): ComponentBuilder = withStyle(this)
+
+  /**
+   * Applies the given styler to the last appended component.
+   * This operator allows for syntax like `+"string" { color(RED) }`.
+   *
+   * @param consumer the styling consumer
+   * @return this component builder for chaining
+   */
+  operator fun String.invoke(consumer: Styler.() -> Unit): ComponentBuilder = this@ComponentBuilder.append(this).withStyle(consumer)
+
+  /**
+   * Applies the given styler to the last appended component.
+   * This operator allows for syntax like `+"string" { color(RED) }`.
+   *
+   * @param consumer the styling consumer
+   * @return this component builder for chaining
+   */
+  operator fun Component.invoke(consumer: Styler.() -> Unit): ComponentBuilder = this@ComponentBuilder.append(this).withStyle(consumer)
+
+  /**
+   * Applies the given styler to the last appended component.
+   * This operator allows for syntax like `+"string" { color(RED) }`.
+   *
+   * @param consumer the styling consumer
+   * @return this component builder for chaining
+   */
+  fun withStyle(consumer: Styler.() -> Unit): ComponentBuilder
+
+//  /**
+//   * Applies the given styler to the last appended component.
+//   * This operator allows for syntax like `+"string" { color(RED) }`.
+//   *
+//   * @param consumer the styling consumer
+//   * @return this component builder for chaining
+//   */
+//  operator fun invoke(consumer: Styler.() -> Unit): ComponentBuilder = withStyle(consumer)
+  /// Moved to [com.peco2282.devcore.adventure.infixer.kt]
+
+  /**
+   * Applies styling if the given value is not null.
+   *
+   * @param T the type of value
+   * @param value the value to check
+   * @param consumer the action to apply if value is not null
+   * @return this component builder for chaining
+   */
+  fun <T : Any> ifPresent(value: T?, consumer: ComponentBuilder.(T) -> Unit): ComponentBuilder = apply {
+    if (value != null) {
+      consumer(value)
+    }
+  }
 
   /**
    * Extension property to append this string directly to the component builder.
