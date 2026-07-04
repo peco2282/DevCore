@@ -12,7 +12,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.command.argument.*
 import io.papermc.paper.command.brigadier.PaperCommands
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
-import io.papermc.paper.command.brigadier.argument.CustomArgumentType
 import io.papermc.paper.util.MCUtil
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
@@ -37,6 +36,12 @@ import java.util.concurrent.CompletableFuture
 
 @Suppress("UnstableApiUsage")
 class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
+  companion object {
+    val TYPE = Dynamic2CommandExceptionType { key, value ->
+      LiteralMessage("Unknown $key : `$value`")
+    }
+  }
+
   override fun columnBlockPosition(): ArgumentType<ColumnBlockPositionResolver> = this.wrap(
     ColumnPosArgument.columnPos(),
     "Column Block Position"
@@ -169,8 +174,10 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     override fun getExamples(): Collection<String> = EXAMPLES
   }
 
-  private fun <B : Any, C : Any> wrap(type: ArgumentType<B>, key: String, converter: ResultConverter<B, C>): ArgumentType<C> =
-    DevCoreArgumentType(type, key, converter)
+  private fun <B : Any, C : Any> wrap(type: ArgumentType<B>, key: String, converter: (B) -> C?): ArgumentType<C> =
+    NativeWrapperFactory.wrap(type) {
+      converter(it) ?: throw TYPE.create(key, it)
+    }
 
   override fun team(): TeamArgumentType {
     return wrap(
@@ -228,44 +235,5 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun duration(): TimeDurationArgumentType =
     wrap(ArgumentTypes.time(0), "Duration") { Duration.ofMillis(it.toLong() * 50) }
-
-
-  /**
-   * Internal wrapper class for argument types that converts between types.
-   *
-   * This class wraps a Brigadier [ArgumentType] and applies a [ResultConverter] to transform
-   * the parsed result from type [B] to type [C].
-   *
-   * @param B The base type produced by the wrapped argument type
-   * @param C The converted type that this argument type produces
-   * @param argType The underlying Brigadier argument type to wrap
-   * @param converter The converter to transform results from type B to type C
-   */
-  class DevCoreArgumentType<B: Any, C : Any>(
-    val argType: ArgumentType<B>,
-    val key: String,
-    val converter: ResultConverter<B, C>,
-  ) : ArgumentType<C>, CustomArgumentType.Converted<C, B> {
-    companion object {
-      val TYPE = Dynamic2CommandExceptionType { key, id ->
-        LiteralMessage("Unknown $key `$id`")
-      }
-    }
-
-    @Throws(CommandSyntaxException::class)
-    override fun <S> parse(reader: StringReader, source: S): C = argType.parse(reader, source).let {
-      converter.convert(it) ?: throw TYPE.createWithContext(reader, key, it)
-    }
-
-    @Throws(CommandSyntaxException::class)
-    override fun convert(nativeType: B): C = converter.convert(nativeType) ?: throw TYPE.create(key, nativeType)
-
-    override fun getNativeType(): ArgumentType<B> = argType
-
-    override fun <S : Any> listSuggestions(
-      context: CommandContext<S>,
-      builder: SuggestionsBuilder
-    ): CompletableFuture<Suggestions> = argType.listSuggestions(context, builder)
-  }
 }
 

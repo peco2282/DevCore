@@ -12,7 +12,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.command.argument.*
 import io.papermc.paper.command.brigadier.PaperCommands
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
-import io.papermc.paper.command.brigadier.argument.CustomArgumentType
 import io.papermc.paper.util.MCUtil
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
@@ -40,6 +39,12 @@ import java.util.concurrent.CompletableFuture
 
 @Suppress("UnstableApiUsage")
 class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
+  companion object {
+    val TYPE = Dynamic2CommandExceptionType { key, value ->
+      LiteralMessage("Unknown $key : `$value`")
+    }
+  }
+
   override fun columnBlockPosition(): ArgumentType<ColumnBlockPositionResolver> =
     wrap(ColumnPosArgument.columnPos(), "Column Block Pos") {
       ColumnBlockPositionResolver { sourceStack ->
@@ -173,8 +178,10 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   private fun <T : Any, R : Any> wrap(
     argumentType: ArgumentType<T>,
     key: String,
-    resultConverter: (T) -> R
-  ): ArgumentType<R> = DevCoreArgumentType(argumentType, key, resultConverter)
+    result: (T) -> R?
+  ): ArgumentType<R> = NativeWrapperFactory.wrap(argumentType) {
+    result(it) ?: throw TYPE.create(key, it)
+  }
 
 
   override fun team(): TeamArgumentType {
@@ -182,7 +189,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
       TeamArgument.team(),
       "Team"
     ) {
-      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)!!
+      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)
     }
   }
 
@@ -204,7 +211,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     ObjectiveArgument.objective(),
     "Objective"
   ) {
-    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)!!
+    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)
   }
 
   override fun material(): MaterialArgumentType = wrap(
@@ -213,48 +220,23 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   ) {
     val key = NamespacedKey.fromString(it.item.toString())
       ?: NamespacedKey.minecraft(it.item.toString())
-    Material.matchMaterial(key.toString())!!
+    Material.matchMaterial(key.toString())
   }
 
   override fun advancement(): AdvancementArgumentType = wrap(
     ArgumentTypes.namespacedKey(),
     "Advancement"
   ) {
-    Bukkit.getAdvancement(it)!!
+    Bukkit.getAdvancement(it)
   }
 
   override fun lootTable(): LootTableArgumentType = wrap(
     ArgumentTypes.namespacedKey(),
     "Loot Table"
   ) {
-    Bukkit.getLootTable(it)!!
+    Bukkit.getLootTable(it)
   }
 
   override fun duration(): TimeDurationArgumentType =
     wrap(ArgumentTypes.time(0), "Duration") { Duration.ofMillis(it.toLong() * 50) }
-
-  @Suppress("UnstableApiUsage")
-  internal open class DevCoreArgumentType<B : Any, C : Any>(
-    val argType: ArgumentType<B>,
-    val key: String,
-    val converter: ResultConverter<B, C>,
-  ) : ArgumentType<C>, CustomArgumentType.Converted<C, B> {
-    companion object {
-      val TYPE = Dynamic2CommandExceptionType { key, id ->
-        LiteralMessage("Unknown $key `$id`")
-      }
-    }
-
-    @Throws(CommandSyntaxException::class)
-    override fun convert(nativeType: B): C = converter.convert(nativeType) ?: throw TYPE.create(key, nativeType)
-
-    override fun getNativeType(): ArgumentType<B> = argType
-
-    override fun getExamples(): Collection<String> = argType.examples
-
-    override fun <S : Any> listSuggestions(
-      context: CommandContext<S>,
-      builder: SuggestionsBuilder,
-    ): CompletableFuture<Suggestions> = argType.listSuggestions(context, builder)
-  }
 }

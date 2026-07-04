@@ -337,23 +337,3 @@ typealias TimeDurationArgumentType = ArgumentType<Duration>
  * An [ArgumentType] that resolves a [NamespacedKey] from a command argument.
  */
 typealias NamespacedKeyArgumentType = ArgumentType<NamespacedKey?>
-
-/**
- * A functional interface for converting a value of type [T] to type [R].
- *
- * This is used internally by [DevCoreArgumentType] to transform parsed argument values.
- *
- * @param T the input type
- * @param R the output type
- */
-fun interface ResultConverter<T, R> {
-  /**
-   * Converts a value of type [T] to type [R].
-   *
-   * @param var1 the value to convert
-   * @return the converted value
-   * @throws CommandSyntaxException if the conversion fails due to invalid input
-   */
-  @Throws(CommandSyntaxException::class)
-  fun convert(var1: T): R?
-}
