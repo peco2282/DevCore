@@ -61,6 +61,21 @@ interface ComponentBuilder {
   infix fun append(component: Component): ComponentBuilder
 
   /**
+   * Appends any value to this component builder with automatic type conversion.
+   * String values are appended as text components, Component values are appended directly,
+   * and other types are converted to strings via toString() before appending.
+   * Null values are converted to empty strings.
+   *
+   * @param any the value to append (can be String, Component, or any other type including null)
+   * @return this component builder for chaining
+   */
+  infix fun append(any: Any?): ComponentBuilder = when (any) {
+    is String -> append(any)
+    is Component -> append(any)
+    else -> append(any?.toString() ?: "")
+  }
+
+  /**
    * Creates a new component builder scope with the given consumer.
    *
    * @param consumer the consumer lambda that operates on a component builder
@@ -377,6 +392,16 @@ interface ComponentBuilder {
    * @return this component builder for chaining
    */
   operator fun String.unaryPlus(): ComponentBuilder = this@ComponentBuilder.append(this)
+
+  /**
+   * Operator function to append any value to this component builder using the unary + operator.
+   * Accepts nullable values of any type and converts them to components appropriately.
+   * String values are appended as text components, Component values are appended directly,
+   * and other types are converted to strings via toString() before appending.
+   *
+   * @return this component builder for chaining
+   */
+  operator fun Any?.unaryPlus(): ComponentBuilder = this@ComponentBuilder.append(this)
 
   /**
    * Operator function to append a component to this component builder using the unary + operator.
