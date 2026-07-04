@@ -55,6 +55,7 @@ import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Objective
 import org.bukkit.scoreboard.Team
+import java.time.Duration
 import java.util.UUID
 
 /**
@@ -372,4 +373,10 @@ fun CommandContext<CommandSourceStack>.getParticle(name: String): Particle? =
  * Retrieves an attribute from the command context.
  */
 fun CommandContext<CommandSourceStack>.getAttribute(name: String): Attribute? =
+  getArg(name)
+
+/**
+ * Retrieves a duration from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getDuration(name: String): Duration =
   getArg(name)
