@@ -1,8 +1,8 @@
 package com.peco2282.testplugin
 
 import com.peco2282.devcore.adventure.send
-import com.peco2282.devcore.command.command
-import com.peco2282.devcore.command.getWorld
+import com.peco2282.devcore.adventure.text
+import com.peco2282.devcore.command.*
 import com.peco2282.devcore.config.Configs
 import com.peco2282.devcore.config.getConfigInstance
 import com.peco2282.devcore.config.reflection.TypeSerializers
@@ -275,6 +275,74 @@ class TestPlugin : JavaPlugin() {
             }
           }
           1
+        }
+      }
+
+      literal("argument") {
+        literal("team") {
+          team("teamName") {
+            executesPlayer { player, ctx ->
+              val team = ctx.getTeam("teamName")
+              player.sendMessage("Selected team: ${team?.name}")
+              1
+            }
+          }
+        }
+        literal("player") {
+          player("target") {
+            executesPlayer { player, ctx ->
+              val target = ctx.getPlayer("target")
+              player.sendMessage("Selected player: ${target?.name}")
+              1
+            }
+          }
+        }
+        literal("integer") {
+          integer("value", min = 0, max = 100) {
+            executesPlayer { player, ctx ->
+              val value = ctx.getArg<Int>("value")
+              player.sendMessage("Selected value: $value")
+              1
+            }
+          }
+        }
+        literal("item") {
+          itemStack("item") {
+            executesPlayer { player, ctx ->
+              val item = ctx.getItemStack("item")
+              player.inventory.addItem(item)
+              player.sendMessage(Component.text("Gave you: ").append(item.displayName()))
+              1
+            }
+          }
+        }
+        literal("gamemode") {
+          gameMode("mode") {
+            executesPlayer { player, ctx ->
+              val mode = ctx.getGameMode("mode")
+              player.gameMode = mode
+              player.sendMessage("Set gamemode to: $mode")
+              1
+            }
+          }
+        }
+        literal("blockpos") {
+          blockPos("pos") {
+            executesPlayer { player, ctx ->
+              val pos = ctx.getLocation("pos")
+              player.sendMessage("Selected block position: ${pos.blockX}, ${pos.blockY}, ${pos.blockZ}")
+              1
+            }
+          }
+        }
+        literal("color") {
+          namedColor("color") {
+            executesPlayer { player, ctx ->
+              val color = ctx.getNamedColor("color")
+              player.sendMessage(Component.text("Selected color: $color").color(color))
+              1
+            }
+          }
         }
       }
     }
