@@ -344,6 +344,15 @@ class TestPlugin : JavaPlugin() {
             }
           }
         }
+        literal("advancement") {
+          advancement("advancement") {
+            executesPlayer { player, ctx ->
+              val advancement = ctx.getAdvancement("advancement")
+              player.sendMessage("Selected advancement: ${advancement?.display?.title()?.text}")
+              1
+            }
+          }
+        }
       }
     }
   }

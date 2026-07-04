@@ -224,19 +224,19 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   }
 
   override fun advancement(): AdvancementArgumentType = wrap(
-    ArgumentTypes.namespacedKey(),
+    ResourceLocationArgument.id(),
     "Advancement"
   ) {
-    Bukkit.getAdvancement(it)
+    Bukkit.getAdvancement(NamespacedKey.fromString(it.toString())!!)
   }
 
   override fun lootTable(): LootTableArgumentType = wrap(
-    ArgumentTypes.namespacedKey(),
+    ResourceLocationArgument.id(),
     "Loot Table"
   ) {
-    Bukkit.getLootTable(it)
+    Bukkit.getLootTable(NamespacedKey.fromString(it.toString())!!)
   }
 
   override fun duration(): TimeDurationArgumentType =
-    wrap(ArgumentTypes.time(0), "Duration") { Duration.ofMillis(it.toLong() * 50) }
+    wrap(TimeArgument.time(), "Duration") { Duration.ofMillis(it.toLong() * 50) }
 }
