@@ -1,6 +1,5 @@
 package com.peco2282.devcore.command.argument
 
-import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.arguments.DoubleArgumentType
@@ -8,11 +7,6 @@ import com.mojang.brigadier.arguments.FloatArgumentType
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.LongArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.Suggestions
-import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import com.peco2282.devcore.util.DevCoreInternal
-import io.papermc.paper.command.brigadier.argument.CustomArgumentType
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.SignedMessageResolver
 import io.papermc.paper.command.brigadier.argument.predicate.ItemStackPredicate
@@ -41,7 +35,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 import java.util.*
-import java.util.concurrent.CompletableFuture
 
 /**
  * Provider interface for creating various Brigadier argument types used in DevCore commands.
@@ -540,37 +533,4 @@ interface DevCoreArgumentTypeProvider {
    */
   fun <T> resource(registryKey: RegistryKey<T>): ArgumentType<T> = ArgumentTypes.resource(registryKey)
   // Bukkit & Paper Argument-types: end
-}
-
-/**
- * Internal wrapper class for argument types that converts between types.
- * 
- * This class wraps a Brigadier [ArgumentType] and applies a [ResultConverter] to transform
- * the parsed result from type [B] to type [C].
- * 
- * @param B The base type produced by the wrapped argument type
- * @param C The converted type that this argument type produces
- * @param argType The underlying Brigadier argument type to wrap
- * @param converter The converter to transform results from type B to type C
- */
-@DevCoreInternal
-open class DevCoreArgumentType<B: Any, C : Any>(val argType: ArgumentType<B>, val converter: ResultConverter<B, C>) :
-  ArgumentType<C>, CustomArgumentType.Converted<C, B> {
-  override fun parse(reader: StringReader): C {
-    return convert(argType.parse(reader))
-  }
-
-  override fun convert(nativeType: B): C {
-    return converter.convert(nativeType)
-  }
-
-  override fun getNativeType(): ArgumentType<B> = argType
-
-  override fun getExamples(): Collection<String> = argType.examples
-  override fun <S : Any> listSuggestions(
-    context: CommandContext<S>,
-    builder: SuggestionsBuilder
-  ): CompletableFuture<Suggestions> {
-    return argType.listSuggestions(context, builder)
-  }
 }

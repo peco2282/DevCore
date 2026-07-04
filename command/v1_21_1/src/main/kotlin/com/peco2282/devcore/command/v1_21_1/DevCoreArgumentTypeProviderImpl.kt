@@ -1,9 +1,11 @@
 package com.peco2282.devcore.command.v1_21_1
 
+import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
@@ -36,7 +38,8 @@ import java.util.concurrent.CompletableFuture
 @Suppress("UnstableApiUsage")
 class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   override fun columnBlockPosition(): ArgumentType<ColumnBlockPositionResolver> = this.wrap(
-    ColumnPosArgument.columnPos()
+    ColumnPosArgument.columnPos(),
+    "Column Block Position"
   ) {
     ColumnBlockPositionResolver { sourceStack ->
       val pos = it.getBlockPos(sourceStack as CommandSourceStack)
@@ -46,6 +49,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun finePosition(centerIntegers: Boolean): ArgumentType<FinePositionResolver> = wrap(
     Vec3Argument.vec3(centerIntegers),
+    "Fine Position"
   ) {
     FinePositionResolver { sourceStack ->
       val vec3: Vec3 = it.getPosition(sourceStack as CommandSourceStack)
@@ -55,6 +59,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun columnFinePosition(centerIntegers: Boolean): ArgumentType<ColumnFinePositionResolver> = wrap(
     Vec2Argument.vec2(centerIntegers),
+    "Column Fine Position"
   ) {
     ColumnFinePositionResolver { sourceStack ->
       val vec2: Vec3 = it.getPosition(sourceStack as CommandSourceStack)
@@ -64,6 +69,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun rotation(): ArgumentType<RotationResolver> = wrap(
     RotationArgument.rotation(),
+    "Rotation"
   ) {
     RotationResolver { sourceStack ->
       val vec2: Vec2 = it.getRotation(sourceStack as CommandSourceStack)
@@ -73,6 +79,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun angle(): ArgumentType<AngleResolver> = wrap(
     AngleArgument.angle(),
+    "Angle"
   ) {
     AngleResolver { sourceStack ->
       it.getAngle(sourceStack as CommandSourceStack)
@@ -81,6 +88,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun axes(): ArgumentType<AxisSet> = wrap(
     SwizzleArgument.swizzle(),
+    "Axes"
   ) {
     val bukkitAxes = EnumSet.noneOf(Axis::class.java)
     for (nmsAxis in it) {
@@ -92,6 +100,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
 
   override fun blockInWorldPredicate(): ArgumentType<BlockInWorldPredicate> = wrap(
     BlockPredicateArgument.blockPredicate(PaperCommands.INSTANCE.buildContext),
+    "Block In World Predicate"
   ) {
     BlockInWorldPredicate { block, loadChunk ->
       val blockInWorld = BlockInWorld(
@@ -108,7 +117,8 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   }
 
   override fun hexColor(): ArgumentType<TextColor> = wrap(
-    HexColorArgument.hexColor()
+    HexColorArgument.hexColor(),
+    "Hex Color"
   ) { TextColor.color(it) }
 
   private class HexColorArgument : ArgumentType<Int> {
@@ -159,62 +169,103 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     override fun getExamples(): Collection<String> = EXAMPLES
   }
 
-  private fun <B : Any, C : Any> wrap(type: ArgumentType<B>, converter: ResultConverter<B, C>): ArgumentType<C> =
-    DevCoreArgumentType1(type, converter)
+  private fun <B : Any, C : Any> wrap(type: ArgumentType<B>, key: String, converter: ResultConverter<B, C>): ArgumentType<C> =
+    DevCoreArgumentType(type, key, converter)
 
   override fun team(): TeamArgumentType {
     return wrap(
-      TeamArgument.team()
+      TeamArgument.team(),
+      "team"
     ) {
-      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)!!
+      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)
     }
   }
 
   override fun slot(): SlotArgumentType = wrap(
-    SlotArgument.slot()
+    SlotArgument.slot(),
+    "Slot"
   ) {
     it
   }
 
   override fun slots(): SlotsArgumentType = wrap(
-    SlotsArgument.slots()
+    SlotsArgument.slots(),
+    "Slots"
   ) {
     Impl.SlotRangeImpl(it.serializedName, it.slots())
 
   }
 
   override fun objective(): ObjectiveArgumentType = wrap(
-    ObjectiveArgument.objective()
+    ObjectiveArgument.objective(),
+    "Objective"
   ) {
-    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)!!
+    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)
   }
 
   override fun material(): MaterialArgumentType = wrap(
-    ItemArgument.item(PaperCommands.INSTANCE.buildContext)
+    ItemArgument.item(PaperCommands.INSTANCE.buildContext),
+    "Material"
   ) {
     val key = NamespacedKey.fromString(it.item.toString())
       ?: NamespacedKey.minecraft(it.item.toString())
-    Material.matchMaterial(key.toString())!!
+    Material.matchMaterial(key.toString())
   }
 
   override fun advancement(): AdvancementArgumentType = wrap(
-    ArgumentTypes.namespacedKey()
+    ArgumentTypes.namespacedKey(),
+    "Advancement"
   ) {
-    Bukkit.getAdvancement(it)!!
+    Bukkit.getAdvancement(it)
   }
 
   override fun lootTable(): LootTableArgumentType = wrap(
-    ArgumentTypes.namespacedKey()
+    ArgumentTypes.namespacedKey(),
+    "Loot Table"
   ) {
-    Bukkit.getLootTable(it)!!
+    Bukkit.getLootTable(it)
   }
 
   override fun duration(): TimeDurationArgumentType =
-    wrap(ArgumentTypes.time(0)) { Duration.ofMillis(it.toLong() * 50) }
+    wrap(ArgumentTypes.time(0), "Duration") { Duration.ofMillis(it.toLong() * 50) }
 
-  internal class DevCoreArgumentType1<B : Any, C : Any>(argType: ArgumentType<B>, converter: ResultConverter<B, C>) :
-    DevCoreArgumentType<B, C>(argType, converter), CustomArgumentType.Converted<C, B> {
-    override fun <S> parse(reader: StringReader, source: S): C = super.convert(argType.parse(reader, source))
+
+  /**
+   * Internal wrapper class for argument types that converts between types.
+   *
+   * This class wraps a Brigadier [ArgumentType] and applies a [ResultConverter] to transform
+   * the parsed result from type [B] to type [C].
+   *
+   * @param B The base type produced by the wrapped argument type
+   * @param C The converted type that this argument type produces
+   * @param argType The underlying Brigadier argument type to wrap
+   * @param converter The converter to transform results from type B to type C
+   */
+  class DevCoreArgumentType<B: Any, C : Any>(
+    val argType: ArgumentType<B>,
+    val key: String,
+    val converter: ResultConverter<B, C>,
+  ) : ArgumentType<C>, CustomArgumentType.Converted<C, B> {
+    companion object {
+      val TYPE = Dynamic2CommandExceptionType { key, id ->
+        LiteralMessage("Unknown $key `$id`")
+      }
+    }
+
+    @Throws(CommandSyntaxException::class)
+    override fun <S> parse(reader: StringReader, source: S): C = argType.parse(reader, source).let {
+      converter.convert(it) ?: throw TYPE.createWithContext(reader, key, it)
+    }
+
+    @Throws(CommandSyntaxException::class)
+    override fun convert(nativeType: B): C = converter.convert(nativeType) ?: throw TYPE.create(key, nativeType)
+
+    override fun getNativeType(): ArgumentType<B> = argType
+
+    override fun <S : Any> listSuggestions(
+      context: CommandContext<S>,
+      builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> = argType.listSuggestions(context, builder)
   }
 }
 

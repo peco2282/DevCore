@@ -355,5 +355,5 @@ fun interface ResultConverter<T, R> {
    * @throws CommandSyntaxException if the conversion fails due to invalid input
    */
   @Throws(CommandSyntaxException::class)
-  fun convert(var1: T): R & Any
+  fun convert(var1: T): R?
 }
