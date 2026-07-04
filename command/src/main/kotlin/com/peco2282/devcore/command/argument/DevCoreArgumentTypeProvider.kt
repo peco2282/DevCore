@@ -12,6 +12,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.util.DevCoreInternal
+import io.papermc.paper.command.brigadier.argument.CustomArgumentType
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.SignedMessageResolver
 import io.papermc.paper.command.brigadier.argument.predicate.ItemStackPredicate
@@ -48,6 +49,7 @@ import java.util.concurrent.CompletableFuture
  * This interface provides factory methods for creating argument types from Brigadier,
  * Minecraft, Bukkit, and Paper APIs, allowing for easy command argument definition.
  */
+@Suppress("UnstableApiUsage")
 interface DevCoreArgumentTypeProvider {
   // Bridger Argument-types: start
 
@@ -370,7 +372,7 @@ interface DevCoreArgumentTypeProvider {
    * 
    * @return An [ArgumentType] that resolves to a namespaced key
    */
-  fun namespacedKey(): ArgumentType<NamespacedKey> = ArgumentTypes.namespacedKey()
+  fun namespacedKey(): NamespacedKeyArgumentType = ArgumentTypes.namespacedKey()
 
   /**
    * Creates a key argument type for Adventure resource identifiers.
@@ -458,6 +460,69 @@ interface DevCoreArgumentTypeProvider {
   fun templateRotation(): ArgumentType<StructureRotation> = ArgumentTypes.templateRotation()
 
   /**
+   * Creates an enchantment argument type.
+   *
+   * @return An [ArgumentType] that resolves to an enchantment
+   */
+  fun enchantment(): EnchantmentArgumentType = ArgumentTypes.resource(RegistryKey.ENCHANTMENT)
+
+  /**
+   * Creates a potion effect type argument type.
+   *
+   * @return An [ArgumentType] that resolves to a potion effect type
+   */
+  fun potionEffectType(): PotionEffectTypeArgumentType = ArgumentTypes.resource(RegistryKey.MOB_EFFECT)
+
+  /**
+   * Creates a material argument type.
+   *
+   * @return An [ArgumentType] that resolves to a material
+   */
+  fun material(): MaterialArgumentType
+
+  /**
+   * Creates a particle argument type.
+   *
+   * @return An [ArgumentType] that resolves to a particle
+   */
+  fun particle(): ParticleArgumentType = ArgumentTypes.resource(RegistryKey.PARTICLE_TYPE)
+
+  /**
+   * Creates an attribute argument type.
+   *
+   * @return An [ArgumentType] that resolves to an attribute
+   */
+  fun attribute(): AttributeArgumentType = ArgumentTypes.resource(RegistryKey.ATTRIBUTE)
+
+  /**
+   * Creates a dimension (world) argument type.
+   *
+   * @return An [ArgumentType] that resolves to a world
+   */
+  fun dimension(): DimensionArgumentType = ArgumentTypes.world()
+
+  /**
+   * Creates an advancement argument type.
+   *
+   * @return An [ArgumentType] that resolves to an advancement
+   */
+  fun advancement(): AdvancementArgumentType
+
+  /**
+   * Creates a loot table argument type.
+   *
+   * @return An [ArgumentType] that resolves to a loot table
+   */
+  fun lootTable(): LootTableArgumentType
+
+  /**
+   * Creates a time duration argument type.
+   *
+   * @return An [ArgumentType] that resolves to a duration
+   */
+  fun duration(): TimeDurationArgumentType
+
+  /**
    * Creates a resource key argument type for registry entries.
    * 
    * @param T The type of registry entry
@@ -489,9 +554,17 @@ interface DevCoreArgumentTypeProvider {
  * @param converter The converter to transform results from type B to type C
  */
 @DevCoreInternal
-open class DevCoreArgumentType<B, C>(val argType: ArgumentType<B>, val converter: ResultConverter<B, C>) :
-  ArgumentType<C> {
-  override fun parse(reader: StringReader): C = converter.convert(argType.parse(reader))
+open class DevCoreArgumentType<B: Any, C : Any>(val argType: ArgumentType<B>, val converter: ResultConverter<B, C>) :
+  ArgumentType<C>, CustomArgumentType.Converted<C, B> {
+  override fun parse(reader: StringReader): C {
+    return convert(argType.parse(reader))
+  }
+
+  override fun convert(nativeType: B): C {
+    return converter.convert(nativeType)
+  }
+
+  override fun getNativeType(): ArgumentType<B> = argType
 
   override fun getExamples(): Collection<String> = argType.examples
   override fun <S : Any> listSuggestions(

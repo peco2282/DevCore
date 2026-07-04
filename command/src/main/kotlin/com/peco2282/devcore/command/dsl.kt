@@ -35,15 +35,22 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.GameMode
 import org.bukkit.HeightMap
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Particle
 import org.bukkit.World
+import org.bukkit.advancement.Advancement
+import org.bukkit.attribute.Attribute
 import org.bukkit.block.BlockState
 import org.bukkit.block.structure.Mirror
 import org.bukkit.block.structure.StructureRotation
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.loot.LootTable
 import org.bukkit.plugin.Plugin
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Objective
@@ -323,4 +330,46 @@ fun CommandContext<CommandSourceStack>.getSlot(name: String): Int =
  * Retrieves a [SlotRange] from the command context.
  */
 fun CommandContext<CommandSourceStack>.getSlots(name: String): SlotRange =
+  getArg(name)
+
+/**
+ * Retrieves an [Advancement] from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getAdvancement(name: String): Advancement? =
+  getArg(name)
+
+/**
+ * Retrieves a loot table from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getLootTable(name: String): LootTable? =
+  getArg(name)
+
+/**
+ * Retrieves an enchantment from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getEnchantment(name: String): Enchantment? =
+  getArg(name)
+
+/**
+ * Retrieves a potion effect type from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getPotionEffectType(name: String): PotionEffectType? =
+  getArg(name)
+
+/**
+ * Retrieves a material from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getMaterial(name: String): Material? =
+  getArg(name)
+
+/**
+ * Retrieves a particle from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getParticle(name: String): Particle? =
+  getArg(name)
+
+/**
+ * Retrieves an attribute from the command context.
+ */
+fun CommandContext<CommandSourceStack>.getAttribute(name: String): Attribute? =
   getArg(name)

@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.command.argument.*
 import io.papermc.paper.command.brigadier.PaperCommands
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.util.MCUtil
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
@@ -19,14 +20,18 @@ import net.minecraft.commands.arguments.coordinates.ColumnPosArgument
 import net.minecraft.commands.arguments.coordinates.RotationArgument
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument
 import net.minecraft.commands.arguments.coordinates.Vec2Argument
+import net.minecraft.commands.arguments.item.ItemArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.world.level.block.state.pattern.BlockInWorld
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.bukkit.Axis
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.CraftWorld
 import org.bukkit.craftbukkit.util.CraftLocation
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -155,7 +160,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     override fun getExamples(): Collection<String> = EXAMPLES
   }
 
-  private fun <T, R> wrap(
+  private fun <T : Any, R : Any> wrap(
     argumentType: ArgumentType<T>,
     resultConverter: (T) -> R
   ): ArgumentType<R> = DevCoreArgumentType(argumentType, resultConverter)
@@ -165,7 +170,7 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     return wrap(
       TeamArgument.team()
     ) {
-      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)
+      Bukkit.getScoreboardManager().mainScoreboard.getTeam(it)!!
     }
   }
 
@@ -184,6 +189,29 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   override fun objective(): ObjectiveArgumentType = wrap(
     ObjectiveArgument.objective()
   ) {
-    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)
+    Bukkit.getScoreboardManager().mainScoreboard.getObjective(it)!!
   }
+
+  override fun material(): MaterialArgumentType = wrap(
+    ItemArgument.item(PaperCommands.INSTANCE.buildContext)
+  ) {
+    val key = NamespacedKey.fromString(it.item.toString())
+      ?: NamespacedKey.minecraft(it.item.toString())
+    Material.matchMaterial(key.toString())!!
+  }
+
+  override fun advancement(): AdvancementArgumentType = wrap(
+    ArgumentTypes.namespacedKey()
+  ) {
+    Bukkit.getAdvancement(it)!!
+  }
+
+  override fun lootTable(): LootTableArgumentType = wrap(
+    ArgumentTypes.namespacedKey()
+  ) {
+    Bukkit.getLootTable(it)!!
+  }
+
+  override fun duration(): TimeDurationArgumentType =
+    DevCoreArgumentType(ArgumentTypes.time(0)) { Duration.ofMillis(it.toLong() * 50) }
 }

@@ -553,6 +553,78 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   ) = argument(name, DevCoreArgumentTypes.slots(), creator)
 
   /**
+   * Adds an enchantment argument to the command.
+   */
+  fun enchantment(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.enchantment(), creator)
+
+  /**
+   * Adds a potion effect type argument to the command.
+   */
+  fun potionEffectType(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.potionEffectType(), creator)
+
+  /**
+   * Adds a material argument to the command.
+   */
+  fun material(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.material(), creator)
+
+  /**
+   * Adds a particle argument to the command.
+   */
+  fun particle(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.particle(), creator)
+
+  /**
+   * Adds an attribute argument to the command.
+   */
+  fun attribute(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.attribute(), creator)
+
+  /**
+   * Adds a dimension (world) argument to the command.
+   */
+  fun dimension(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.dimension(), creator)
+
+  /**
+   * Adds an advancement argument to the command.
+   */
+  fun advancement(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.advancement(), creator)
+
+  /**
+   * Adds a loot table argument to the command.
+   */
+  fun lootTable(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.lootTable(), creator)
+
+  /**
+   * Adds a duration argument to the command.
+   */
+  fun duration(
+    name: String,
+    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
+  ) = argument(name, DevCoreArgumentTypes.duration(), creator)
+
+  /**
    * Sets a requirement predicate for this command.
    *
    * The command or subcommand will only be available and executable if the predicate returns true

@@ -5,25 +5,29 @@ package com.peco2282.devcore.command.argument
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.peco2282.devcore.util.DevCoreInternal
-import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver
 import io.papermc.paper.math.BlockPosition
 import io.papermc.paper.math.FinePosition
 import io.papermc.paper.math.Position
 import it.unimi.dsi.fastutil.ints.IntList
-import org.bukkit.Axis
+import org.bukkit.*
+import org.bukkit.advancement.Advancement
+import org.bukkit.attribute.Attribute
 import org.bukkit.block.Block
-import org.bukkit.entity.Bee
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.loot.LootTable
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.scoreboard.Objective
 import org.bukkit.scoreboard.Team
 import org.jetbrains.annotations.ApiStatus
+import java.time.Duration
 
 /**
  * An [ArgumentResolver] that resolves a [ColumnBlockPosition] from a command argument.
  *
  * Use this type when retrieving a 2D integer block coordinate (X, Z) from a command context.
  */
-typealias ColumnBlockPositionResolver  = ArgumentResolver<ColumnBlockPosition>
+typealias ColumnBlockPositionResolver = ArgumentResolver<ColumnBlockPosition>
 
 /**
  * An [ArgumentResolver] that resolves a [FinePosition] (precise 3D coordinates) from a command argument.
@@ -237,7 +241,7 @@ fun interface BlockInWorldPredicate {
  *
  * Use [DevCoreArgumentTypes.team] to obtain an instance.
  */
-typealias TeamArgumentType = ArgumentType<Team?>
+typealias TeamArgumentType = ArgumentType<Team>
 
 /**
  * An [ArgumentType] that resolves a single inventory slot index ([Int]) from a command argument.
@@ -282,7 +286,57 @@ typealias SlotsArgumentType = ArgumentType<SlotRange>
  *
  * Use [DevCoreArgumentTypes.objective] to obtain an instance.
  */
-typealias ObjectiveArgumentType = ArgumentType<Objective?>
+typealias ObjectiveArgumentType = ArgumentType<Objective>
+
+/**
+ * An [ArgumentType] that resolves an [Enchantment] from a command argument.
+ */
+typealias EnchantmentArgumentType = ArgumentType<Enchantment>
+
+/**
+ * An [ArgumentType] that resolves a [PotionEffectType] from a command argument.
+ */
+typealias PotionEffectTypeArgumentType = ArgumentType<PotionEffectType>
+
+/**
+ * An [ArgumentType] that resolves a [Material] from a command argument.
+ */
+typealias MaterialArgumentType = ArgumentType<Material>
+
+/**
+ * An [ArgumentType] that resolves a [Particle] from a command argument.
+ */
+typealias ParticleArgumentType = ArgumentType<Particle>
+
+/**
+ * An [ArgumentType] that resolves an [Attribute] from a command argument.
+ */
+typealias AttributeArgumentType = ArgumentType<Attribute>
+
+/**
+ * An [ArgumentType] that resolves a [World] (dimension) from a command argument.
+ */
+typealias DimensionArgumentType = ArgumentType<World>
+
+/**
+ * An [ArgumentType] that resolves an [Advancement] from a command argument.
+ */
+typealias AdvancementArgumentType = ArgumentType<Advancement>
+
+/**
+ * An [ArgumentType] that resolves a [LootTable] from a command argument.
+ */
+typealias LootTableArgumentType = ArgumentType<LootTable>
+
+/**
+ * An [ArgumentType] that resolves a [Duration] from a command argument.
+ */
+typealias TimeDurationArgumentType = ArgumentType<Duration>
+
+/**
+ * An [ArgumentType] that resolves a [NamespacedKey] from a command argument.
+ */
+typealias NamespacedKeyArgumentType = ArgumentType<NamespacedKey?>
 
 /**
  * A functional interface for converting a value of type [T] to type [R].
@@ -301,5 +355,5 @@ fun interface ResultConverter<T, R> {
    * @throws CommandSyntaxException if the conversion fails due to invalid input
    */
   @Throws(CommandSyntaxException::class)
-  fun convert(var1: T): R
+  fun convert(var1: T): R & Any
 }
