@@ -21,6 +21,7 @@ dependencies {
     api(release("command"))
     api(release("config"))
     api(release("scheduler"))
+    api(release("task-sequence"))
     api(release("adventure"))
     api(release("cooldown"))
     api(release("gui"))

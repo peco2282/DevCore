@@ -5,6 +5,7 @@ dependencies {
   api(project(":command"))
   api(project(":config"))
   api(project(":scheduler"))
+  api(project(":task-sequence"))
   api(project(":event"))
   api(project(":cooldown"))
   api(project(":gui"))

@@ -114,6 +114,21 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 }
 ```
 
+### task-sequence
+
+Module for describing time-series performances (sequences). Based on coroutines, it allows for intuitive descriptions of sequences such as "play a sound after 10 ticks" and "an explosion effect 5 ticks after that".
+[Detailed documentation](task-sequence/README.md)
+
+```kotlin
+plugin.sequence {
+  player.playSound(location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
+  wait(10.ticks)
+  location.spawnParticle(Particle.EXPLOSION_NORMAL, 10, 0.5, 0.5, 0.5)
+  wait(5.ticks)
+  location.createExplosion(2f)
+}
+```
+
 ### cooldown
 
 General-purpose utility for managing cooldowns and debouncing (preventing rapid-fire) for players and the system as a whole.

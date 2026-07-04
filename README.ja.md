@@ -118,6 +118,21 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 }
 ```
 
+### task-sequence
+
+時系列に沿った演出（シーケンス）を記述するためのモジュールです。コルーチンをベースとし、「10ティック後に音を鳴らす」「その5ティック後に爆発エフェクト」といった一連の流れを直感的に記述できます。
+[詳細ドキュメント](task-sequence/README.ja.md)
+
+```kotlin
+plugin.sequence {
+  player.playSound(location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
+  wait(10.ticks)
+  location.spawnParticle(Particle.EXPLOSION_NORMAL, 10, 0.5, 0.5, 0.5)
+  wait(5.ticks)
+  location.createExplosion(2f)
+}
+```
+
 ### cooldown
 
 プレイヤーやシステム全般のクールダウンおよびデバウンス（連打防止）を管理するための汎用ユーティリティ。
