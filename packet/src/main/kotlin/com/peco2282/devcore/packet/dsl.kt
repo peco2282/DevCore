@@ -425,8 +425,34 @@ fun Player.packetAnimation(plugin: Plugin, duration: Int, action: (Int) -> Unit)
  * @param player The target player.
  * @param action DSL block for sending packet-based effects.
  */
+@JvmName("packetWithPlayer")
 fun packet(player: Player, action: PacketBuilder.() -> Unit) {
   PacketBuilder(player).apply(action)
+}
+
+/**
+ * Extension function for [Player] that provides packet DSL access.
+ *
+ * This is a convenience wrapper around the top-level [packet] function,
+ * allowing for more idiomatic usage when the player instance is already available.
+ *
+ * Example:
+ * ```kotlin
+ * player.packet {
+ *   title {
+ *     title = "Welcome"
+ *     subtitle = "to the server"
+ *   }
+ *   actionBar("Use /help for commands")
+ * }
+ * ```
+ *
+ * @param action DSL block for configuring packet-based effects to send to this player.
+ * @see packet
+ * @see PacketBuilder
+ */
+fun Player.packet(action: PacketBuilder.() -> Unit) {
+  packet(this, action)
 }
 
 /**
