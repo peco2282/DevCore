@@ -35,16 +35,53 @@ val CYAN = "\u001b[36m"
 val RESET = "\u001b[0m"
 val BOLD = "\u001b[1m"
 
+val check: MutableList<String>
+  get() = rootProject.extra.let {
+    if (!it.has("publish_check")) it.set("publish_check", arrayListOf<String>())
+    @Suppress("UNCHECKED_CAST")
+    it.get("publish_check") as MutableList<String>
+  }
+val publish: MutableList<String>
+  get() = rootProject.extra.let {
+    if (!it.has("publish_publish")) it.set("publish_publish", arrayListOf<String>())
+    @Suppress("UNCHECKED_CAST")
+    it.get("publish_publish") as MutableList<String>
+  }
+val skip: MutableList<String>
+  get() = rootProject.extra.let {
+    if (!it.has("publish_skip")) it.set("publish_skip", arrayListOf<String>())
+    @Suppress("UNCHECKED_CAST")
+    it.get("publish_skip") as MutableList<String>
+  }
+
+rootProject.tasks.matching { it.name == "publish" }.configureEach {
+  doLast {
+    if (rootProject.extra.has("publish_logged")) return@doLast
+    rootProject.extra.set("publish_logged", true)
+    logger.info(
+      """
+        $CYAN Checked$RESET: ${check.joinToString()}
+        $CYAN${GREEN}Published$RESET: ${publish.joinToString()}
+        ${BOLD}Skipped$RESET: ${skip.joinToString()}
+      """.trimIndent()
+    )
+  }
+}
 
 fun checkLog(project: Project, remoteUrl: String) {
-  logger.lifecycle("${CYAN}[Check]${RESET} ${project.group}: $remoteUrl")
+  logger.lifecycle("${CYAN}[Check]${RESET} ${project.name}: $remoteUrl")
+  check.add(project.name)
 }
 
 fun publishLog(project: Project) {
-  logger.lifecycle("${BOLD}${GREEN}>>> [Publish]${RESET} ${project.name}:${project.version} will be published.")}
+  logger.lifecycle("${BOLD}${GREEN}>>> [Publish]${RESET} ${project.name}:${project.version} will be published.")
+  publish.add(project.name)
+}
 
 fun skipLog(project: Project) {
-  logger.lifecycle(">>> ${BOLD}[Skip]${RESET} ${project.name}:${project.version} already exists.")}
+  logger.lifecycle(">>> ${BOLD}[Skip]${RESET} ${project.name}:${project.version} already exists.")
+  skip.add(project.name)
+}
 
 fun warnLog(e: Exception) {
   logger.lifecycle("${YELLOW}>>> [Warn] ${e.message}. try to publish.${RESET}")
