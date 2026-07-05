@@ -79,6 +79,14 @@ internal class ComponentBuilderImpl : ComponentBuilder {
     }
   }
 
+  override fun replace(builder: (TextReplacementConfig.Builder) -> Unit) = apply {
+    components.updateLast { it.replaceText(builder) }
+  }
+
+  override fun replace(config: TextReplacementConfig) = apply {
+    components.updateLast { it.replaceText(config) }
+  }
+
   override fun selector(key: String): ComponentBuilder =
     apply {
       append(Component.selector(key))
@@ -110,6 +118,20 @@ internal class ComponentBuilderImpl : ComponentBuilder {
     apply {
       append(content.component())
     }
+
+  override fun text(content: String, regex: Regex, styler: Styler.() -> Unit): ComponentBuilder = apply {
+    var lastIndex = 0
+    regex.findAll(content).forEach { match ->
+      if (match.range.first > lastIndex) {
+        append(content.substring(lastIndex, match.range.first))
+      }
+      text(match.value, styler)
+      lastIndex = match.range.last + 1
+    }
+    if (lastIndex < content.length) {
+      append(content.substring(lastIndex))
+    }
+  }
 
   override fun text(content: String, consumer: Styler.() -> Unit): ComponentBuilder =
     apply {

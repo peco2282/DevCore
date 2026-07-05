@@ -8,6 +8,7 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.*
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.ApiStatus
@@ -196,6 +197,26 @@ interface ComponentBuilder {
    * @return this component builder for chaining
    */
   fun text(content: String, consumer: Styler.() -> Unit): ComponentBuilder = append(content).withStyle(consumer)
+
+  /**
+   * Appends text and styles parts of it that match the given regular expression.
+   *
+   * @param content the full text content
+   * @param regex the regular expression to match against the content
+   * @param styler the styler to apply to the matching parts
+   * @return this component builder for chaining
+   */
+  fun text(content: String, regex: Regex, styler: Styler.() -> Unit): ComponentBuilder
+
+  /**
+   * Appends a text component with multiple text colors applied sequentially.
+   * Each color in the formatters array is applied to the component's style.
+   *
+   * @param content the string content to append
+   * @param formatters variable number of text colors to apply to the component
+   * @return this component builder for chaining
+   */
+  fun text(content: String, vararg formatters: TextColor) = append(content) withStyle { formatters.forEach(::color) }
 
   /**
    * Appends a translatable component with the specified translation key.
@@ -627,6 +648,58 @@ interface ComponentBuilder {
       consumer(value)
     }
   }
+
+  /**
+   * Applies text replacement to the last appended component using a builder configuration.
+   * 
+   * This method allows you to replace text patterns within the component using a lambda that
+   * configures a [TextReplacementConfig.Builder]. You can specify what text to match (using
+   * strings, regexes, or patterns) and what to replace it with (static text or dynamic components).
+   *
+   * @param builder A lambda with receiver that configures the [TextReplacementConfig.Builder]
+   * @return this component builder for chaining
+   *
+   * Example usage:
+   * ```kotlin
+   * component {
+   *     text("Hello {player}, welcome to {server}!")
+   *     replace {
+   *         matchLiteral("{player}")
+   *         replacement("Steve")
+   *     }
+   *     replace {
+   *         matchLiteral("{server}")
+   *         replacement(text("Minecraft", GOLD))
+   *     }
+   * }
+   * ```
+   */
+  fun replace(builder: (TextReplacementConfig.Builder) -> Unit): ComponentBuilder
+
+  /**
+   * Applies text replacement to the last appended component using a pre-built configuration.
+   * 
+   * This method applies the provided [TextReplacementConfig] directly to replace text patterns
+   * within the component. Use this when you have a reusable replacement configuration or when
+   * you need to apply the same replacement logic across multiple components.
+   *
+   * @param config The text replacement configuration to apply
+   * @return this component builder for chaining
+   *
+   * Example usage:
+   * ```kotlin
+   * val playerNameReplacement = TextReplacementConfig.builder()
+   *     .matchLiteral("{player}")
+   *     .replacement("Steve")
+   *     .build()
+   * 
+   * component {
+   *     text("Hello {player}!")
+   *     replace(playerNameReplacement)
+   * }
+   * ```
+   */
+  fun replace(config: TextReplacementConfig): ComponentBuilder
 
   /**
    * Extension property to append this string directly to the component builder.

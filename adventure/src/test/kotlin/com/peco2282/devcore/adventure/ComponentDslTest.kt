@@ -245,4 +245,24 @@ class ComponentDslTest {
     // 完全な一致は難しいので、緑成分が一番大きいことを確認
     assert(color.green() > color.red() && color.green() > color.blue())
   }
+
+  @Test
+  fun `regex styling text`() {
+    val comp = component {
+      text("Hello (World) and (Adventure)", Regex("\\((.*?)\\)")) {
+        color(NamedTextColor.RED)
+      }
+    }
+
+    // Expected: root(empty) -> children: Hello (plain), (World) (red), " and " (plain), (Adventure) (red)
+    val children = comp.children()
+    
+    assertEquals(4, children.size)
+    assertEquals("Hello ", (children[0] as TextComponent).content())
+    assertEquals("(World)", (children[1] as TextComponent).content())
+    assertEquals(NamedTextColor.RED, children[1].color())
+    assertEquals(" and ", (children[2] as TextComponent).content())
+    assertEquals("(Adventure)", (children[3] as TextComponent).content())
+    assertEquals(NamedTextColor.RED, children[3].color())
+  }
 }
