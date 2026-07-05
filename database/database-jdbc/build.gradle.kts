@@ -2,8 +2,8 @@ version = properties["devcore.database.version"] ?: "1.0.0"
 
 dependencies {
   api(project(":database:database-api"))
-  implementation("org.jetbrains.exposed:exposed-jdbc:1.2.0")
-  implementation("com.zaxxer:HikariCP:7.1.0")
+  implementation(libs.exposed.jdbc)
+  implementation(libs.hikari)
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(libs.kotlin.test)

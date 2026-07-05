@@ -53,7 +53,7 @@ internal class DatabaseBuilderImpl : DatabaseBuilder() {
  *
  * @property database The JetBrains Exposed [Database] instance.
  */
-internal class DatabaseProviderImpl(val database: Database) : DatabaseProvider {
+internal class DatabaseProviderImpl(override val database: Database) : DatabaseProvider {
   /**
    * Executes a transaction synchronously.
    *
@@ -61,7 +61,7 @@ internal class DatabaseProviderImpl(val database: Database) : DatabaseProvider {
    * @param statement The code to execute within the transaction.
    * @return The result of the transaction.
    */
-  override fun <T> dbQuery(statement: Transaction.() -> T): T = transaction(database, statement = statement)
+  override fun <T> dbQuery(statement: Transaction.() -> T): T = transaction(db = database, statement = statement)
 
   /**
    * Executes a transaction asynchronously using a [CompletableFuture].

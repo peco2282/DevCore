@@ -1,5 +1,6 @@
 package com.peco2282.devcore.database
 
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.core.Transaction
 import java.util.concurrent.CompletableFuture
 
@@ -7,6 +8,11 @@ import java.util.concurrent.CompletableFuture
  * Interface for abstracting database access.
  */
 interface DatabaseProvider {
+  /**
+   * The JetBrains Exposed [Database] instance.
+   */
+  val database: Database
+
   /**
    * Executes a transaction synchronously.
    *

@@ -1,17 +1,29 @@
 package com.peco2282.devcore.database
 
 import org.jetbrains.exposed.v1.core.Table
-
-//import org.jetbrains.exposed.sql.Database
-//import org.jetbrains.exposed.sql.SchemaUtils
-//import org.jetbrains.exposed.sql.Table
-//import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 
 /**
  * Marker annotation for Database DSL.
  */
 @DslMarker
 annotation class DatabaseDsl
+
+/**
+ * Executes a transaction synchronously.
+ */
+fun <T> dbQuery(database: Database? = null, statement: Transaction.() -> T): T =
+  transaction(db = database, statement = statement)
+
+/**
+ * Executes a transaction asynchronously using Kotlin coroutines.
+ */
+suspend fun <T> dbQuerySuspend(database: Database? = null, statement: suspend Transaction.() -> T): T =
+  newSuspendedTransaction(Dispatchers.IO, db = database, statement = statement)
 
 /**
  * Data class representing the configuration for a database connection.

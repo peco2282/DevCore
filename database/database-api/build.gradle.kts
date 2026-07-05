@@ -6,8 +6,10 @@ repositories {
 
 dependencies {
   api(project(":adventure"))
-  api("org.jetbrains.exposed:exposed-core:1.2.0")
-  api("org.jetbrains.exposed:exposed-java-time:1.2.0")
+  api(libs.exposed.core)
+  api(libs.exposed.jdbc)
+  api(libs.exposed.dao)
+  api(libs.exposed.java.time)
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(libs.kotlin.test)
