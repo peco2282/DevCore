@@ -1,11 +1,11 @@
 package com.peco2282.devcore.database
 
-import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 /**
  * Marker annotation for Database DSL.
@@ -24,6 +24,25 @@ fun <T> dbQuery(database: Database? = null, statement: Transaction.() -> T): T =
  */
 suspend fun <T> dbQuerySuspend(database: Database? = null, statement: suspend Transaction.() -> T): T =
   newSuspendedTransaction(Dispatchers.IO, db = database, statement = statement)
+
+/**
+ * Extension function for [Table] to execute a query within its context.
+ */
+fun <T : Table, R> T.query(provider: DatabaseProvider, statement: Transaction.(T) -> R): R =
+  provider.dbQuery { statement(this@query) }
+
+/**
+ * Extension function for [Table] to execute an asynchronous query within its context.
+ */
+suspend fun <T : Table, R> T.querySuspend(provider: DatabaseProvider, statement: Transaction.(T) -> R): R =
+  provider.dbQuerySuspend { statement(this@querySuspend) }
+
+/**
+ * Executes a statement for each table registered in the provider.
+ */
+fun DatabaseProvider.forEachTable(statement: Transaction.(Table) -> Unit) = dbQuery {
+  tables.forEach { statement(it) }
+}
 
 /**
  * Data class representing the configuration for a database connection.
@@ -93,4 +112,16 @@ abstract class DatabaseBuilder {
    * @throws IllegalStateException If the database configuration is not specified.
    */
   abstract fun build(): DatabaseProvider
+
+  /**
+   * Registers a table to the database.
+   *
+   * @param T The table type.
+   * @param table The table instance.
+   * @return The registered table instance.
+   */
+  fun <T : Table> register(table: T): T {
+    tables.add(table)
+    return table
+  }
 }

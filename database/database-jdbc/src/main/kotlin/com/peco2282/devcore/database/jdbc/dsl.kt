@@ -4,6 +4,7 @@ import com.peco2282.devcore.database.DatabaseBuilder
 import com.peco2282.devcore.database.DatabaseProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
@@ -44,7 +45,7 @@ internal class DatabaseBuilderImpl : DatabaseBuilder() {
       SchemaUtils.create(*tables.toTypedArray())
     }
 
-    return DatabaseProviderImpl(db)
+    return DatabaseProviderImpl(db, tables.toList())
   }
 }
 
@@ -52,8 +53,12 @@ internal class DatabaseBuilderImpl : DatabaseBuilder() {
  * Default implementation of [DatabaseProvider].
  *
  * @property database The JetBrains Exposed [Database] instance.
+ * @property tables The list of tables managed by this provider.
  */
-internal class DatabaseProviderImpl(override val database: Database) : DatabaseProvider {
+internal class DatabaseProviderImpl(
+  override val database: Database,
+  override val tables: List<Table>
+) : DatabaseProvider {
   /**
    * Executes a transaction synchronously.
    *
@@ -85,4 +90,6 @@ internal class DatabaseProviderImpl(override val database: Database) : DatabaseP
   override suspend fun <T> dbQuerySuspend(statement: Transaction.() -> T): T = withContext(Dispatchers.IO) {
     dbQuery(statement)
   }
+
+  override fun close() {}
 }
