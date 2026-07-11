@@ -62,6 +62,16 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   val plugin: Plugin?,
   var builder: T
 ) {
+  @Suppress("PropertyName")
+  val SINGLE_SUCCESS = Command.SINGLE_SUCCESS
+  @Suppress("PropertyName")
+  val NOT_PLAYER = 2
+  @Suppress("PropertyName")
+  val NOT_CONSOLER = 3
+  @Suppress("PropertyName")
+  val NOT_VALID = 4
+
+
   /**
    * Adds a literal argument to the command.
    *
@@ -707,12 +717,22 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
         val player = context.source.sender as? Player
         if (player == null) {
           context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
-          0
+          NOT_PLAYER
         } else {
           block(player, context)
         }
       }
     }
+
+  fun executeAndMessage(
+    block: (CommandContext<CommandSourceStack>) -> Component
+  ) = apply {
+    builder = builder.executes {
+      val player = it.source.sender as? Player ?: return@executes NOT_PLAYER
+      player.sendMessage(block(it))
+      Command.SINGLE_SUCCESS
+    }
+  }
 
   infix fun executesPlayerSuspend(block: suspend (Player, CommandContext<CommandSourceStack>) -> Int) =
     apply {
@@ -720,7 +740,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
         val player = context.source.sender as? Player
         if (player == null) {
           context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
-          0
+          NOT_PLAYER
         } else {
           plugin?.launch {
             block(player, context)
@@ -742,7 +762,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
         val console = context.source.sender as? ConsoleCommandSender
         if (console == null) {
           context.sendError { text("このコマンドはコンソールのみ実行可能です。") }
-          0
+          NOT_CONSOLER
         } else {
           block(console, context)
         }
@@ -755,9 +775,9 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
         val console = context.source.sender as? ConsoleCommandSender
         if (console == null) {
           context.sendError { text("このコマンドはコンソールのみ実行可能です。") }
-          0
+          NOT_CONSOLER
         } else {
-          var result = 0
+          var result = SINGLE_SUCCESS
           plugin?.launch {
             result = block(console, context)
           }
@@ -810,7 +830,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
       block()
     } else {
       sendError(errorMessage)
-      0
+      NOT_VALID
     }
   }
 
