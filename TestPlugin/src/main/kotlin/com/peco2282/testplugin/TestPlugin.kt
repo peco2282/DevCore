@@ -106,6 +106,480 @@ class TestPlugin : JavaPlugin() {
           1
         }
       }
+      literal("argument") {
+        requireOp()
+        literal("integer") {
+          integer("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Int::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("double") {
+          double("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Double::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("float") {
+          float("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Float::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("long") {
+          long("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Long::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("boolean") {
+          boolean("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Boolean::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("string") {
+          string("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", String::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("greedyString") {
+          greedyString("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", String::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("word") {
+          word("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", String::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("team") {
+          team("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.scoreboard.Team::class.java)
+              player.sendMessage(Component.text("Value: ${value.name}"))
+              1
+            }
+          }
+        }
+        literal("slot") {
+          slot("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Int::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("slots") {
+          slots("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", com.peco2282.devcore.command.argument.SlotRange::class.java)
+              player.sendMessage(Component.text("Value: ${value.serializedName} (${value.slots})"))
+              1
+            }
+          }
+        }
+        literal("objective") {
+          objective("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.scoreboard.Objective::class.java)
+              player.sendMessage(Component.text("Value: ${value.name}"))
+              1
+            }
+          }
+        }
+        literal("entity") {
+          entity("val") {
+            executesPlayer { player, context ->
+              // Note: Result type of entity() is EntitySelectorArgumentResolver, but usually we use context.getArgument for simpler access if possible, or resolver.
+              // For simplicity in TestPlugin, we just confirm it executes.
+              player.sendMessage(Component.text("Entity argument accepted"))
+              1
+            }
+          }
+        }
+        literal("player") {
+          player("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("Player argument accepted"))
+              1
+            }
+          }
+        }
+        literal("blockPosition") {
+          blockPos("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("BlockPosition argument accepted"))
+              1
+            }
+          }
+        }
+        literal("columnBlockPosition") {
+          columnBlockPos("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("ColumnBlockPosition argument accepted"))
+              1
+            }
+          }
+        }
+        literal("finePosition") {
+          finePos("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("FinePosition argument accepted"))
+              1
+            }
+          }
+        }
+        literal("rotation") {
+          rotation("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("Rotation argument accepted"))
+              1
+            }
+          }
+        }
+        literal("angle") {
+          angle("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("Angle argument accepted"))
+              1
+            }
+          }
+        }
+        literal("axes") {
+          axes("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Set::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("blockState") {
+          blockState("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.block.BlockState::class.java)
+              player.sendMessage(Component.text("Value: ${value.type}"))
+              1
+            }
+          }
+        }
+        literal("itemStack") {
+          itemStack("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", ItemStack::class.java)
+              player.sendMessage(Component.text("Value: ${value.type}"))
+              1
+            }
+          }
+        }
+        literal("namedColor") {
+          namedColor("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", net.kyori.adventure.text.format.NamedTextColor::class.java)
+              player.sendMessage(Component.text("Value: $value", value))
+              1
+            }
+          }
+        }
+        literal("component") {
+          component("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Component::class.java)
+              player.sendMessage(Component.text("Value: ").append(value))
+              1
+            }
+          }
+        }
+        literal("style") {
+          style("val") {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("Style argument accepted"))
+              1
+            }
+          }
+        }
+        literal("scoreboardDisplaySlot") {
+          scoreboardDisplaySlot("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.scoreboard.DisplaySlot::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("namespacedKey") {
+          namespacedKey("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.NamespacedKey::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("key") {
+          key("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", net.kyori.adventure.key.Key::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("world") {
+          world("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.World::class.java)
+              player.sendMessage(Component.text("Value: ${value.name}"))
+              1
+            }
+          }
+        }
+        literal("gameMode") {
+          gameMode("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.GameMode::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("heightMap") {
+          heightMap("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.HeightMap::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("uuid") {
+          uuid("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", java.util.UUID::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("objectiveCriteria") {
+          objectiveCriteria("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.scoreboard.Criteria::class.java)
+              player.sendMessage(Component.text("Value: ${value.name}"))
+              1
+            }
+          }
+        }
+        literal("entityAnchor") {
+          entityAnchor("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", io.papermc.paper.entity.LookAnchor::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("time") {
+          time("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", Int::class.java)
+              player.sendMessage(Component.text("Value: $value ticks"))
+              1
+            }
+          }
+        }
+        literal("templateMirror") {
+          templateMirror("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.block.structure.Mirror::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("templateRotation") {
+          templateRotation("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.block.structure.StructureRotation::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("enchantment") {
+          enchantment("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.enchantments.Enchantment::class.java)
+              player.sendMessage(Component.text("Value: ${value.key}"))
+              1
+            }
+          }
+        }
+        literal("potionEffectType") {
+          potionEffectType("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.potion.PotionEffectType::class.java)
+              player.sendMessage(Component.text("Value: ${value.key}"))
+              1
+            }
+          }
+        }
+        literal("material") {
+          material("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.Material::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("particle") {
+          particle("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.Particle::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("attribute") {
+          attribute("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.attribute.Attribute::class.java)
+              player.sendMessage(Component.text("Value: $value"))
+              1
+            }
+          }
+        }
+        literal("dimension") {
+          dimension("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.World::class.java)
+              player.sendMessage(Component.text("Value: ${value.name}"))
+              1
+            }
+          }
+        }
+        literal("advancement") {
+          advancement("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.advancement.Advancement::class.java)
+              player.sendMessage(Component.text("Value: ${value.key}"))
+              1
+            }
+          }
+        }
+        literal("lootTable") {
+          lootTable("val") {
+            executesPlayer { player, context ->
+              val value = context.getArgument("val", org.bukkit.loot.LootTable::class.java)
+              player.sendMessage(Component.text("Value: ${value.key}"))
+              1
+            }
+          }
+        }
+        literal("resourceKey") {
+          resourceKey("val", io.papermc.paper.registry.RegistryKey.ITEM) {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("ResourceKey argument accepted"))
+              1
+            }
+          }
+        }
+        literal("resource") {
+          resource("val", io.papermc.paper.registry.RegistryKey.ITEM) {
+            executesPlayer { player, context ->
+              player.sendMessage(Component.text("Resource argument accepted"))
+              1
+            }
+          }
+        }
+        literal("blockInWorldPredicate") {
+          blockInWorldPredicate("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("blockInWorldPredicate argument accepted"))
+              1
+            }
+          }
+        }
+        literal("itemStackPredicate") {
+          itemStackPredicate("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("itemStackPredicate argument accepted"))
+              1
+            }
+          }
+        }
+        literal("integerRange") {
+          integerRange("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("integerRange argument accepted"))
+              1
+            }
+          }
+        }
+        literal("doubleRange") {
+          doubleRange("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("doubleRange argument accepted"))
+              1
+            }
+          }
+        }
+        literal("playerProfiles") {
+          playerProfiles("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("playerProfiles argument accepted"))
+              1
+            }
+          }
+        }
+        literal("signedMessage") {
+          signedMessage("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("signedMessage argument accepted"))
+              1
+            }
+          }
+        }
+        literal("columnFinePosition") {
+          columnFinePos("val") {
+            executesPlayer { player, _ ->
+              player.sendMessage(Component.text("columnFinePosition argument accepted"))
+              1
+            }
+          }
+        }
+      }
       literal("packet") {
         requireOp()
         literal("title") {
