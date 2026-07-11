@@ -1,21 +1,12 @@
 package com.peco2282.devcore.command.v1_20_6
 
 import com.mojang.brigadier.LiteralMessage
-import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
-import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
-import com.mojang.brigadier.suggestion.Suggestions
-import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.peco2282.devcore.command.argument.*
 import io.papermc.paper.command.brigadier.PaperCommands
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.util.MCUtil
-import net.kyori.adventure.text.format.TextColor
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.*
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument
 import net.minecraft.commands.arguments.coordinates.ColumnPosArgument
@@ -23,7 +14,6 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument
 import net.minecraft.commands.arguments.coordinates.Vec2Argument
 import net.minecraft.commands.arguments.item.ItemArgument
-import net.minecraft.network.chat.Component
 import net.minecraft.world.level.block.state.pattern.BlockInWorld
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -33,9 +23,7 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.CraftWorld
 import org.bukkit.craftbukkit.util.CraftLocation
-import java.time.Duration
 import java.util.*
-import java.util.concurrent.CompletableFuture
 
 @Suppress("UnstableApiUsage")
 class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
@@ -122,59 +110,6 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
     }
   }
 
-  override fun hexColor(): ArgumentType<TextColor> = wrap(
-    HexColorArgument.hexColor(),
-    "Hex Color"
-  ) { TextColor.color(it) }
-
-  private class HexColorArgument : ArgumentType<Int> {
-    companion object {
-      val EXAMPLES: Collection<String> = listOf("F00", "FF0000")
-      val ERROR_INVALID_HEX: DynamicCommandExceptionType = DynamicCommandExceptionType {
-        Component.translatableEscape(
-          "argument.hexcolor.invalid",
-          it
-        )
-      }
-
-      fun color(alpha: Int, red: Int, green: Int, blue: Int): Int =
-        alpha shl 24 or (red shl 16) or (green shl 8) or blue
-
-      fun color(red: Int, green: Int, blue: Int): Int = color(255, red, green, blue)
-
-      fun hexColor(): HexColorArgument = HexColorArgument()
-    }
-
-    @Throws(CommandSyntaxException::class)
-    override fun parse(reader: StringReader): Int {
-      val unquotedString = reader.readUnquotedString()
-      return when (unquotedString.length) {
-        3 -> color(
-          duplicateDigit(Integer.parseInt(unquotedString, 0, 1, 16)),
-          duplicateDigit(Integer.parseInt(unquotedString, 1, 2, 16)),
-          duplicateDigit(Integer.parseInt(unquotedString, 2, 3, 16))
-        )
-
-        6 -> color(
-          Integer.parseInt(unquotedString, 0, 2, 16),
-          Integer.parseInt(unquotedString, 2, 4, 16),
-          Integer.parseInt(unquotedString, 4, 6, 16)
-        )
-
-        else -> throw ERROR_INVALID_HEX.createWithContext(reader, unquotedString)
-      }
-    }
-
-    private fun duplicateDigit(digit: Int): Int = digit * 17
-
-    override fun <S> listSuggestions(
-      context: CommandContext<S?>?,
-      builder: SuggestionsBuilder
-    ): CompletableFuture<Suggestions> = SharedSuggestionProvider.suggest(EXAMPLES, builder)
-
-    override fun getExamples(): Collection<String> = EXAMPLES
-  }
-
   private fun <T : Any, R : Any> wrap(
     argumentType: ArgumentType<T>,
     key: String,
@@ -236,7 +171,4 @@ class DevCoreArgumentTypeProviderImpl : DevCoreArgumentTypeProvider {
   ) {
     Bukkit.getLootTable(NamespacedKey.fromString(it.toString())!!)
   }
-
-  override fun duration(): TimeDurationArgumentType =
-    wrap(TimeArgument.time(), "Duration") { Duration.ofMillis(it.toLong() * 50) }
 }

@@ -1,12 +1,6 @@
 package com.peco2282.devcore.command.argument
 
-import com.mojang.brigadier.arguments.ArgumentType
-import com.mojang.brigadier.arguments.BoolArgumentType
-import com.mojang.brigadier.arguments.DoubleArgumentType
-import com.mojang.brigadier.arguments.FloatArgumentType
-import com.mojang.brigadier.arguments.IntegerArgumentType
-import com.mojang.brigadier.arguments.LongArgumentType
-import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.arguments.*
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.SignedMessageResolver
 import io.papermc.paper.command.brigadier.argument.predicate.ItemStackPredicate
@@ -23,10 +17,8 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
-import net.kyori.adventure.text.format.TextColor
 import org.bukkit.GameMode
 import org.bukkit.HeightMap
-import org.bukkit.NamespacedKey
 import org.bukkit.World
 import org.bukkit.block.BlockState
 import org.bukkit.block.structure.Mirror
@@ -326,13 +318,6 @@ interface DevCoreArgumentTypeProvider {
   fun namedColor(): ArgumentType<NamedTextColor> = ArgumentTypes.namedColor()
 
   /**
-   * Creates a hexadecimal color argument type for RGB colors.
-   * 
-   * @return An [ArgumentType] that resolves to a hex text color
-   */
-  fun hexColor(): ArgumentType<TextColor>
-
-  /**
    * Creates a component argument type for formatted text components.
    * 
    * @return An [ArgumentType] that resolves to a text component
@@ -507,13 +492,6 @@ interface DevCoreArgumentTypeProvider {
    * @return An [ArgumentType] that resolves to a loot table
    */
   fun lootTable(): LootTableArgumentType
-
-  /**
-   * Creates a time duration argument type.
-   *
-   * @return An [ArgumentType] that resolves to a duration
-   */
-  fun duration(): TimeDurationArgumentType
 
   /**
    * Creates a resource key argument type for registry entries.

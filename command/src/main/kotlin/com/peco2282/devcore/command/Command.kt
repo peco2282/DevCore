@@ -406,14 +406,6 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   ) = argument(name, DevCoreArgumentTypes.namedColor(), creator)
 
   /**
-   * Adds a hex color argument to the command.
-   */
-  fun hexColor(
-    name: String,
-    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, DevCoreArgumentTypes.hexColor(), creator)
-
-  /**
    * Adds a style argument to the command.
    */
   fun style(
@@ -615,14 +607,6 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
     name: String,
     creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
   ) = argument(name, DevCoreArgumentTypes.lootTable(), creator)
-
-  /**
-   * Adds a duration argument to the command.
-   */
-  fun duration(
-    name: String,
-    creator: CommandCreator<out ArgumentBuilder<CommandSourceStack, *>>.() -> Unit = {}
-  ) = argument(name, DevCoreArgumentTypes.duration(), creator)
 
   /**
    * Sets a requirement predicate for this command.
