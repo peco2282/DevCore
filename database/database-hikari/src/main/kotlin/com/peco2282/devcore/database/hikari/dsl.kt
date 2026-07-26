@@ -2,6 +2,7 @@ package com.peco2282.devcore.database.hikari
 
 import com.peco2282.devcore.database.DatabaseBuilder
 import com.peco2282.devcore.database.DatabaseProvider
+import com.peco2282.devcore.database.MigrationRunner
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
@@ -49,12 +50,19 @@ class HikariDatabaseBuilder : DatabaseBuilder() {
     val dataSource = HikariDataSource(hikariConfig)
     val db = Database.connect(dataSource)
 
-    // Table initialization
+    // Schema initialisation
     transaction(db) {
-      SchemaUtils.create(*tables.toTypedArray())
+      if (autoMigrate) {
+        @Suppress("DEPRECATION")
+        SchemaUtils.createMissingTablesAndColumns(*tables.toTypedArray())
+      } else {
+        SchemaUtils.create(*tables.toTypedArray())
+      }
     }
 
-    return HikariDatabaseProviderImpl(db, dataSource, tables.toList())
+    val provider = HikariDatabaseProviderImpl(db, dataSource, tables.toList())
+    MigrationRunner(provider, migrations.toList()).run()
+    return provider
   }
 }
 

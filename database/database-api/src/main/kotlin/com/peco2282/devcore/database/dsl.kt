@@ -70,9 +70,21 @@ abstract class DatabaseBuilder {
   var config: DatabaseConfig? = null
 
   /**
+   * When true, [org.jetbrains.exposed.v1.jdbc.SchemaUtils.createMissingTablesAndColumns] is used
+   * instead of [org.jetbrains.exposed.v1.jdbc.SchemaUtils.create], so new columns added to
+   * existing tables are applied automatically on start-up.
+   */
+  var autoMigrate: Boolean = false
+
+  /**
    * The list of tables to be managed by the database.
    */
   protected val tables = mutableListOf<Table>()
+
+  /**
+   * Ordered list of [Migration] steps to apply after schema initialisation.
+   */
+  protected val migrations = mutableListOf<Migration>()
 
   /**
    * Sets the database configuration.
@@ -103,6 +115,16 @@ abstract class DatabaseBuilder {
    */
   fun table(vararg table: Table) {
     tables.addAll(table)
+  }
+
+  /**
+   * Registers one or more [Migration] steps.
+   * Migrations are applied in ascending [Migration.version] order after schema initialisation.
+   *
+   * @param migration The migrations to register.
+   */
+  fun migrate(vararg migration: Migration) {
+    migrations.addAll(migration)
   }
 
   /**

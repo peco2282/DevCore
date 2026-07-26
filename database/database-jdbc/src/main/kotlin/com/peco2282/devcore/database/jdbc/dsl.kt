@@ -2,6 +2,7 @@ package com.peco2282.devcore.database.jdbc
 
 import com.peco2282.devcore.database.DatabaseBuilder
 import com.peco2282.devcore.database.DatabaseProvider
+import com.peco2282.devcore.database.MigrationRunner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.Table
@@ -40,12 +41,19 @@ internal class DatabaseBuilderImpl : DatabaseBuilder() {
       password = cfg.password
     )
 
-    // Table initialization
+    // Schema initialisation
     transaction(db) {
-      SchemaUtils.create(*tables.toTypedArray())
+      if (autoMigrate) {
+        @Suppress("DEPRECATION")
+        SchemaUtils.createMissingTablesAndColumns(*tables.toTypedArray())
+      } else {
+        SchemaUtils.create(*tables.toTypedArray())
+      }
     }
 
-    return DatabaseProviderImpl(db, tables.toList())
+    val provider = DatabaseProviderImpl(db, tables.toList())
+    MigrationRunner(provider, migrations.toList()).run()
+    return provider
   }
 }
 
