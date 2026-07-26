@@ -7,12 +7,12 @@ paper-api = "1.20.6-R0.1-SNAPSHOT"
 paper-userdev = "2.0.0-SNAPSHOT"
 kotlinx-coroutine = "1.10.2"
 #dokka = "2.2.0"
-shadow = "9.4.2"
+shadow = "9.6.1"
 run-paper = "3.0.2"
 exposed = "1.2.0"
 hikari = "7.1.0"
-jedis = "5.2.0"
-mongodb = "5.3.1"
+jedis = "7.5.3"
+mongodb = "5.9.0"
 
 [libraries]
 adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
