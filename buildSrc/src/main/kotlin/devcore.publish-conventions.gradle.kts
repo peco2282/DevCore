@@ -142,36 +142,40 @@ publishing {
 
           pom.withXml {
             val dependenciesNode = asNode().appendNode("dependencies")
-            project.configurations.findByName("api")?.allDependencies?.forEach {
-              if (it is ProjectDependency) {
-                val depNode = dependenciesNode.appendNode("dependency")
-                depNode.appendNode("groupId", project.group)
-                depNode.appendNode("artifactId", it.name.lowercase())
-                depNode.appendNode("version", it.version ?: project.version)
-                depNode.appendNode("scope", "compile")
-              } else if (it is ExternalModuleDependency) {
-                val depNode = dependenciesNode.appendNode("dependency")
-                depNode.appendNode("groupId", it.group)
-                depNode.appendNode("artifactId", it.name)
-                depNode.appendNode("version", it.version)
-                depNode.appendNode("scope", "compile")
+            fun appendDependencies(configurationName: String, scope: String) {
+              project.configurations.findByName(configurationName)?.dependencies?.forEach { dependency ->
+                val coordinates = when (dependency) {
+                  is ProjectDependency -> {
+                    val dependencyProject = project.project(dependency.path)
+                    Triple(
+                      dependencyProject.group.toString(),
+                      if (dependencyProject.name == "bom") "devcore-bom" else dependencyProject.name.lowercase(),
+                      dependencyProject.version.toString()
+                    )
+                  }
+                  is ExternalModuleDependency -> {
+                    val dependencyVersion = dependency.version
+                      ?: dependency.versionConstraint.requiredVersion.takeIf(String::isNotBlank)
+                      ?: dependency.versionConstraint.preferredVersion.takeIf(String::isNotBlank)
+                      ?: throw GradleException(
+                        "No version declared for external dependency ${dependency.group}:${dependency.name}"
+                      )
+                    Triple(dependency.group, dependency.name, dependencyVersion)
+                  }
+                  else -> null
+                }
+
+                coordinates?.let { (groupId, artifactId, version) ->
+                  val depNode = dependenciesNode.appendNode("dependency")
+                  depNode.appendNode("groupId", groupId)
+                  depNode.appendNode("artifactId", artifactId)
+                  depNode.appendNode("version", version)
+                  depNode.appendNode("scope", scope)
+                }
               }
             }
-            project.configurations.findByName("implementation")?.allDependencies?.forEach {
-              if (it is ProjectDependency) {
-                val depNode = dependenciesNode.appendNode("dependency")
-                depNode.appendNode("groupId", project.group)
-                depNode.appendNode("artifactId", it.name.lowercase())
-                depNode.appendNode("version", it.version ?: project.version)
-                depNode.appendNode("scope", "runtime")
-              } else if (it is ExternalModuleDependency) {
-                val depNode = dependenciesNode.appendNode("dependency")
-                depNode.appendNode("groupId", it.group)
-                depNode.appendNode("artifactId", it.name)
-                depNode.appendNode("version", it.version)
-                depNode.appendNode("scope", "runtime")
-              }
-            }
+            appendDependencies("api", "compile")
+            appendDependencies("implementation", "runtime")
           }
         }
 
