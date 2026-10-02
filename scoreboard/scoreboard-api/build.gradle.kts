@@ -6,4 +6,5 @@ dependencies {
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(kotlin("test"))
+  testImplementation(libs.mockbukkit)
 }

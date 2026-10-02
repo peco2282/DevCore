@@ -4,6 +4,8 @@
 
 各モジュールのバージョンを統一するための DevCore モジュール BOM (`java-platform`)。
 
+データベースアダプターを含む、公開されるすべての DevCore モジュールのバージョンを管理します。BOM 自体は各モジュールを依存関係へ追加しません。
+
 ## 導入方法 (Gradle Kotlin DSL)
 
 ```kotlin
@@ -14,5 +16,6 @@ dependencies {
   implementation("com.peco2282.devcore:config")
   implementation("com.peco2282.devcore:scheduler")
   implementation("com.peco2282.devcore:cooldown")
+  implementation("com.peco2282.devcore:database-sqlite")
 }
 ```

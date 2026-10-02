@@ -13,6 +13,7 @@ exposed = "1.2.0"
 hikari = "7.1.0"
 jedis = "8.0.1"
 mongodb = "5.12.0"
+mockbukkit = "3.93.2"
 
 
 [libraries]
@@ -32,6 +33,7 @@ exposed-java-time = { group = "org.jetbrains.exposed", name = "exposed-java-time
 hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
 jedis = { group = "redis.clients", name = "jedis", version.ref = "jedis" }
 mongodb-driver = { group = "org.mongodb", name = "mongodb-driver-sync", version.ref = "mongodb" }
+mockbukkit = { group = "com.github.seeseemelk", name = "MockBukkit-v1.20", version.ref = "mockbukkit" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm" }

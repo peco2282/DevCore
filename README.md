@@ -199,6 +199,21 @@ location.spawn<Zombie> {
 }
 ```
 
+### world
+
+Type-safe DSLs for editing worlds, chunks, blocks, and players.
+[Detailed documentation](world/README.md)
+
+### database
+
+Database abstractions and DSL-based adapters for JDBC, HikariCP, MySQL, SQLite, Redis, and MongoDB.
+[Detailed documentation](database/README.md)
+
+### i18n
+
+YAML-based localization for Bukkit plugins with locale fallback and message placeholders.
+[Detailed documentation](i18n/README.md)
+
 ### event
 
 DSL for defining Bukkit events concisely and type-safely.

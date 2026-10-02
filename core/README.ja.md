@@ -18,6 +18,8 @@ dependencies {
 - `command`
 - `config`
 - `scheduler`
+- `task-sequence`
 - `event`
 - `cooldown`
+- `gui`
 - `scoreboard-lite`

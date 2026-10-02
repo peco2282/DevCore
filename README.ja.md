@@ -203,6 +203,21 @@ location.spawn<Zombie> {
 }
 ```
 
+### world
+
+ワールド、チャンク、ブロック、プレイヤーを型安全に編集するためのDSL。
+[詳細ドキュメント](world/README.ja.md)
+
+### database
+
+データベース抽象化と、JDBC、HikariCP、MySQL、SQLite、Redis、MongoDB向けのDSLアダプター。
+[詳細ドキュメント](database/README.ja.md)
+
+### i18n
+
+ロケールのフォールバックとメッセージ引数に対応した、Bukkitプラグイン向けYAML国際化機能。
+[詳細ドキュメント](i18n/README.ja.md)
+
 ### event
 
 Bukkitイベントを簡潔かつ型安全に定義するためのDSL.

@@ -4,6 +4,8 @@
 
 DevCore modules BOM (`java-platform`) for aligning versions.
 
+The BOM manages every published DevCore module, including the database adapters. It does not add modules to your project by itself.
+
 ## Install (Gradle Kotlin DSL)
 
 ```kotlin
@@ -14,6 +16,6 @@ dependencies {
   implementation("com.peco2282.devcore:config")
   implementation("com.peco2282.devcore:scheduler")
   implementation("com.peco2282.devcore:cooldown")
+  implementation("com.peco2282.devcore:database-sqlite")
 }
 ```
-
