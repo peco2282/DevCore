@@ -25,6 +25,15 @@ allprojects {
       name = "papermc-repo"
     }
   }
+
+  configurations.configureEach {
+    resolutionStrategy.eachDependency {
+      if (requested.group == "org.freemarker" && requested.name == "freemarker") {
+        useVersion("2.3.35")
+        because("FreeMarker versions through 2.3.34 are affected by GHSA-27j2-h3m2-8237")
+      }
+    }
+  }
 }
 
 subprojects {
