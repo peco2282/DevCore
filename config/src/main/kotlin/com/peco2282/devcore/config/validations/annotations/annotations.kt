@@ -116,6 +116,14 @@ annotation class Negative
 annotation class NonNegative
 
 /**
+ * Validates that a floating-point value is neither NaN nor infinite.
+ * Integral numeric values are always finite.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Finite
+
+/**
  * Validates that the string or collection property value is not empty.
  */
 @Target(AnnotationTarget.PROPERTY)

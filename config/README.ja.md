@@ -106,6 +106,25 @@ Clamp アノテーションは範囲外の値を補正します。一方、`@Ran
 `@Max` などのバリデーションアノテーションは範囲外の値を拒否します。
 正規化はバリデーションより先に実行されます。
 
+### 複数プロパティ間の検証
+
+複数のプロパティにまたがる条件には `ValidatableConfig` を実装します。
+カスタム検証は各プロパティの検証後に実行され、ネストした設定オブジェクトにも
+再帰的に適用されます。
+
+```kotlin
+data class IntervalConfig(
+  val minimum: Double,
+  val maximum: Double
+) : ValidatableConfig {
+  override fun validate() {
+    require(minimum <= maximum) {
+      "minimum must not exceed maximum"
+    }
+  }
+}
+```
+
 ### バリデーションアノテーション
 
 - `@Comment(text)`: YAMLに出力されるコメントを指定します。
@@ -123,5 +142,6 @@ Clamp アノテーションは範囲外の値を補正します。一方、`@Ran
 - `@Positive`: 数値が正（0より大きい）であることを検証します。
 - `@Negative`: 数値が負（0未満）であることを検証します。
 - `@NonNegative`: 数値が0以上であることを検証します。
+- `@Finite`: 浮動小数点数が NaN または無限大でないことを検証します。
 - `@URL`: 有効なURL形式であることを検証します。
 - `@FileExists`: 指定されたパスのファイルが存在することを検証します。

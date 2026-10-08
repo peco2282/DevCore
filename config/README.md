@@ -106,6 +106,25 @@ Clamp annotations differ from validation annotations: clamp annotations correct
 out-of-range values, while annotations such as `@Range`, `@Min`, and `@Max`
 reject them. Normalization runs before validation.
 
+### Cross-Property Validation
+
+Implement `ValidatableConfig` for invariants involving multiple properties.
+Custom validation runs after property validation and is also applied recursively
+to nested configuration objects.
+
+```kotlin
+data class IntervalConfig(
+  val minimum: Double,
+  val maximum: Double
+) : ValidatableConfig {
+  override fun validate() {
+    require(minimum <= maximum) {
+      "minimum must not exceed maximum"
+    }
+  }
+}
+```
+
 ### Validation Annotations
 
 - `@Comment(text)`: Specifies the comment to be output to the YAML.
@@ -123,5 +142,6 @@ reject them. Normalization runs before validation.
 - `@Positive`: Validates that a numeric value is positive (greater than 0).
 - `@Negative`: Validates that a numeric value is negative (less than 0).
 - `@NonNegative`: Validates that a numeric value is 0 or greater.
+- `@Finite`: Validates that a floating-point value is neither NaN nor infinite.
 - `@URL`: Validates that it is in a valid URL format.
 - `@FileExists`: Validates that the file at the specified path exists.

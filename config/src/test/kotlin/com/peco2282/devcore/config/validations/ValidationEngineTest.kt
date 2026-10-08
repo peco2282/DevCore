@@ -75,4 +75,96 @@ class ValidationEngineTest {
       ValidatorEngine.validate(config)
     }
   }
+
+  data class DecimalConfig(
+    @Positive val positive: Double = 0.5,
+    @Negative val negative: Double = -0.5,
+    @NonNegative val nonNegative: Float = 0.25f,
+    @Range(min = -1, max = 1) val ranged: Double = 0.5,
+    @Min(0) val minimum: Double = 0.5,
+    @Max(0) val maximum: Double = -0.5
+  )
+
+  @Test
+  fun `fractional numeric values are validated without truncation`() {
+    assertDoesNotThrow {
+      ValidatorEngine.validate(DecimalConfig())
+    }
+  }
+
+  @Test
+  fun `fractional values outside numeric constraints are rejected`() {
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(DecimalConfig(positive = -0.1))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(DecimalConfig(negative = 0.1))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(DecimalConfig(ranged = 1.1))
+    }
+  }
+
+  data class FiniteConfig(
+    @Finite val value: Double
+  )
+
+  @Test
+  fun `finite rejects NaN and infinity`() {
+    assertDoesNotThrow {
+      ValidatorEngine.validate(FiniteConfig(1.0))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(FiniteConfig(Double.NaN))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(FiniteConfig(Double.POSITIVE_INFINITY))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(FiniteConfig(Double.NEGATIVE_INFINITY))
+    }
+  }
+
+  data class IntervalConfig(
+    val minimum: Double,
+    val maximum: Double
+  ) : ValidatableConfig {
+    override fun validate() {
+      require(minimum <= maximum) {
+        "minimum must not exceed maximum"
+      }
+    }
+  }
+
+  data class ContainerConfig(
+    val interval: IntervalConfig
+  )
+
+  @Test
+  fun `custom validation runs recursively`() {
+    assertDoesNotThrow {
+      ValidatorEngine.validate(ContainerConfig(IntervalConfig(1.0, 2.0)))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(ContainerConfig(IntervalConfig(2.0, 1.0)))
+    }
+  }
+
+  class PlainConfig(
+    private val valid: Boolean
+  ) : ValidatableConfig {
+    override fun validate() {
+      require(valid) { "config must be valid" }
+    }
+  }
+
+  @Test
+  fun `custom validation supports non-data classes`() {
+    assertDoesNotThrow {
+      ValidatorEngine.validate(PlainConfig(true))
+    }
+    assertThrows<IllegalArgumentException> {
+      ValidatorEngine.validate(PlainConfig(false))
+    }
+  }
 }
