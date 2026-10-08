@@ -1,8 +1,6 @@
 package com.peco2282.devcore.config
 
-import com.peco2282.devcore.config.reflection.ClassMapper
 import org.bukkit.configuration.ConfigurationSection
-import org.bukkit.configuration.file.YamlConfiguration
 import kotlin.reflect.KClass
 
 /**
@@ -25,28 +23,6 @@ class ConfigSources internal constructor(
    * Converts the layered sections to an instance of [clazz].
    */
   fun <T : Any> convert(clazz: KClass<T>): T {
-    val merged = YamlConfiguration()
-
-    // Apply low-priority sections first, then overlay higher-priority values.
-    sections.asReversed().forEach { source ->
-      overlay(merged, source)
-    }
-
-    return ClassMapper.create(clazz, merged)
-  }
-
-  private fun overlay(target: ConfigurationSection, source: ConfigurationSection) {
-    source.getKeys(false).forEach { key ->
-      val sourceSection = source.getConfigurationSection(key)
-      if (sourceSection != null) {
-        val targetSection = target.getConfigurationSection(key) ?: run {
-          target.set(key, null)
-          target.createSection(key)
-        }
-        overlay(targetSection, sourceSection)
-      } else {
-        target.set(key, source.get(key))
-      }
-    }
+    return ConfigReader(*sections.toTypedArray()).read(clazz)
   }
 }

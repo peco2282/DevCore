@@ -1,12 +1,10 @@
 package com.peco2282.devcore.config
 
-import com.peco2282.devcore.config.reflection.ClassMapper
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
-import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
@@ -39,9 +37,7 @@ class ConfigHandle<T : Any>(
    * saves it back to the file to ensure all default values and comments are present.
    */
   fun load() {
-    val yaml = YamlConfiguration.loadConfiguration(file)
-    instance = ClassMapper.create(clazz, yaml)
-    yaml.save(file)
+    instance = ConfigReader(file).read(clazz)
   }
 
   /**

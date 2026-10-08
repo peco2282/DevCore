@@ -69,10 +69,7 @@ object Configs {
    * @return the loaded configuration instance of type [T]
    */
   inline fun <reified T : Any> load(file: File): T {
-    val yaml = YamlConfiguration.loadConfiguration(file)
-    val instance = ClassMapper.create(T::class, yaml)
-    yaml.save(file) // Explicitly perform save
-    return instance
+    return ConfigReader(file).read()
   }
 
   /**
@@ -94,13 +91,7 @@ object Configs {
     onReload: (T) -> Unit = {}
   ): T {
     val file = File(plugin.dataFolder, "config.yml")
-    if (!file.exists()) {
-      plugin.saveResource("config.yml", false)
-    }
-    val yaml = YamlConfiguration.loadConfiguration(file)
-
-    val instance = ClassMapper.create(clazz, yaml)
-    yaml.save(file) // Explicitly perform save
+    val instance = ConfigReader(plugin).read(clazz)
 
     cache[clazz.java] = instance
 
