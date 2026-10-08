@@ -125,6 +125,40 @@ data class IntervalConfig(
 }
 ```
 
+### Built-in Bukkit Serializers
+
+`ItemStack`, `Location`, and `Vector` are supported without manual serializer
+registration. They can be used directly in configuration data classes,
+including nested objects and lists.
+
+```kotlin
+data class ArenaConfig(
+  val spawn: Location,
+  val direction: Vector,
+  val checkpoints: List<Vector>,
+  val icon: ItemStack
+)
+```
+
+Locations use `world`, `x`, `y`, `z`, and optional `yaw` and `pitch` keys.
+Vectors use `x`, `y`, and `z`. Both Bukkit-deserialized objects and ordinary
+YAML maps or sections are accepted. Unknown worlds and missing coordinates are
+reported as configuration errors.
+
+```yaml
+spawn:
+  world: world
+  x: 10.5
+  y: 64.0
+  z: -20.5
+  yaw: 90.0
+  pitch: 0.0
+direction:
+  x: 1.0
+  y: 0.0
+  z: -1.0
+```
+
 ### Validation Annotations
 
 - `@Comment(text)`: Specifies the comment to be output to the YAML.

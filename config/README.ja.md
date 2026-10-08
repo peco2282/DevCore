@@ -125,6 +125,39 @@ data class IntervalConfig(
 }
 ```
 
+### Bukkit ビルトインシリアライザ
+
+`ItemStack`、`Location`、`Vector` は、手動登録なしで設定データクラスに
+直接使用できます。ネストしたオブジェクトやリスト内でも利用できます。
+
+```kotlin
+data class ArenaConfig(
+  val spawn: Location,
+  val direction: Vector,
+  val checkpoints: List<Vector>,
+  val icon: ItemStack
+)
+```
+
+Location は `world`、`x`、`y`、`z` と、省略可能な `yaw`、`pitch` を使用します。
+Vector は `x`、`y`、`z` を使用します。Bukkit によって復元済みのオブジェクト、
+通常の YAML マップ、`ConfigurationSection` のいずれも読み込めます。
+存在しないワールドや不足した座標は設定エラーとして報告します。
+
+```yaml
+spawn:
+  world: world
+  x: 10.5
+  y: 64.0
+  z: -20.5
+  yaw: 90.0
+  pitch: 0.0
+direction:
+  x: 1.0
+  y: 0.0
+  z: -1.0
+```
+
 ### バリデーションアノテーション
 
 - `@Comment(text)`: YAMLに出力されるコメントを指定します。
