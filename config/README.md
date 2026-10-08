@@ -84,10 +84,35 @@ val service = Configs.from(environmentOverrides, sharedDefaults)
 
 Nested sections are merged recursively, and null sections are ignored.
 
+### Normalizing Numeric Values
+
+Clamp annotations normalize numeric values while loading. The normalized value
+is used to construct the configuration object and is written back to YAML.
+
+```kotlin
+data class LimitsConfig(
+  @Clamp(min = 0.0, max = 1.0)
+  val ratio: Double = 0.5,
+
+  @ClampAtLeast(1.0)
+  val workers: Int = 1,
+
+  @ClampAtMost(60.0)
+  val timeout: Long = 30
+)
+```
+
+Clamp annotations differ from validation annotations: clamp annotations correct
+out-of-range values, while annotations such as `@Range`, `@Min`, and `@Max`
+reject them. Normalization runs before validation.
+
 ### Validation Annotations
 
 - `@Comment(text)`: Specifies the comment to be output to the YAML.
 - `@ConfigKey(value)`: Specifies the canonical YAML key used for reading and writing.
+- `@Clamp(min, max)`: Clamps a numeric value to an inclusive range.
+- `@ClampAtLeast(value)`: Raises a numeric value to the specified minimum.
+- `@ClampAtMost(value)`: Lowers a numeric value to the specified maximum.
 - `@NotBlank`: Validates that a string is not empty or blank.
 - `@NotEmpty`: Validates that a string, collection, or map is not empty.
 - `@Range(min, max)`: Validates that a numeric value is within the specified range.

@@ -36,8 +36,14 @@ object FieldResolver {
     return when {
       classifier == String::class -> section.getString(actualPath)
       classifier == Int::class -> section.getInt(actualPath)
+      classifier == Long::class -> section.getLong(actualPath)
+      classifier == Short::class -> section.getInt(actualPath)
+        .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
+      classifier == Byte::class -> section.getInt(actualPath)
+        .coerceIn(Byte.MIN_VALUE.toInt(), Byte.MAX_VALUE.toInt()).toByte()
       classifier == Boolean::class -> section.getBoolean(actualPath)
       classifier == Double::class -> section.getDouble(actualPath)
+      classifier == Float::class -> section.getDouble(actualPath).toFloat()
 
       classifier == List::class -> {
         val argType = type.arguments.first().type!!
@@ -126,7 +132,7 @@ object FieldResolver {
 
       val value = resolve(section, key, param.type, alias)
       if (value != null || param.type.isMarkedNullable) {
-        args[param] = value
+        args[param] = ValueNormalizer.normalize(param, value)
       }
     }
 
@@ -147,7 +153,7 @@ object FieldResolver {
         else -> continue
       }
 
-      args[param] = resolveElement(map[actualKey], param.type)
+      args[param] = ValueNormalizer.normalize(param, resolveElement(map[actualKey], param.type))
     }
 
     return ctor.callBy(args)

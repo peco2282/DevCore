@@ -84,10 +84,35 @@ val service = Configs.from(environmentOverrides, sharedDefaults)
 
 ネストしたセクションも再帰的にマージされ、null のセクションは無視されます。
 
+### 数値の正規化
+
+Clamp アノテーションは、設定の読み込み時に数値を指定範囲へ補正します。
+補正後の値で設定オブジェクトを生成し、その値を YAML に書き戻します。
+
+```kotlin
+data class LimitsConfig(
+  @Clamp(min = 0.0, max = 1.0)
+  val ratio: Double = 0.5,
+
+  @ClampAtLeast(1.0)
+  val workers: Int = 1,
+
+  @ClampAtMost(60.0)
+  val timeout: Long = 30
+)
+```
+
+Clamp アノテーションは範囲外の値を補正します。一方、`@Range`、`@Min`、
+`@Max` などのバリデーションアノテーションは範囲外の値を拒否します。
+正規化はバリデーションより先に実行されます。
+
 ### バリデーションアノテーション
 
 - `@Comment(text)`: YAMLに出力されるコメントを指定します。
 - `@ConfigKey(value)`: 読み込みと書き込みで使う正式な YAML キーを指定します。
+- `@Clamp(min, max)`: 数値を両端を含む指定範囲へ補正します。
+- `@ClampAtLeast(value)`: 数値を指定した最小値以上へ補正します。
+- `@ClampAtMost(value)`: 数値を指定した最大値以下へ補正します。
 - `@NotBlank`: 文字列が空または空白でないことを検証します。
 - `@NotEmpty`: 文字列、コレクション、マップが空でないことを検証します。
 - `@Range(min, max)`: 数値が指定範囲内であることを検証します。

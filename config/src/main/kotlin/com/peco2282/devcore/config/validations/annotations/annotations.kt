@@ -22,6 +22,33 @@ annotation class Alias(val oldName: String)
 annotation class ConfigKey(val value: String)
 
 /**
+ * Clamps a numeric configuration value to the inclusive range from [min] to [max].
+ *
+ * Unlike validation annotations, this annotation normalizes an out-of-range
+ * value instead of rejecting the configuration.
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Clamp(
+  val min: Double,
+  val max: Double
+)
+
+/**
+ * Raises a numeric configuration value to [value] when it is smaller.
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ClampAtLeast(val value: Double)
+
+/**
+ * Lowers a numeric configuration value to [value] when it is larger.
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ClampAtMost(val value: Double)
+
+/**
  * Adds a comment to the configuration property.
  *
  * @property text the text of the comment to be added above the property in the YAML file

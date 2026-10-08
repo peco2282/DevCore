@@ -45,7 +45,7 @@ object ClassMapper {
       if (key in section || (alias != null && alias in section)) {
         val value = FieldResolver.resolve(section, key, type, alias)
         if (value != null || type.isMarkedNullable) {
-          args[param] = value
+          args[param] = ValueNormalizer.normalize(param, value)
         }
       }
     }
