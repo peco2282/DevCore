@@ -136,6 +136,21 @@ val service = ConfigReader(File(plugin.dataFolder, "config.yml"))
 `defaults.limits` から補完されます。フォールバック値を対象側へ書き戻さず、継続して継承
 させる場合は `writeDefaults(false)` を指定してください。
 
+ファイルルートにある複数の設定をまとめてフォールバックにする場合は、
+`fallbackRoot()` を使用します。
+
+```kotlin
+val service = ConfigReader(File(plugin.dataFolder, "config.yml"))
+  .section("services.primary")
+  .fallbackRoot()
+  .writeDefaults(false)
+  .read<ServiceConfig>()
+```
+
+ルート全体が先に読み込まれ、その上へ `services.primary` が再帰的に重ねられます。
+そのため、選択したセクションにある値が優先され、不足するネスト項目やルート項目だけが
+ファイルルートから補完されます。
+
 ### 数値の正規化
 
 Clamp アノテーションは、設定の読み込み時に数値を指定範囲へ補正します。

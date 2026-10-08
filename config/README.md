@@ -134,6 +134,20 @@ Here `services.primary.limits` wins and only missing keys fall back to
 `defaults.limits`. Use `writeDefaults(false)` to keep inherited values from being
 written into the selected section.
 
+Use `fallbackRoot()` to use multiple settings at the file root as defaults for the
+selected section.
+
+```kotlin
+val service = ConfigReader(File(plugin.dataFolder, "config.yml"))
+  .section("services.primary")
+  .fallbackRoot()
+  .writeDefaults(false)
+  .read<ServiceConfig>()
+```
+
+The file root is loaded first and `services.primary` is recursively overlaid on top,
+so values in the selected section win while missing root and nested values are inherited.
+
 Section-backed readers operate on an isolated merged configuration and do not
 mutate the source sections.
 

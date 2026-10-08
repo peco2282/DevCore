@@ -24,6 +24,17 @@ class ConfigReaderTest {
     val limits: LimitsConfig
   )
 
+  data class LoggingConfig(
+    val level: String,
+    val format: String
+  )
+
+  data class RootFallbackConfig(
+    val region: String,
+    val limits: LimitsConfig,
+    val logging: LoggingConfig
+  )
+
   @Test
   fun `file reader writes defaults by default`() {
     val file = File.createTempFile("config-reader", ".yml").apply {
@@ -135,5 +146,44 @@ class ConfigReaderTest {
     assertEquals(5, config.limits.maxAttempts)
     assertEquals(10.0, config.limits.timeoutSeconds)
     assertFalse(service.contains("limits.max-attempts"))
+  }
+
+  @Test
+  fun `file reader can use the root as fallback for the selected section`() {
+    val file = File.createTempFile("config-reader-root-fallback", ".yml").apply {
+      writeText(
+        """
+          region: shared
+          limits:
+            max-attempts: 5
+            timeout-seconds: 30.0
+          logging:
+            level: INFO
+            format: plain
+          services:
+            primary:
+              region: local
+              limits:
+                timeout-seconds: 10.0
+              logging:
+                format: json
+        """.trimIndent()
+      )
+    }
+
+    val config = ConfigReader(file)
+      .section("services.primary")
+      .fallbackRoot()
+      .writeDefaults(false)
+      .read<RootFallbackConfig>()
+    val saved = YamlConfiguration.loadConfiguration(file)
+
+    assertEquals("local", config.region)
+    assertEquals(5, config.limits.maxAttempts)
+    assertEquals(10.0, config.limits.timeoutSeconds)
+    assertEquals("INFO", config.logging.level)
+    assertEquals("json", config.logging.format)
+    assertFalse(saved.contains("services.primary.limits.max-attempts"))
+    assertFalse(saved.contains("services.primary.logging.level"))
   }
 }

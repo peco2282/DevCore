@@ -20,6 +20,7 @@ class ConfigReader private constructor(
 
   private var writeDefaults: Boolean = input is Input.FileInput
   private var sectionPath: String? = null
+  private var useRootFallback: Boolean = false
   private val fallbackSections = mutableListOf<FallbackSection>()
 
   /** Creates a reader backed by [file]. */
@@ -53,6 +54,21 @@ class ConfigReader private constructor(
   fun section(path: String): ConfigReader = apply {
     require(path.isNotBlank()) { "Configuration section path must not be blank" }
     sectionPath = path
+  }
+
+  /**
+   * Uses the file root as a lower-priority fallback for the section selected by [section].
+   *
+   * Nested sections are merged recursively. Values in the selected section always
+   * have priority over values at the file root.
+   *
+   * This option is available only for file-backed readers.
+   */
+  fun fallbackRoot(): ConfigReader = apply {
+    require(input is Input.FileInput) {
+      "Root fallback requires a file-backed ConfigReader"
+    }
+    useRootFallback = true
   }
 
   /**
@@ -103,7 +119,7 @@ class ConfigReader private constructor(
         ?: if (writeDefaults) yaml.createSection(path) else YamlConfiguration()
     } ?: yaml
 
-    val effective = mergeFallbackSections(target) { fallback ->
+    val effective = mergeFallbackSections(target, yaml) { fallback ->
       when (fallback) {
         is FallbackSection.FilePath -> yaml.getConfigurationSection(fallback.sourcePath)
         is FallbackSection.Section -> fallback.source
@@ -140,11 +156,13 @@ class ConfigReader private constructor(
 
   private fun mergeFallbackSections(
     primary: ConfigurationSection,
+    root: ConfigurationSection,
     source: (FallbackSection) -> ConfigurationSection?
   ): ConfigurationSection {
-    if (fallbackSections.isEmpty()) return primary
+    if (!useRootFallback && fallbackSections.isEmpty()) return primary
 
     return YamlConfiguration().also { merged ->
+      if (useRootFallback) overlay(merged, root)
       fallbackSections.asReversed().forEach { fallback ->
         source(fallback)?.let { overlayAt(merged, fallback.targetPath, it) }
       }
