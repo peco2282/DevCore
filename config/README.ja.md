@@ -120,6 +120,22 @@ val service = ConfigReader(environmentOverrides, sharedDefaults)
 ネストしたセクションも再帰的にマージされ、null のセクションは無視されます。
 セクションを読み込む場合は一時的な設定へマージされ、元のセクションは変更されません。
 
+読み取り対象とは異なる階層にあるセクションを、特定のネスト位置へフォールバックとして
+配置する場合は `fallbackSection` を使用します。第1引数は選択したセクションから見た
+配置先、第2引数はファイルルートから見たフォールバック元です。
+
+```kotlin
+val service = ConfigReader(File(plugin.dataFolder, "config.yml"))
+  .section("services.primary")
+  .fallbackSection("limits", "defaults.limits")
+  .writeDefaults(false)
+  .read<ServiceConfig>()
+```
+
+この例では `services.primary.limits` が優先され、不足するキーだけが
+`defaults.limits` から補完されます。フォールバック値を対象側へ書き戻さず、継続して継承
+させる場合は `writeDefaults(false)` を指定してください。
+
 ### 数値の正規化
 
 Clamp アノテーションは、設定の読み込み時に数値を指定範囲へ補正します。

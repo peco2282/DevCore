@@ -20,6 +20,7 @@ class ConfigReader private constructor(
 
   private var writeDefaults: Boolean = input is Input.FileInput
   private var sectionPath: String? = null
+  private val fallbackSections = mutableListOf<FallbackSection>()
 
   /** Creates a reader backed by [file]. */
   constructor(file: File) : this(Input.FileInput(file))
@@ -54,6 +55,37 @@ class ConfigReader private constructor(
     sectionPath = path
   }
 
+  /**
+   * Fills missing values below [targetPath] from [sourcePath].
+   *
+   * [targetPath] is relative to the section selected by [section], while
+   * [sourcePath] is absolute from the file root. Values in the selected section
+   * always have priority over fallback values.
+   *
+   * This overload is available only for file-backed readers.
+   */
+  fun fallbackSection(targetPath: String, sourcePath: String): ConfigReader = apply {
+    require(input is Input.FileInput) {
+      "Path-based fallback sections require a file-backed ConfigReader"
+    }
+    require(targetPath.isNotBlank()) { "Fallback target path must not be blank" }
+    require(sourcePath.isNotBlank()) { "Fallback source path must not be blank" }
+    fallbackSections += FallbackSection.FilePath(targetPath, sourcePath)
+  }
+
+  /**
+   * Fills missing values below [targetPath] from [source].
+   *
+   * Values in the reader's primary source always have priority. A null source
+   * is ignored, which allows optional Bukkit sections to be passed directly.
+   */
+  fun fallbackSection(targetPath: String, source: ConfigurationSection?): ConfigReader = apply {
+    require(targetPath.isNotBlank()) { "Fallback target path must not be blank" }
+    if (source != null) {
+      fallbackSections += FallbackSection.Section(targetPath, source)
+    }
+  }
+
   /** Reads the configured source as [T]. */
   inline fun <reified T : Any> read(): T = read(T::class)
 
@@ -71,8 +103,17 @@ class ConfigReader private constructor(
         ?: if (writeDefaults) yaml.createSection(path) else YamlConfiguration()
     } ?: yaml
 
-    val instance = ClassMapper.create(clazz, target)
-    if (writeDefaults) yaml.save(input.file)
+    val effective = mergeFallbackSections(target) { fallback ->
+      when (fallback) {
+        is FallbackSection.FilePath -> yaml.getConfigurationSection(fallback.sourcePath)
+        is FallbackSection.Section -> fallback.source
+      }
+    }
+    val instance = ClassMapper.create(clazz, effective)
+    if (writeDefaults) {
+      if (effective !== target) ClassMapper.write(instance, target)
+      yaml.save(input.file)
+    }
     return instance
   }
 
@@ -84,8 +125,40 @@ class ConfigReader private constructor(
       sections.mapNotNull { it.getConfigurationSection(path) }
     } ?: sections
     val merged = YamlConfiguration()
+    fallbackSections.asReversed().forEach { fallback ->
+      val source = when (fallback) {
+        is FallbackSection.Section -> fallback.source
+        is FallbackSection.FilePath -> error(
+          "Path-based fallback sections require a file-backed ConfigReader"
+        )
+      }
+      overlayAt(merged, fallback.targetPath, source)
+    }
     selected.asReversed().forEach { source -> overlay(merged, source) }
     return ClassMapper.create(clazz, merged)
+  }
+
+  private fun mergeFallbackSections(
+    primary: ConfigurationSection,
+    source: (FallbackSection) -> ConfigurationSection?
+  ): ConfigurationSection {
+    if (fallbackSections.isEmpty()) return primary
+
+    return YamlConfiguration().also { merged ->
+      fallbackSections.asReversed().forEach { fallback ->
+        source(fallback)?.let { overlayAt(merged, fallback.targetPath, it) }
+      }
+      overlay(merged, primary)
+    }
+  }
+
+  private fun overlayAt(
+    target: ConfigurationSection,
+    path: String,
+    source: ConfigurationSection
+  ) {
+    val destination = target.getConfigurationSection(path) ?: target.createSection(path)
+    overlay(destination, source)
   }
 
   private fun overlay(target: ConfigurationSection, source: ConfigurationSection) {
@@ -112,5 +185,19 @@ class ConfigReader private constructor(
     data class SectionsInput(
       val sections: List<ConfigurationSection>
     ) : Input
+  }
+
+  private sealed interface FallbackSection {
+    val targetPath: String
+
+    data class FilePath(
+      override val targetPath: String,
+      val sourcePath: String
+    ) : FallbackSection
+
+    data class Section(
+      override val targetPath: String,
+      val source: ConfigurationSection
+    ) : FallbackSection
   }
 }

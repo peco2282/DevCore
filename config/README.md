@@ -117,6 +117,23 @@ val service = ConfigReader(environmentOverrides, sharedDefaults)
 ```
 
 Nested sections are merged recursively, and null sections are ignored.
+
+Use `fallbackSection` when a section from another hierarchy should provide defaults at
+a specific nested location. The first argument is relative to the selected section and
+the second argument is absolute from the file root.
+
+```kotlin
+val service = ConfigReader(File(plugin.dataFolder, "config.yml"))
+  .section("services.primary")
+  .fallbackSection("limits", "defaults.limits")
+  .writeDefaults(false)
+  .read<ServiceConfig>()
+```
+
+Here `services.primary.limits` wins and only missing keys fall back to
+`defaults.limits`. Use `writeDefaults(false)` to keep inherited values from being
+written into the selected section.
+
 Section-backed readers operate on an isolated merged configuration and do not
 mutate the source sections.
 

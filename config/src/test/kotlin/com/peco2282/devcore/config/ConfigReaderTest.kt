@@ -15,6 +15,15 @@ class ConfigReaderTest {
     @ConfigKey("max-attempts") val maxAttempts: Int = 3
   )
 
+  data class LimitsConfig(
+    @ConfigKey("max-attempts") val maxAttempts: Int,
+    @ConfigKey("timeout-seconds") val timeoutSeconds: Double
+  )
+
+  data class ApplicationConfig(
+    val limits: LimitsConfig
+  )
+
   @Test
   fun `file reader writes defaults by default`() {
     val file = File.createTempFile("config-reader", ".yml").apply {
@@ -78,5 +87,53 @@ class ConfigReaderTest {
     assertEquals(5, config.maxAttempts)
     assertFalse(overrides.contains("services.primary.max-attempts"))
     assertTrue(defaults.contains("services.primary.max-attempts"))
+  }
+
+  @Test
+  fun `file reader can place a root section below the selected section as fallback`() {
+    val file = File.createTempFile("config-reader-nested-fallback", ".yml").apply {
+      writeText(
+        """
+          defaults:
+            limits:
+              max-attempts: 5
+              timeout-seconds: 30.0
+          services:
+            primary:
+              limits:
+                timeout-seconds: 10.0
+        """.trimIndent()
+      )
+    }
+
+    val config = ConfigReader(file)
+      .section("services.primary")
+      .fallbackSection("limits", "defaults.limits")
+      .writeDefaults(false)
+      .read<ApplicationConfig>()
+    val saved = YamlConfiguration.loadConfiguration(file)
+
+    assertEquals(5, config.limits.maxAttempts)
+    assertEquals(10.0, config.limits.timeoutSeconds)
+    assertFalse(saved.contains("services.primary.limits.max-attempts"))
+  }
+
+  @Test
+  fun `reader can place an explicit section as nested fallback`() {
+    val service = YamlConfiguration().apply {
+      set("limits.timeout-seconds", 10.0)
+    }
+    val sharedLimits = YamlConfiguration().apply {
+      set("max-attempts", 5)
+      set("timeout-seconds", 30.0)
+    }
+
+    val config = ConfigReader(service)
+      .fallbackSection("limits", sharedLimits)
+      .read<ApplicationConfig>()
+
+    assertEquals(5, config.limits.maxAttempts)
+    assertEquals(10.0, config.limits.timeoutSeconds)
+    assertFalse(service.contains("limits.max-attempts"))
   }
 }
