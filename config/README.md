@@ -53,6 +53,20 @@ data class ServiceConfig(
 )
 ```
 
+Use `@ConfigIgnore` for derived values, caches, and other runtime-only
+properties. Ignored constructor parameters must have a default value.
+
+```kotlin
+data class HorizontalOffset(
+  val x: Double = 0.0,
+  val z: Double = 0.0
+) {
+  @ConfigIgnore
+  val vector: Vector
+    get() = Vector(x, 0.0, z)
+}
+```
+
 ### Loading and Saving Configurations
 
 ```kotlin
@@ -65,6 +79,19 @@ val otherConfig = Configs.load<OtherConfig>(File(plugin.dataFolder, "other.yml")
 // Save
 Configs.save(plugin, config)
 ```
+
+For configurable loading, use `ConfigReader` directly:
+
+```kotlin
+val config = ConfigReader(File(plugin.dataFolder, "config.yml"))
+  .section("services.primary")
+  .writeDefaults(true)
+  .read<ServiceConfig>()
+```
+
+File-backed readers write defaults and normalized values by default. Use
+`.writeDefaults(false)` for read-only loading. Existing `Configs.load`,
+`Configs.from`, and `ConfigHandle` APIs delegate to `ConfigReader` internally.
 
 ### Layered Configuration Sources
 
@@ -82,7 +109,16 @@ val service = Configs.from(environmentOverrides, sharedDefaults)
   .convert<ServiceConfig>()
 ```
 
+The equivalent reader API is:
+
+```kotlin
+val service = ConfigReader(environmentOverrides, sharedDefaults)
+  .read<ServiceConfig>()
+```
+
 Nested sections are merged recursively, and null sections are ignored.
+Section-backed readers operate on an isolated merged configuration and do not
+mutate the source sections.
 
 ### Normalizing Numeric Values
 
@@ -163,6 +199,7 @@ direction:
 
 - `@Comment(text)`: Specifies the comment to be output to the YAML.
 - `@ConfigKey(value)`: Specifies the canonical YAML key used for reading and writing.
+- `@ConfigIgnore`: Excludes a runtime-only property from configuration reading and writing.
 - `@Clamp(min, max)`: Clamps a numeric value to an inclusive range.
 - `@ClampAtLeast(value)`: Raises a numeric value to the specified minimum.
 - `@ClampAtMost(value)`: Lowers a numeric value to the specified maximum.

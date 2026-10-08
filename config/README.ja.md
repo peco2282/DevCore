@@ -53,6 +53,20 @@ data class ServiceConfig(
 )
 ```
 
+派生値、キャッシュなどの実行時専用プロパティには `@ConfigIgnore` を使用します。
+無視するコンストラクタ引数には既定値が必要です。
+
+```kotlin
+data class HorizontalOffset(
+  val x: Double = 0.0,
+  val z: Double = 0.0
+) {
+  @ConfigIgnore
+  val vector: Vector
+    get() = Vector(x, 0.0, z)
+}
+```
+
 ### 設定のロードとセーブ
 
 ```kotlin
@@ -65,6 +79,20 @@ val otherConfig = Configs.load<OtherConfig>(File(plugin.dataFolder, "other.yml")
 // セーブ
 Configs.save(plugin, config)
 ```
+
+読み込み方法を設定する場合は `ConfigReader` を直接使用します。
+
+```kotlin
+val config = ConfigReader(File(plugin.dataFolder, "config.yml"))
+  .section("services.primary")
+  .writeDefaults(true)
+  .read<ServiceConfig>()
+```
+
+ファイルを読み込む場合、既定値と正規化後の値はデフォルトで書き戻されます。
+読み込み専用にする場合は `.writeDefaults(false)` を使用します。
+既存の `Configs.load`、`Configs.from`、`ConfigHandle` は内部で
+`ConfigReader` へ委譲されます。
 
 ### 複数設定ソースの優先読み込み
 
@@ -82,7 +110,15 @@ val service = Configs.from(environmentOverrides, sharedDefaults)
   .convert<ServiceConfig>()
 ```
 
+同じ処理は `ConfigReader` で次のように記述できます。
+
+```kotlin
+val service = ConfigReader(environmentOverrides, sharedDefaults)
+  .read<ServiceConfig>()
+```
+
 ネストしたセクションも再帰的にマージされ、null のセクションは無視されます。
+セクションを読み込む場合は一時的な設定へマージされ、元のセクションは変更されません。
 
 ### 数値の正規化
 
@@ -162,6 +198,7 @@ direction:
 
 - `@Comment(text)`: YAMLに出力されるコメントを指定します。
 - `@ConfigKey(value)`: 読み込みと書き込みで使う正式な YAML キーを指定します。
+- `@ConfigIgnore`: 実行時専用プロパティを設定の読み書きから除外します。
 - `@Clamp(min, max)`: 数値を両端を含む指定範囲へ補正します。
 - `@ClampAtLeast(value)`: 数値を指定した最小値以上へ補正します。
 - `@ClampAtMost(value)`: 数値を指定した最大値以下へ補正します。
