@@ -10,6 +10,18 @@ package com.peco2282.devcore.config.validations.annotations
 annotation class Alias(val oldName: String)
 
 /**
+ * Specifies the canonical YAML key for a configuration property.
+ *
+ * Unlike [Alias], this key is used for both reading and writing. This is useful
+ * when Kotlin property names use camelCase while YAML keys use kebab-case.
+ *
+ * @property value the canonical key used in the configuration
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ConfigKey(val value: String)
+
+/**
  * Adds a comment to the configuration property.
  *
  * @property text the text of the comment to be added above the property in the YAML file

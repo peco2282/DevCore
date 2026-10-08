@@ -4,6 +4,7 @@ import com.peco2282.devcore.config.reflection.ClassMapper.write
 import com.peco2282.devcore.config.validations.ValidatorEngine
 import com.peco2282.devcore.config.validations.annotations.Alias
 import com.peco2282.devcore.config.validations.annotations.Comment
+import com.peco2282.devcore.config.validations.annotations.ConfigKey
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -38,10 +39,11 @@ object ClassMapper {
     for (param in ctor.parameters) {
       val name = param.name!!
       val type = param.type
+      val key = param.findAnnotation<ConfigKey>()?.value ?: name
       val alias = param.findAnnotation<Alias>()?.oldName
 
-      if (section.contains(name) || (alias != null && section.contains(alias))) {
-        val value = FieldResolver.resolve(section, name, type, alias)
+      if (key in section || (alias != null && alias in section)) {
+        val value = FieldResolver.resolve(section, key, type, alias)
         if (value != null || type.isMarkedNullable) {
           args[param] = value
         }
@@ -65,6 +67,7 @@ object ClassMapper {
    */
   fun write(obj: Any, section: ConfigurationSection) {
     val clazz = obj::class
+    val constructorParameters = clazz.primaryConstructor?.parameters?.associateBy { it.name }.orEmpty()
     val comment = clazz.findAnnotation<Comment>()?.text
     if (comment != null) {
       section.setComments("", listOf(comment))
@@ -72,10 +75,13 @@ object ClassMapper {
 
     clazz.memberProperties.forEach { prop ->
       val value = prop.getter.call(obj) ?: return@forEach
+      val key = prop.findAnnotation<ConfigKey>()?.value
+        ?: constructorParameters[prop.name]?.findAnnotation<ConfigKey>()?.value
+        ?: prop.name
 
       val propComment = prop.findAnnotation<Comment>()?.text
       if (propComment != null) {
-        section.setComments(prop.name, listOf(propComment))
+        section.setComments(key, listOf(propComment))
       }
 
       when {
@@ -89,21 +95,21 @@ object ClassMapper {
               else -> TypeSerializers.serializeOrRaw(element)
             }
           }
-          section.set(prop.name, listToSave)
+          section.set(key, listToSave)
         }
 
         value::class.isData -> {
-          val sub = section.getConfigurationSection(prop.name)
-            ?: section.createSection(prop.name)
+          val sub = section.getConfigurationSection(key)
+            ?: section.createSection(key)
           write(value, sub)
         }
 
         value is Map<*, *> -> {
-          val sub = section.getConfigurationSection(prop.name)
-            ?: section.createSection(prop.name)
+          val sub = section.getConfigurationSection(key)
+            ?: section.createSection(key)
 
           if (propComment != null) {
-            section.setComments(prop.name, listOf(propComment))
+            section.setComments(key, listOf(propComment))
           }
 
           value.forEach { (k, v) ->
@@ -133,7 +139,7 @@ object ClassMapper {
 
         else -> {
           val serialized = TypeSerializers.serializeOrRaw(value)
-          section.set(prop.name, serialized)
+          section.set(key, serialized)
         }
       }
     }
@@ -142,9 +148,13 @@ object ClassMapper {
   private fun dataClassToMap(obj: Any): Map<String, Any?> {
     val map = mutableMapOf<String, Any?>()
     val clazz = obj::class
+    val constructorParameters = clazz.primaryConstructor?.parameters?.associateBy { it.name }.orEmpty()
     clazz.memberProperties.forEach { prop ->
       val value = prop.getter.call(obj)
-      map[prop.name] =
+      val key = prop.findAnnotation<ConfigKey>()?.value
+        ?: constructorParameters[prop.name]?.findAnnotation<ConfigKey>()?.value
+        ?: prop.name
+      map[key] =
         if (value != null) {
           when {
             value::class.isData -> dataClassToMap(value)

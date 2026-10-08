@@ -1,6 +1,7 @@
 package com.peco2282.devcore.config.reflection
 
 import com.peco2282.devcore.config.validations.annotations.Alias
+import com.peco2282.devcore.config.validations.annotations.ConfigKey
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -118,11 +119,12 @@ object FieldResolver {
 
     for (param in ctor.parameters) {
       val name = param.name!!
+      val key = param.findAnnotation<ConfigKey>()?.value ?: name
       val alias = param.findAnnotation<Alias>()?.oldName
 
-      if (!section.contains(name) && (alias == null || !section.contains(alias))) continue
+      if (!section.contains(key) && (alias == null || !section.contains(alias))) continue
 
-      val value = resolve(section, name, param.type, alias)
+      val value = resolve(section, key, param.type, alias)
       if (value != null || param.type.isMarkedNullable) {
         args[param] = value
       }
@@ -137,9 +139,15 @@ object FieldResolver {
 
     for (param in ctor.parameters) {
       val name = param.name!!
-      if (!map.containsKey(name)) continue
+      val key = param.findAnnotation<ConfigKey>()?.value ?: name
+      val alias = param.findAnnotation<Alias>()?.oldName
+      val actualKey = when {
+        map.containsKey(key) -> key
+        alias != null && map.containsKey(alias) -> alias
+        else -> continue
+      }
 
-      args[param] = map[name]
+      args[param] = resolveElement(map[actualKey], param.type)
     }
 
     return ctor.callBy(args)
