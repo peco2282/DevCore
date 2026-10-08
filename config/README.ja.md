@@ -43,6 +43,16 @@ data class MyConfig(
 )
 ```
 
+Kotlin のプロパティ名と正式な YAML キーが異なる場合は `@ConfigKey` を使用します。
+指定したキーは読み込みと書き込みの両方で維持されます。
+
+```kotlin
+data class ServiceConfig(
+  @ConfigKey("request-timeout")
+  val requestTimeout: Int = 30
+)
+```
+
 ### 設定のロードとセーブ
 
 ```kotlin
@@ -56,9 +66,28 @@ val otherConfig = Configs.load<OtherConfig>(File(plugin.dataFolder, "other.yml")
 Configs.save(plugin, config)
 ```
 
+### 複数設定ソースの優先読み込み
+
+`Configs.from` を使用すると、複数のセクションから値を解決できます。
+先に渡したセクションほど優先度が高く、キーが存在しない場合は後続の
+セクション、最後にコンストラクタの既定値へフォールバックします。
+明示的に指定された `0` や `false` は欠落値として扱いません。
+
+```kotlin
+val environmentOverrides =
+  plugin.config.getConfigurationSection("environments.$environment")
+val sharedDefaults = plugin.config.getConfigurationSection("defaults")
+
+val service = Configs.from(environmentOverrides, sharedDefaults)
+  .convert<ServiceConfig>()
+```
+
+ネストしたセクションも再帰的にマージされ、null のセクションは無視されます。
+
 ### バリデーションアノテーション
 
 - `@Comment(text)`: YAMLに出力されるコメントを指定します。
+- `@ConfigKey(value)`: 読み込みと書き込みで使う正式な YAML キーを指定します。
 - `@NotBlank`: 文字列が空または空白でないことを検証します。
 - `@NotEmpty`: 文字列、コレクション、マップが空でないことを検証します。
 - `@Range(min, max)`: 数値が指定範囲内であることを検証します。

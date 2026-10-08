@@ -43,6 +43,16 @@ data class MyConfig(
 )
 ```
 
+Use `@ConfigKey` when the canonical YAML key differs from the Kotlin property
+name. The annotated key is preserved for both reading and writing:
+
+```kotlin
+data class ServiceConfig(
+  @ConfigKey("request-timeout")
+  val requestTimeout: Int = 30
+)
+```
+
 ### Loading and Saving Configurations
 
 ```kotlin
@@ -56,9 +66,28 @@ val otherConfig = Configs.load<OtherConfig>(File(plugin.dataFolder, "other.yml")
 Configs.save(plugin, config)
 ```
 
+### Layered Configuration Sources
+
+Use `Configs.from` to resolve values from multiple sections. Sections are
+ordered from highest to lowest priority. Missing keys fall through to later
+sections and then to constructor defaults. Explicit values such as `0` and
+`false` are not treated as missing.
+
+```kotlin
+val environmentOverrides =
+  plugin.config.getConfigurationSection("environments.$environment")
+val sharedDefaults = plugin.config.getConfigurationSection("defaults")
+
+val service = Configs.from(environmentOverrides, sharedDefaults)
+  .convert<ServiceConfig>()
+```
+
+Nested sections are merged recursively, and null sections are ignored.
+
 ### Validation Annotations
 
 - `@Comment(text)`: Specifies the comment to be output to the YAML.
+- `@ConfigKey(value)`: Specifies the canonical YAML key used for reading and writing.
 - `@NotBlank`: Validates that a string is not empty or blank.
 - `@NotEmpty`: Validates that a string, collection, or map is not empty.
 - `@Range(min, max)`: Validates that a numeric value is within the specified range.
@@ -71,4 +100,3 @@ Configs.save(plugin, config)
 - `@NonNegative`: Validates that a numeric value is 0 or greater.
 - `@URL`: Validates that it is in a valid URL format.
 - `@FileExists`: Validates that the file at the specified path exists.
-

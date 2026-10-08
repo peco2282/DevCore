@@ -3,6 +3,7 @@ package com.peco2282.devcore.config
 import com.peco2282.devcore.config.Configs.load
 import com.peco2282.devcore.config.reflection.ClassMapper
 import org.bukkit.Bukkit
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.Plugin
 import java.io.File
@@ -23,6 +24,23 @@ object Configs {
   private val cache = mutableMapOf<Class<*>, Any>()
   private val watchers = mutableMapOf<File, WatchKey>()
   private val watchService by lazy { FileSystems.getDefault().newWatchService() }
+
+  /**
+   * Creates a configuration source chain from the supplied [sections].
+   *
+   * Sections are ordered from highest to lowest priority. A key is read from
+   * the first section that explicitly contains it; missing keys fall through
+   * to later sections and finally to constructor defaults. Null sections are
+   * ignored, which makes optional Bukkit sections convenient to compose.
+   *
+   * Example:
+   * ```kotlin
+   * val settings = Configs.from(environmentOverrides, sharedDefaults)
+   *   .convert<ServiceConfig>()
+   * ```
+   */
+  fun from(vararg sections: ConfigurationSection?): ConfigSources =
+    ConfigSources(sections.filterNotNull())
 
   /**
    * Loads the configuration of type [T] for the [plugin].
@@ -155,4 +173,3 @@ object Configs {
     yaml.save(file)
   }
 }
-
