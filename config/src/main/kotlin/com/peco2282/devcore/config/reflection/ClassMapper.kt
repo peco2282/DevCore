@@ -4,6 +4,7 @@ import com.peco2282.devcore.config.reflection.ClassMapper.write
 import com.peco2282.devcore.config.validations.ValidatorEngine
 import com.peco2282.devcore.config.validations.annotations.Alias
 import com.peco2282.devcore.config.validations.annotations.Comment
+import com.peco2282.devcore.config.validations.annotations.ConfigIgnore
 import com.peco2282.devcore.config.validations.annotations.ConfigKey
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.KClass
@@ -37,6 +38,12 @@ object ClassMapper {
     val args = mutableMapOf<KParameter, Any?>()
 
     for (param in ctor.parameters) {
+      if (param.findAnnotation<ConfigIgnore>() != null) {
+        require(param.isOptional) {
+          "Ignored configuration parameter ${param.name} must have a default value"
+        }
+        continue
+      }
       val name = param.name!!
       val type = param.type
       val key = param.findAnnotation<ConfigKey>()?.value ?: name
@@ -74,9 +81,15 @@ object ClassMapper {
     }
 
     clazz.memberProperties.forEach { prop ->
+      val constructorParameter = constructorParameters[prop.name]
+      if (
+        prop.findAnnotation<ConfigIgnore>() != null ||
+        constructorParameter?.findAnnotation<ConfigIgnore>() != null
+      ) return@forEach
+
       val value = prop.getter.call(obj) ?: return@forEach
       val key = prop.findAnnotation<ConfigKey>()?.value
-        ?: constructorParameters[prop.name]?.findAnnotation<ConfigKey>()?.value
+        ?: constructorParameter?.findAnnotation<ConfigKey>()?.value
         ?: prop.name
 
       val propComment = prop.findAnnotation<Comment>()?.text
@@ -150,9 +163,15 @@ object ClassMapper {
     val clazz = obj::class
     val constructorParameters = clazz.primaryConstructor?.parameters?.associateBy { it.name }.orEmpty()
     clazz.memberProperties.forEach { prop ->
+      val constructorParameter = constructorParameters[prop.name]
+      if (
+        prop.findAnnotation<ConfigIgnore>() != null ||
+        constructorParameter?.findAnnotation<ConfigIgnore>() != null
+      ) return@forEach
+
       val value = prop.getter.call(obj)
       val key = prop.findAnnotation<ConfigKey>()?.value
-        ?: constructorParameters[prop.name]?.findAnnotation<ConfigKey>()?.value
+        ?: constructorParameter?.findAnnotation<ConfigKey>()?.value
         ?: prop.name
       map[key] =
         if (value != null) {

@@ -22,6 +22,15 @@ annotation class Alias(val oldName: String)
 annotation class ConfigKey(val value: String)
 
 /**
+ * Excludes a property from configuration reading and writing.
+ *
+ * Constructor parameters marked with this annotation must have a default value.
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ConfigIgnore
+
+/**
  * Clamps a numeric configuration value to the inclusive range from [min] to [max].
  *
  * Unlike validation annotations, this annotation normalizes an out-of-range

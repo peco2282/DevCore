@@ -1,6 +1,7 @@
 package com.peco2282.devcore.config.reflection
 
 import com.peco2282.devcore.config.validations.annotations.Alias
+import com.peco2282.devcore.config.validations.annotations.ConfigIgnore
 import com.peco2282.devcore.config.validations.annotations.ConfigKey
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.KClass
@@ -124,6 +125,12 @@ object FieldResolver {
     val args = mutableMapOf<KParameter, Any?>()
 
     for (param in ctor.parameters) {
+      if (param.findAnnotation<ConfigIgnore>() != null) {
+        require(param.isOptional) {
+          "Ignored configuration parameter ${param.name} must have a default value"
+        }
+        continue
+      }
       val name = param.name!!
       val key = param.findAnnotation<ConfigKey>()?.value ?: name
       val alias = param.findAnnotation<Alias>()?.oldName
@@ -144,6 +151,12 @@ object FieldResolver {
     val args = mutableMapOf<KParameter, Any?>()
 
     for (param in ctor.parameters) {
+      if (param.findAnnotation<ConfigIgnore>() != null) {
+        require(param.isOptional) {
+          "Ignored configuration parameter ${param.name} must have a default value"
+        }
+        continue
+      }
       val name = param.name!!
       val key = param.findAnnotation<ConfigKey>()?.value ?: name
       val alias = param.findAnnotation<Alias>()?.oldName
