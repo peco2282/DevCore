@@ -45,7 +45,7 @@ repositories {
 
 ```kotlin
 dependencies {
-  implementation("com.peco2282.devcore:core:1.0.0")
+  implementation("com.peco2282.devcore:core:1.1.0")
 }
 ```
 
@@ -53,7 +53,7 @@ BOMを使用してモジュールを選択する場合:
 
 ```kotlin
 dependencies {
-  implementation(platform("com.peco2282.devcore:devcore-bom:1.0.0"))
+  implementation(platform("com.peco2282.devcore:devcore-bom:1.1.3"))
   implementation("com.peco2282.devcore:command")
   implementation("com.peco2282.devcore:config")
 }
