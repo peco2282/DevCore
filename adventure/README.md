@@ -10,6 +10,7 @@ Provides a DSL for making the Adventure library (KyoriPowered) easier to use fro
 - Type-safe styling
 - Easy application of colors, decorations, click, and hover events
 - Joining and collecting various components
+- Title and boss bar display DSLs
 
 ## Install (Gradle Kotlin DSL)
 
@@ -67,6 +68,37 @@ val list = component(joiner = { it.join(" | ") }) {
 }
 // Result: Item 1 | Item 2 | Item 3
 ```
+
+### Titles and Boss Bars
+
+Build titles with tick- or second-based timing. Unspecified timing uses Adventure's default title times.
+
+```kotlin
+player.title {
+  title { text("Quest complete!") { gold(); bold() } }
+  subtitle { text("Your reward is ready") { green() } }
+  fadeIn = 10 // ticks
+  staySeconds = 3.0
+}
+
+player.updateTitle(title = component { text("Updated title") }) // Update only one title part
+```
+
+Create and show a boss bar with one builder; the returned Adventure `BossBar` can be updated later.
+
+```kotlin
+val bar = player.showBossBar {
+  name { text("Event progress") }
+  progress = 0.5f
+  color = BossBar.Color.BLUE
+  overlay = BossBar.Overlay.PROGRESS
+}
+
+bar.update { progress = 0.75f }
+player.hideBossBar(bar)
+```
+
+The same boss bar can be shown or hidden for a `Collection<Audience>`.
 
 ### Advanced Features
 

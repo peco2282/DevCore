@@ -10,6 +10,7 @@ Adventureライブラリ（KyoriPowered）をKotlinから使いやすくする�
 - 型安全なスタイリング
 - 色、装飾、クリック・ホバーイベントの簡単な適用
 - 各種コンポーネントの結合（join/collect）
+- タイトルとボスバーの表示DSL
 
 ## Install (Gradle Kotlin DSL)
 
@@ -67,6 +68,37 @@ val list = component(joiner = { it.join(" | ") }) {
 }
 // 結果: Item 1 | Item 2 | Item 3
 ```
+
+### タイトルとボスバー
+
+tickまたは秒単位でタイトルの表示時間を指定できます。省略した時間にはAdventureのデフォルト値が使われます。
+
+```kotlin
+player.title {
+  title { text("クエスト達成！") { gold(); bold() } }
+  subtitle { text("報酬を受け取れます") { green() } }
+  fadeIn = 10 // tick
+  staySeconds = 3.0
+}
+
+player.updateTitle(title = component { text("タイトルのみ更新") })
+```
+
+ボスバーはDSLで作成して表示できます。返されるAdventureの`BossBar`は後から更新できます。
+
+```kotlin
+val bar = player.showBossBar {
+  name { text("イベント進行度") }
+  progress = 0.5f
+  color = BossBar.Color.BLUE
+  overlay = BossBar.Overlay.PROGRESS
+}
+
+bar.update { progress = 0.75f }
+player.hideBossBar(bar)
+```
+
+同じボスバーを`Collection<Audience>`全体に表示・非表示できます。
 
 ### 高度な機能
 
