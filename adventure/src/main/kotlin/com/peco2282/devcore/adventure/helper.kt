@@ -73,7 +73,10 @@ fun Audience.send(consumer: ComponentBuilder.() -> Unit) = sendMessage(component
  *
  * @param consumer the component-building block to run separately for every entry.
  */
-fun Collection<Audience>.send(consumer: ComponentBuilder.() -> Unit) = forEach { it.sendMessage(component(consumer)) }
+fun Collection<Audience>.send(consumer: ComponentBuilder.() -> Unit) {
+  val component = component(consumer)
+  forEach { it.sendMessage(component) }
+}
 
 /**
  * Builds a DSL message and controls how its accumulated parts become the final component.
@@ -113,8 +116,10 @@ fun Audience.send(joiner: (ComponentBuilder) -> Component = ComponentBuilder::jo
  * @param joiner produces the final component from each populated builder.
  * @param consumer builds the message parts separately for each collection entry.
  */
-fun Collection<Audience>.send(joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, consumer: ComponentBuilder.() -> Unit) =
-  forEach { it.sendMessage(component(joiner, consumer)) }
+fun Collection<Audience>.send(joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, consumer: ComponentBuilder.() -> Unit) {
+  val component = component(joiner, consumer)
+  forEach { it.sendMessage(component) }
+}
 
 
 /**
@@ -151,7 +156,10 @@ fun Audience.actionBar(consumer: ComponentBuilder.() -> Unit) = sendActionBar(co
  *
  * @param consumer builds the contents independently for every collection entry.
  */
-fun Collection<Audience>.actionBar(consumer: ComponentBuilder.() -> Unit) = forEach { it.actionBar(consumer) }
+fun Collection<Audience>.actionBar(consumer: ComponentBuilder.() -> Unit) {
+  val component = component(consumer)
+  forEach { it.sendActionBar(component) }
+}
 
 internal fun toDuration(seconds: Double): Duration {
   require(seconds.isFinite() && seconds >= 0.0) { "Seconds must be finite and non-negative" }
@@ -236,14 +244,15 @@ fun Collection<Audience>.title(
   title: ComponentBuilder.() -> Unit,
   subtitle: ComponentBuilder.() -> Unit
 ) {
+  val create = createTitle {
+    title(title)
+    subtitle(subtitle)
+    this.fadeInSeconds = fadeInSeconds
+    this.staySeconds = staySeconds
+    this.fadeOutSeconds = fadeOutSeconds
+  }
   forEach {
-    it.title(
-      fadeInSeconds,
-      staySeconds,
-      fadeOutSeconds,
-      title,
-      subtitle
-    )
+    it.showTitle(create)
   }
 }
 
@@ -270,7 +279,10 @@ fun Collection<Audience>.title(
  */
 fun Audience.title(
   builder: TitleBuilder.() -> Unit
-) = showTitle(createTitle(builder))
+) {
+  val title = createTitle(builder)
+  showTitle(title)
+}
 
 /**
  * Configures and displays an independent DSL title for every audience in this collection.
@@ -294,7 +306,8 @@ fun Audience.title(
 fun Collection<Audience>.title(
   builder: TitleBuilder.() -> Unit
 ) {
-  forEach { it.title(builder) }
+  val title = createTitle(builder)
+  forEach { it.showTitle(title) }
 }
 
 /**

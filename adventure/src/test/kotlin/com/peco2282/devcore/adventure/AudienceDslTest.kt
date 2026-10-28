@@ -46,10 +46,19 @@ class AudienceDslTest {
 
     recorder.audience.updateTitle(title)
 
-    val shownTitle = recorder.calls.single().second?.single() as Title
-    assertEquals(title, shownTitle.title())
-    assertEquals(Component.empty(), shownTitle.subtitle())
-    assertEquals(Title.DEFAULT_TIMES, shownTitle.times())
+    val call = recorder.calls.single()
+    assertEquals("sendTitlePart", call.first)
+    assertEquals(TitlePart.TITLE, call.second?.get(0))
+    assertEquals(title, call.second?.get(1))
+  }
+
+  @Test
+  fun `title partial update without parts does not send anything`() {
+    val recorder = AudienceRecorder()
+
+    recorder.audience.updateTitle()
+
+    assertEquals(0, recorder.calls.size)
   }
 
   @Test
