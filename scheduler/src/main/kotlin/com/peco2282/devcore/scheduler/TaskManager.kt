@@ -33,7 +33,7 @@ class TaskManager(plugin: Plugin) {
     // 🔥 サーバー停止時（プラグイン無効化時）のクリーンアップ
     // Note: BukkitのイベントシステムではPluginDisableEventなどがありますが、
     // ここではTaskManager自体がPluginに紐付いているため、明示的にcancelAllを呼ぶのが確実です。
-    // PluginRegistory.remove(plugin) が onDisable で呼ばれることを想定しています。
+    // PluginRegistry.remove(plugin) が onDisable で呼ばれることを想定しています。
   }
 
   /**

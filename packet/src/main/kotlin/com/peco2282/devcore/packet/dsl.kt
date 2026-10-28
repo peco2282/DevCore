@@ -1,7 +1,7 @@
 package com.peco2282.devcore.packet
 
 import com.peco2282.devcore.packet.environment.FakeWorldBorderBuilder
-import com.peco2282.devcore.scheduler.PluginRegistory
+import com.peco2282.devcore.scheduler.PluginRegistry
 import com.peco2282.devcore.scheduler.ticks
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
@@ -408,7 +408,7 @@ class SoundBuilder {
  */
 fun Player.packetAnimation(plugin: Plugin, duration: Int, action: (Int) -> Unit) {
   var tick = 0
-  val scheduler = PluginRegistory.get(plugin)
+  val scheduler = PluginRegistry.get(plugin)
   val handle = scheduler.timer(0L.ticks, 1L.ticks) {
     if (tick >= duration) {
       return@timer
@@ -416,7 +416,7 @@ fun Player.packetAnimation(plugin: Plugin, duration: Int, action: (Int) -> Unit)
     action(tick)
     tick++
   }
-  PluginRegistory.get(plugin).manager.trackPlayer(this, handle)
+  PluginRegistry.get(plugin).manager.trackPlayer(this, handle)
 }
 
 /**

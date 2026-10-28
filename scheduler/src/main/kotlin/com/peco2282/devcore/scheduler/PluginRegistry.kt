@@ -13,7 +13,7 @@ import org.bukkit.plugin.Plugin
  * This singleton ensures that each plugin has exactly one [Scheduler] instance
  * and provides a centralized way to retrieve or remove them.
  */
-object PluginRegistory {
+object PluginRegistry {
   private val schedulerMap = mutableMapOf<Plugin, Scheduler>()
 
   /**

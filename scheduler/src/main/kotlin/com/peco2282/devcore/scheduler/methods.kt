@@ -31,7 +31,7 @@ internal inline infix fun <reified E : Event> Plugin.on(crossinline action: E.()
  * @return the [Scheduler] instance
  */
 val Plugin.scheduler: Scheduler
-  get() = PluginRegistory.get(this)
+  get() = PluginRegistry.get(this)
 
 /**
  * The [TaskManager] instance for this plugin.
@@ -122,4 +122,4 @@ fun World.taskLaunch(plugin: Plugin, block: suspend CoroutineScope.() -> Unit): 
  *
  * @return the [Scheduler] instance that was removed, or null if it didn't exist
  */
-fun Plugin.removeScheduler() = PluginRegistory.remove(this)
+fun Plugin.removeScheduler() = PluginRegistry.remove(this)

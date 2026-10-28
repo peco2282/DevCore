@@ -3,7 +3,7 @@ package com.peco2282.devcore.packet.v1_21_4
 import com.peco2282.devcore.packet.EntityAnimation
 import com.peco2282.devcore.packet.EquipmentBuilder
 import com.peco2282.devcore.packet.FakeEntityBuilder
-import com.peco2282.devcore.scheduler.PluginRegistory
+import com.peco2282.devcore.scheduler.PluginRegistry
 import com.peco2282.devcore.scheduler.ticks
 import io.papermc.paper.adventure.PaperAdventure
 import net.kyori.adventure.text.Component
@@ -144,7 +144,7 @@ class FakeEntityBuilderImpl(
 
   override fun despawnAfter(ticks: Long) {
     val plugin = Bukkit.getPluginManager().getPlugin("DevCore") ?: return
-    PluginRegistory.get(plugin).later(ticks.ticks) {
+    PluginRegistry.get(plugin).later(ticks.ticks) {
         val packet = ClientboundRemoveEntitiesPacket(entityId)
         (player as CraftPlayer).handle.connection.send(packet)
     }
