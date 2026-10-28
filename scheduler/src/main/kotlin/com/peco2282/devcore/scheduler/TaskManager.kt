@@ -77,5 +77,11 @@ class TaskManager(plugin: Plugin) {
    * This is typically used when the plugin is being disabled to ensure no tasks
    * continue to run.
    */
-  fun cancelAll() = allTasks.forEach { it.cancel() }
+  fun cancelAll() {
+    val tasks = allTasks.toList()
+    allTasks.clear()
+    playerTasks.clear()
+    worldTasks.clear()
+    tasks.forEach { it.cancel() }
+  }
 }

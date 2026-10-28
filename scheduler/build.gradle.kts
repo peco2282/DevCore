@@ -8,4 +8,5 @@ dependencies {
   testImplementation(libs.paper.api)
   implementation(libs.kotlinx.coroutines)
   testImplementation(libs.kotlin.test)
+  testImplementation(libs.mockbukkit)
 }

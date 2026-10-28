@@ -1,8 +1,13 @@
 package com.peco2282.devcore.scheduler.coroutines
 
 import com.peco2282.devcore.scheduler.Ticks
+import com.peco2282.devcore.scheduler.on
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
+import org.bukkit.event.EventHandler
+import org.bukkit.event.HandlerList
+import org.bukkit.event.Listener
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -12,8 +17,19 @@ import kotlin.coroutines.resume
  * Custom dispatcher that runs tasks on the Bukkit main thread.
  */
 class BukkitDispatcher(private val plugin: Plugin) : CoroutineDispatcher() {
+  @Volatile
+  private var stopping = false
+
+  internal fun stop() {
+    stopping = true
+  }
+
   override fun dispatch(context: CoroutineContext, block: Runnable) {
-    if (!plugin.isEnabled) return
+    if (stopping || !plugin.isEnabled) {
+      context[Job]?.cancel()
+      block.run()
+      return
+    }
     if (Bukkit.isPrimaryThread()) {
       block.run()
     } else {
@@ -23,18 +39,24 @@ class BukkitDispatcher(private val plugin: Plugin) : CoroutineDispatcher() {
 }
 
 private val exceptionHandlerCache = ConcurrentHashMap<Plugin, CoroutineExceptionHandler>()
+private val scopeCache = ConcurrentHashMap<Plugin, CoroutineScope>()
+private val scopeListenerCache = ConcurrentHashMap<Plugin, Listener>()
 
 /**
  * Gets or sets the [CoroutineExceptionHandler] for this [Plugin].
  */
 var Plugin.coroutineExceptionHandler: CoroutineExceptionHandler
-  get() = exceptionHandlerCache.getOrPut(this) {
-    CoroutineExceptionHandler { _, throwable ->
-      logger.severe("Coroutine exception in plugin ${this.name}:")
-      throwable.printStackTrace()
+  get() {
+    ensureScopeLifecycleListener()
+    return exceptionHandlerCache.getOrPut(this) {
+      CoroutineExceptionHandler { _, throwable ->
+        logger.severe("Coroutine exception in plugin ${this.name}:")
+        throwable.printStackTrace()
+      }
     }
   }
   set(value) {
+    ensureScopeLifecycleListener()
     exceptionHandlerCache[this] = value
   }
 
@@ -47,13 +69,37 @@ private val dispatcherCache = ConcurrentHashMap<Plugin, BukkitDispatcher>()
  * Gets the [BukkitDispatcher] for this [Plugin].
  */
 val Plugin.dispatcher: BukkitDispatcher
-  get() = dispatcherCache.getOrPut(this) { BukkitDispatcher(this) }
+  get() {
+    ensureScopeLifecycleListener()
+    return dispatcherCache.getOrPut(this) { BukkitDispatcher(this) }
+  }
 
 /**
  * Gets a [CoroutineScope] bound to this [Plugin]'s lifecycle on the main thread.
  */
 val Plugin.scope: CoroutineScope
-  get() = CoroutineScope(dispatcher + SupervisorJob() + coroutineExceptionHandler)
+  get() = scopeCache.computeIfAbsent(this) { plugin ->
+    plugin.ensureScopeLifecycleListener()
+    CoroutineScope(plugin.dispatcher + SupervisorJob() + plugin.coroutineExceptionHandler)
+  }
+
+private fun Plugin.ensureScopeLifecycleListener() {
+  scopeListenerCache.computeIfAbsent(this) { plugin ->
+    object : Listener {
+      @EventHandler
+      fun onPluginDisable(event: PluginDisableEvent) {
+        if (event.plugin === plugin) plugin.cancelScope()
+      }
+    }.also { Bukkit.getPluginManager().registerEvents(it, plugin) }
+  }
+}
+
+internal fun Plugin.cancelScope() {
+  dispatcherCache.remove(this)?.stop()
+  scopeCache.remove(this)?.cancel()
+  scopeListenerCache.remove(this)?.let { HandlerList.unregisterAll(it) }
+  exceptionHandlerCache.remove(this)
+}
 
 /**
  * Suspends the coroutine for the given number of [ticks].

@@ -1,6 +1,6 @@
 package com.peco2282.devcore.scheduler
 
-import com.peco2282.devcore.scheduler.coroutines.dispatcher
+import com.peco2282.devcore.scheduler.coroutines.scope
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
@@ -20,7 +20,7 @@ class Scheduler(
   internal val plugin: Plugin
 ) {
   private val scheduler by lazy { Bukkit.getScheduler() }
-  val manager by lazy { TaskManager(plugin) }
+  val manager = TaskManager(plugin)
 
   private fun wrap(task: () -> Unit): Runnable = Runnable {
     try {
@@ -54,8 +54,7 @@ class Scheduler(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Unit
   ): TaskHandle {
-    val scope = CoroutineScope(plugin.dispatcher + SupervisorJob())
-    val job = scope.launch(context, block = block)
+    val job = plugin.scope.launch(context, block = block)
     return track(job)
   }
 
@@ -70,7 +69,7 @@ class Scheduler(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Unit
   ): TaskHandle {
-    val job = CoroutineScope(Dispatchers.Default + SupervisorJob()).launch(context, block = block)
+    val job = plugin.scope.launch(Dispatchers.Default + context, block = block)
     return track(job)
   }
 
