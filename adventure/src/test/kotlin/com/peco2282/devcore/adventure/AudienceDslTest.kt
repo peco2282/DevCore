@@ -30,7 +30,7 @@ class AudienceDslTest {
 
   @Test
   fun `title builder defaults to Adventure times`() {
-    val built = title {
+    val built = createTitle {
       title { text("Title") }
     }
 
@@ -44,7 +44,7 @@ class AudienceDslTest {
     val recorder = AudienceRecorder()
     val title = Component.text("Only title")
 
-    recorder.audience.title(title)
+    recorder.audience.updateTitle(title)
 
     val shownTitle = recorder.calls.single().second?.single() as Title
     assertEquals(title, shownTitle.title())
@@ -54,7 +54,7 @@ class AudienceDslTest {
 
   @Test
   fun `title builder supports seconds and ticks`() {
-    val built = title {
+    val built = createTitle {
       fadeInSeconds = 1.5
       stay = 12
       fadeOutSeconds = 0.25
@@ -68,8 +68,8 @@ class AudienceDslTest {
 
   @Test
   fun `title builder rejects invalid timing`() {
-    assertThrows(IllegalArgumentException::class.java) { title { fadeIn = -2 } }
-    assertThrows(IllegalArgumentException::class.java) { title { staySeconds = Double.NaN } }
+    assertThrows(IllegalArgumentException::class.java) { createTitle { fadeIn = -2 } }
+    assertThrows(IllegalArgumentException::class.java) { createTitle { staySeconds = Double.NaN } }
   }
 
   @Test
