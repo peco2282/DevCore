@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     implementation(gradleApi())
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.2.0")
     testImplementation(gradleTestKit())
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
