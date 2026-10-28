@@ -112,9 +112,8 @@ class GuiCreator internal constructor(val rows: Int) {
     val maxX = maxOf(x1, x2)
     val minY = minOf(y1, y2)
     val maxY = maxOf(y1, y2)
-    for (x in minX..maxX) {
-      for (y in minY..maxY) {
-        if (x >= rows || y > 9 || y < 1) continue
+    for (x in maxOf(minX, 1)..minOf(maxX, rows)) {
+      for (y in maxOf(minY, 1)..minOf(maxY, 9)) {
         slot(x, y) {
           icon(material)
           pickable(pickable)

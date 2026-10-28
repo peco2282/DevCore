@@ -324,6 +324,7 @@ object GuiListener : Listener {
   fun onInventoryClose(event: InventoryCloseEvent) {
     val holder = event.inventory.holder as? GuiHolder ?: return
     val player = event.player as? Player ?: return
+    if (event.inventory !== holder.getInventory()) return
     holder.removeViewer(player)
   }
 }
