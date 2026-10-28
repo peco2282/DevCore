@@ -1,4 +1,4 @@
-import java.net.HttpURLConnection
+import org.gradle.api.credentials.PasswordCredentials
 
 plugins {
   `maven-publish`
@@ -93,30 +93,17 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     if (project.name.lowercase().contains("test")) return@onlyIf false
     if (project.name == "scoreboard") return@onlyIf false
     if (project.name.startsWith("v1_")) return@onlyIf false
-    val artifactIdValue = if (project.name == "bom") "devcore-bom" else project.name.lowercase()
-    val groupPath = project.group.toString().replace(".", "/")
-    val remoteUrl =
-      "${repository.url}${groupPath}/${artifactIdValue}/${project.version}/${artifactIdValue}-${project.version}.pom"
-
-    checkLog(project, remoteUrl)
-
-    try {
-      val connection = uri(remoteUrl).toURL().openConnection() as HttpURLConnection
-      connection.requestMethod = "HEAD"
-      connection.connectTimeout = 2000
-      connection.readTimeout = 2000
-
-      val responseCode = connection.responseCode
-
-      if (responseCode == 200) {
-        skipLog(project)
-        false
-      } else {
-        publishLog(project)
-        true
-      }
-    } catch (e: Exception) {
-      warnLog(e)
+    val groupPath = publication.groupId.replace(".", "/")
+    val artifactPath = "$groupPath/${publication.artifactId}/${publication.version}/${publication.artifactId}-${publication.version}.pom"
+    checkLog(project, repository.url.toString().trimEnd('/') + "/" + artifactPath)
+    val credentials = if (repository.url.scheme in listOf("http", "https")) {
+      repository.credentials as? PasswordCredentials
+    } else null
+    if (PublicationCheck.exists(repository.url, artifactPath, credentials?.username, credentials?.password)) {
+      skipLog(project)
+      false
+    } else {
+      publishLog(project)
       true
     }
   }
@@ -171,11 +158,29 @@ publishing {
                   depNode.appendNode("artifactId", artifactId)
                   depNode.appendNode("version", version)
                   depNode.appendNode("scope", scope)
+                  if (dependency is ModuleDependency) {
+                    val rules = dependency.excludeRules
+                    if (!dependency.isTransitive || rules.isNotEmpty()) {
+                      val exclusions = depNode.appendNode("exclusions")
+                      if (!dependency.isTransitive) {
+                        val exclusion = exclusions.appendNode("exclusion")
+                        exclusion.appendNode("groupId", "*")
+                        exclusion.appendNode("artifactId", "*")
+                      } else {
+                        rules.forEach { rule ->
+                          val exclusion = exclusions.appendNode("exclusion")
+                          exclusion.appendNode("groupId", rule.group ?: "*")
+                          exclusion.appendNode("artifactId", rule.module ?: "*")
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
             appendDependencies("api", "compile")
             appendDependencies("implementation", "runtime")
+            appendDependencies("runtimeOnly", "runtime")
           }
         }
 
