@@ -10,9 +10,9 @@ fun Collection<Audience>.send(component: Component) = forEach { it.sendMessage(c
 fun Audience.send(consumer: ComponentBuilder.() -> Unit) = sendMessage(component(consumer))
 fun Collection<Audience>.send(consumer: ComponentBuilder.() -> Unit) = forEach { it.sendMessage(component(consumer)) }
 
-inline fun Audience.send(noinline joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, noinline consumer: ComponentBuilder.() -> Unit) =
+fun Audience.send(joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, consumer: ComponentBuilder.() -> Unit) =
   sendMessage(component(joiner, consumer))
 
-inline fun Collection<Audience>.send(noinline joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, noinline consumer: ComponentBuilder.() -> Unit) =
+fun Collection<Audience>.send(joiner: (ComponentBuilder) -> Component = ComponentBuilder::join, consumer: ComponentBuilder.() -> Unit) =
   forEach { it.sendMessage(component(joiner, consumer)) }
 
