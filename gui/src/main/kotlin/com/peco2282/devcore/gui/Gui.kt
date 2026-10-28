@@ -7,8 +7,11 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.plugin.Plugin
@@ -293,15 +296,31 @@ object GuiListener : Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   fun onInventoryClick(event: InventoryClickEvent) {
-    val clickedInventory = event.clickedInventory ?: return
-    val holder = clickedInventory.holder as? GuiHolder ?: return
+    val topInventory = event.view.topInventory
+    val holder = topInventory.holder as? GuiHolder ?: return
     val gui = holder.gui
     val player = event.whoClicked as? Player ?: return
 
-    val slot = event.slot
-    if (slot < 0 || slot >= gui.rows * 9) return
+    if (event.isShiftClick || event.click == ClickType.NUMBER_KEY || event.click == ClickType.DOUBLE_CLICK ||
+      event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY || event.action == InventoryAction.HOTBAR_SWAP ||
+      event.action == InventoryAction.HOTBAR_MOVE_AND_READD || event.action == InventoryAction.COLLECT_TO_CURSOR
+    ) {
+      event.isCancelled = true
+    }
 
-    val slotCreator = gui.currentSlots[slot] ?: return
+    if (event.clickedInventory !== topInventory) return
+
+    val slot = event.slot
+    if (slot < 0 || slot >= gui.rows * 9) {
+      event.isCancelled = true
+      return
+    }
+
+    val slotCreator = gui.currentSlots[slot]
+    if (slotCreator == null) {
+      event.isCancelled = true
+      return
+    }
 
     if (!slotCreator.pickable) {
       event.isCancelled = true
@@ -314,6 +333,21 @@ object GuiListener : Listener {
       } catch (ex: Exception) {
         ex.printStackTrace()
       }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  fun onInventoryDrag(event: InventoryDragEvent) {
+    val topInventory = event.view.topInventory
+    val holder = topInventory.holder as? GuiHolder ?: return
+    val gui = holder.gui
+    val topSize = gui.rows * 9
+
+    if (event.rawSlots.any { rawSlot ->
+        rawSlot < topSize && gui.currentSlots[rawSlot]?.pickable != true
+      }
+    ) {
+      event.isCancelled = true
     }
   }
 

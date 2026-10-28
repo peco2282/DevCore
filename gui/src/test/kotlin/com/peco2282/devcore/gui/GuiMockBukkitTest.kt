@@ -13,10 +13,12 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
@@ -91,6 +93,89 @@ class GuiMockBukkitTest {
   }
 
   @Test
+  fun `bottom shift click is cancelled while a gui is open`() {
+    val fixture = guiFixture(SlotCreator().icon(Material.STONE))
+    val event = InventoryClickEvent(
+      fixture.view,
+      InventoryType.SlotType.CONTAINER,
+      9,
+      ClickType.SHIFT_LEFT,
+      InventoryAction.MOVE_TO_OTHER_INVENTORY
+    )
+
+    server.pluginManager.callEvent(event)
+
+    assertTrue(event.isCancelled)
+  }
+
+  @Test
+  fun `number key and double click actions are cancelled in a gui`() {
+    val fixture = guiFixture(SlotCreator().icon(Material.STONE))
+    val numberKey = InventoryClickEvent(
+      fixture.view,
+      InventoryType.SlotType.CONTAINER,
+      0,
+      ClickType.NUMBER_KEY,
+      InventoryAction.HOTBAR_SWAP,
+      0
+    )
+    val doubleClick = InventoryClickEvent(
+      fixture.view,
+      InventoryType.SlotType.CONTAINER,
+      0,
+      ClickType.DOUBLE_CLICK,
+      InventoryAction.COLLECT_TO_CURSOR
+    )
+
+    server.pluginManager.callEvent(numberKey)
+    server.pluginManager.callEvent(doubleClick)
+
+    assertTrue(numberKey.isCancelled)
+    assertTrue(doubleClick.isCancelled)
+  }
+
+  @Test
+  fun `undefined gui slots are protected`() {
+    val fixture = guiFixture(mapOf(0 to SlotCreator().icon(Material.STONE)))
+    val event = InventoryClickEvent(
+      fixture.view,
+      InventoryType.SlotType.CONTAINER,
+      1,
+      ClickType.LEFT,
+      InventoryAction.PLACE_ALL
+    )
+
+    server.pluginManager.callEvent(event)
+
+    assertTrue(event.isCancelled)
+  }
+
+  @Test
+  fun `drag involving a protected gui slot is cancelled`() {
+    val fixture = guiFixture(
+      mapOf(
+        0 to SlotCreator().icon(Material.STONE).keep(),
+        1 to SlotCreator().icon(Material.DIAMOND)
+      )
+    )
+    val event = dragEvent(fixture, setOf(0, 1))
+
+    server.pluginManager.callEvent(event)
+
+    assertTrue(event.isCancelled)
+  }
+
+  @Test
+  fun `drag limited to pickable gui slots is allowed`() {
+    val fixture = guiFixture(mapOf(1 to SlotCreator().icon(Material.DIAMOND)))
+    val event = dragEvent(fixture, setOf(1))
+
+    server.pluginManager.callEvent(event)
+
+    assertFalse(event.isCancelled)
+  }
+
+  @Test
   fun `closing inventory removes player from gui viewers`() {
     val fixture = guiFixture(SlotCreator())
     fixture.gui.holder.addViewer(fixture.player)
@@ -101,15 +186,17 @@ class GuiMockBukkitTest {
     assertFalse(fixture.player in fixture.gui.holder.getViewers())
   }
 
-  private fun guiFixture(slot: SlotCreator): Fixture {
+  private fun guiFixture(slot: SlotCreator): Fixture = guiFixture(mapOf(0 to slot))
+
+  private fun guiFixture(slots: Map<Int, SlotCreator>): Fixture {
     val gui = object : Gui(1) {
       override fun build(creator: GuiCreator) = Unit
     }
-    gui.currentSlots = mapOf(0 to slot)
+    gui.currentSlots = slots
 
     val inventory = InventoryMock(gui.holder, 9, InventoryType.CHEST)
     gui.holder.setInventory(inventory)
-    inventory.setItem(0, slot.item)
+    slots.forEach { (slot, creator) -> inventory.setItem(slot, creator.item) }
 
     val player = server.addPlayer()
     val view = SimpleInventoryViewMock(
@@ -120,6 +207,14 @@ class GuiMockBukkitTest {
     )
     return Fixture(gui, player, view)
   }
+
+  private fun dragEvent(fixture: Fixture, rawSlots: Set<Int>) = InventoryDragEvent(
+    fixture.view,
+    ItemStack(Material.DIAMOND),
+    ItemStack(Material.AIR),
+    false,
+    rawSlots.associateWith { ItemStack(Material.DIAMOND) }.toMutableMap()
+  )
 
   @Test
   fun `rectangle includes the final row with reversed endpoints`() {
