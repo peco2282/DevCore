@@ -176,6 +176,9 @@ plugin.command("greet") {
 | `world` | ブロック/チャンク/プレイヤーの編集 | – |
 | `database` | 接続設定、マイグレーション、リポジトリ | – |
 | `i18n` | 言語ファイル、フォールバック、MiniMessage プレースホルダ | – |
+| `pdc` | `NamespacedKey` と `PersistentDataType` の組、メタの取得・再設定の往復 | – |
+| `item` | カスタムアイテムの ID、リスナー、レシピ | – |
+| `storage` | プレイヤーデータの非同期読み書き、オートセーブ、安全な書き込み | – |
 | `util` | キャスト、バージョンチェック、小さなヘルパー | – |
 
 「–」のモジュールは `core` に含まれません。個別に追加してください(バージョンは BOM で揃います)。
@@ -389,6 +392,38 @@ val ring = effect {
   sound(Sound.ENTITY_PLAYER_LEVELUP)
 }
 plugin.playEffect(ring, player, every = 2.ticks, duration = 5.seconds)
+```
+
+### pdc
+
+プレイヤー・エンティティ・アイテム・ブロックの `PersistentDataContainer` を型安全に扱い、自動保存されるプロパティも提供します。
+[詳細ドキュメント](pdc/README.ja.md)
+
+```kotlin
+var Player.kills: Int by pdc(plugin, "kills", default = 0)
+player.kills++      // 永続化されます
+```
+
+### item
+
+見た目・振る舞い・レシピを一箇所にまとめたカスタムアイテム。
+[詳細ドキュメント](item/README.ja.md)
+
+```kotlin
+items.register("ruby_sword", Material.DIAMOND_SWORD) {
+  appearance { displayName = Component.text("ルビーの剣") }
+  onAttack { it.damage *= 1.5 }
+}
+```
+
+### storage
+
+参加前に読み込み、非同期で保存するプレイヤーデータ。オートセーブとクラッシュに強い書き込みつき。
+[詳細ドキュメント](storage/README.ja.md)
+
+```kotlin
+val stats = plugin.playerData<Stats>()
+stats[player].coins += 10
 ```
 
 ### util

@@ -172,6 +172,9 @@ plugin.command("greet") {
 | `world` | Block / chunk / player editing | – |
 | `database` | Connection setup, migrations, repositories | – |
 | `i18n` | Locale files, fallback, MiniMessage placeholders | – |
+| `pdc` | `NamespacedKey` + `PersistentDataType` pairs, meta get/set round trips | – |
+| `item` | Custom item ids, listeners, recipes | – |
+| `storage` | Async per-player load/save, autosave, safe writes | – |
 | `util` | Casting, version checks, small helpers | – |
 
 Modules marked "–" are not pulled in by `core`; add them individually (versions are aligned by the BOM).
@@ -385,6 +388,38 @@ val ring = effect {
   sound(Sound.ENTITY_PLAYER_LEVELUP)
 }
 plugin.playEffect(ring, player, every = 2.ticks, duration = 5.seconds)
+```
+
+### pdc
+
+Typed `PersistentDataContainer` access and self-saving properties for players, entities, items and blocks.
+[Detailed documentation](pdc/README.md)
+
+```kotlin
+var Player.kills: Int by pdc(plugin, "kills", default = 0)
+player.kills++      // persisted
+```
+
+### item
+
+Custom items with their appearance, behavior and recipe in one place.
+[Detailed documentation](item/README.md)
+
+```kotlin
+items.register("ruby_sword", Material.DIAMOND_SWORD) {
+  appearance { displayName = Component.text("Ruby Sword") }
+  onAttack { it.damage *= 1.5 }
+}
+```
+
+### storage
+
+Per-player data loaded before join and saved asynchronously, with autosave and crash-safe writes.
+[Detailed documentation](storage/README.md)
+
+```kotlin
+val stats = plugin.playerData<Stats>()
+stats[player].coins += 10
 ```
 
 ### util
