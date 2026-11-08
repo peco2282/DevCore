@@ -2,7 +2,9 @@ package com.peco2282.devcore.command.argument
 
 import com.peco2282.devcore.command.CommandCreator
 import com.mojang.brigadier.arguments.ArgumentType
+import com.peco2282.devcore.util.MinecraftVersion
 import com.peco2282.devcore.util.getOrDefault
+import com.peco2282.devcore.util.versioned
 import org.bukkit.Bukkit
 
 /**
@@ -57,18 +59,12 @@ object DevCoreArgumentTypes: DevCoreArgumentTypeProvider by getProvider()
  * @throws RuntimeException if the provider class cannot be found or instantiated
  */
 internal fun getProvider(): DevCoreArgumentTypeProvider {
-  val version = getOrDefault("1.21.4") { Bukkit.getMinecraftVersion() }
-  val className = if (version.startsWith("1.20")) {
-    "com.peco2282.devcore.command.v1_20_6.DevCoreArgumentTypeProviderImpl"
-  } else {
-    "com.peco2282.devcore.command.v1_21_1.DevCoreArgumentTypeProviderImpl"
-  }
+  // Outside a running server (unit tests) there is no Bukkit; assume a recent version.
+  val version = getOrDefault(MinecraftVersion.parse("1.21.4")) { MinecraftVersion.current() }
+  return providers.load(version)
+}
 
-  return try {
-    Class.forName(className)
-      .getDeclaredConstructor()
-      .newInstance() as DevCoreArgumentTypeProvider
-  } catch (e: Exception) {
-    throw RuntimeException("Failed to load DevCoreArgumentTypeProvider for version $version", e)
-  }
+private val providers = versioned<DevCoreArgumentTypeProvider>("Command argument types") {
+  since("1.20", "com.peco2282.devcore.command.v1_20_6.DevCoreArgumentTypeProviderImpl")
+  since("1.21", "com.peco2282.devcore.command.v1_21_1.DevCoreArgumentTypeProviderImpl")
 }

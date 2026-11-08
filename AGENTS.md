@@ -69,6 +69,15 @@ Each module has its own version tracked in `gradle.properties` (e.g., `devcore.c
 
 NMS-dependent modules split into a stable API module and per-Minecraft-version submodules (`v1_XX_X/`). The API module detects the server version at runtime and delegates accordingly.
 
+### Supporting multiple Minecraft versions
+
+Prefer, in this order:
+
+1. **A version-neutral API.** Avoid types whose binary shape changed between releases, because code compiled against one Paper API fails at runtime on another. Known case: `InventoryView` became an interface in 1.21, so use `InventoryEvent.inventory` instead of `event.view.topInventory`, and keep your own state instead of `player.openInventory.title()`.
+2. **Per-version submodules** (`v1_XX_X/`) for NMS or genuinely different APIs. Select them with `versioned<T>("feature") { since("1.21.4", "...Impl") }` from `util`, never with string comparison (`"1.21.10" < "1.21.4"` is true) or `startsWith`.
+
+`packet` predates `versioned` and still has its own `Version` class; new code should use `MinecraftVersion` from `util`.
+
 ### Convention Plugins (`buildSrc/`)
 
 All library modules use these Gradle convention plugins:
