@@ -9,7 +9,9 @@ dependencies {
   compileOnly(libs.serializer.minimessage)
   implementation(libs.kotlin.stdlib)
   compileOnly(libs.paper.api)
+  testImplementation(libs.paper.api)
   testImplementation(libs.kotlin.test)
+  testImplementation(libs.mockbukkit)
 }
 
 tasks.jar {
