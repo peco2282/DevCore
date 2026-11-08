@@ -27,6 +27,9 @@ These are separate artifacts. Add only the ones you need; the BOM keeps their ve
 | `world` | Block / chunk / player editing DSL |
 | `database` | Multi-backend database access and migrations |
 | `i18n` | Localized messages |
+| `pdc` | Typed PersistentDataContainer access |
+| `item` | Custom items with behavior and recipes |
+| `storage` | Async per-player data persistence |
 | `util` | Casting, version checks, small helpers |
 | `scoreboard-api`, `scoreboard-nms` | The full scoreboard API and NMS implementation |
 

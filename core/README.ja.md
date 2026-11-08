@@ -27,6 +27,9 @@ dependencies {
 | `world` | ブロック/チャンク/プレイヤー編集 DSL |
 | `database` | 複数バックエンドの DB アクセスとマイグレーション |
 | `i18n` | 多言語メッセージ |
+| `pdc` | 型安全な PersistentDataContainer アクセス |
+| `item` | 振る舞いとレシピを持つカスタムアイテム |
+| `storage` | プレイヤーデータの非同期永続化 |
 | `util` | キャスト、バージョンチェック、小さなヘルパー |
 | `scoreboard-api`, `scoreboard-nms` | スコアボードの完全な API と NMS 実装 |
 

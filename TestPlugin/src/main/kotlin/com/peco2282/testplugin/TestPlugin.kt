@@ -27,6 +27,9 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Zombie
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
@@ -45,6 +48,11 @@ class TestPlugin : JavaPlugin() {
     // Plugin startup logic
 
     Packets.init(this)
+    NewModules.install(this)
+    server.pluginManager.registerEvents(object : Listener {
+      @EventHandler
+      fun onJoin(e: PlayerJoinEvent) = NewModules.onJoin(e.player)
+    }, this)
     GuiListener.register(this)
     TypeSerializers.register(Component::class, ComponentSerializer())
 
@@ -105,6 +113,14 @@ class TestPlugin : JavaPlugin() {
             particle(Particle.SOUL_FIRE_FLAME, helix(0.5, 2.0, turns = 2.0, points = 24).rotateY(-frame * 0.2))
           }
           playEffect(spinner, player, every = 1.ticks, duration = 5.tickSeconds)
+          1
+        }
+      }
+      literal("newmodules") {
+        requireOp()
+        executesPlayer { player, _ ->
+          NewModules.items["ruby_sword"]?.give(player)
+          player.sendMessage(NewModules.describe(player))
           1
         }
       }

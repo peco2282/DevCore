@@ -36,6 +36,9 @@ dependencies {
   implementation(project(":world"))
   implementation(project(":entity"))
   implementation(project(":effect"))
+  implementation(project(":pdc"))
+  implementation(project(":item"))
+  implementation(project(":storage"))
 }
 
 tasks {
