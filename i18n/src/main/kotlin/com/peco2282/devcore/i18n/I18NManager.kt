@@ -11,7 +11,7 @@ import java.io.File
  * ensuring that each plugin has at most one I18N instance associated with it.
  */
 object I18NManager {
-  private val i18nMap = mutableMapOf<String, I18N>()
+  private val i18nMap = java.util.concurrent.ConcurrentHashMap<String, I18N>()
 
   /**
    * Creates or retrieves an I18N instance for the specified plugin.
@@ -20,7 +20,7 @@ object I18NManager {
    * @param dir The directory containing locale files
    * @return The I18N instance associated with the plugin
    */
-  fun create(plugin: Plugin, dir: File): I18N = i18nMap.getOrPut(plugin.name) { I18N(plugin, dir) }
+  fun create(plugin: Plugin, dir: File): I18N = i18nMap.computeIfAbsent(plugin.name) { I18N(plugin, dir) }
 
   /**
    * Gets the I18N instance for the specified plugin.

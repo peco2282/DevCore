@@ -86,4 +86,41 @@ class I18NTest {
       }
     } as Plugin
   }
+
+  @Test
+  fun fallsBackToDefaultLocaleWhenKeyMissingInExistingLocale() {
+    File(tempDir, "en_US.yml").writeText("hello: Hello\nonly_en: English only\n")
+    File(tempDir, "ja_JP.yml").writeText("hello: こんにちは\n")
+    val i18n = I18N(dummyPlugin(), tempDir)
+
+    assertEquals("こんにちは", i18n.translate(Locale.of("ja", "JP"), "hello"))
+    assertEquals("English only", i18n.translate(Locale.of("ja", "JP"), "only_en"))
+  }
+
+  @Test
+  fun fallsBackFromRegionToLanguageFile() {
+    File(tempDir, "en_US.yml").writeText("hello: Hello\n")
+    File(tempDir, "ja.yml").writeText("hello: こんにちは\n")
+    val i18n = I18N(dummyPlugin(), tempDir)
+
+    assertEquals("こんにちは", i18n.translate(Locale.of("ja", "JP"), "hello"))
+  }
+
+  @Test
+  fun componentParsesMiniMessageAndEscapesPlaceholders() {
+    File(tempDir, "en_US.yml").writeText("greet: \"<green>Hi <name>\"\n")
+    val i18n = I18N(dummyPlugin(), tempDir)
+    val plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
+
+    assertEquals("Hi Steve", plain.serialize(i18n.component(Locale.US, "greet", "name" to "Steve")))
+    // A value containing a tag must stay literal text.
+    assertEquals("Hi <red>x", plain.serialize(i18n.component(Locale.US, "greet", "name" to "<red>x")))
+  }
+
+  @Test
+  fun missingKeyComponentShowsKey() {
+    val i18n = I18N(dummyPlugin(), tempDir)
+    val plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
+    assertEquals("no.such.key", plain.serialize(i18n.component(Locale.US, "no.such.key")))
+  }
 }
