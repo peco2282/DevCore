@@ -1,16 +1,17 @@
 # util
 
-General utility module providing coroutine support, version checking, and common helpers.
+General utility module providing version checking, safe casting, and common helpers.
 
 ## Usage
 
 ### Coroutines
-Provides simplified access to Bukkit-threaded coroutines.
+> **Deprecated.** `Plugin.launch`, `Plugin.scope` and `Plugin.coroutine` in `util` are deprecated.
+> Use the `scheduler` module instead (`com.peco2282.devcore.scheduler.coroutines`): its scope is
+> cancelled automatically when the plugin is disabled, which the `util` version is not.
 
 ```kotlin
-plugin.launch {
-    // Executes on the Bukkit primary thread by default
-    val data = fetchDataAsync() // suspend function
+plugin.scheduler.launch {
+    val data = fetchData()      // suspend function
     player.sendMessage("Data fetched!")
 }
 ```
@@ -31,7 +32,6 @@ val entity = something.asNotNullable<LivingEntity>()
 ```
 
 ## Features
-- **Bukkit Coroutine Dispatcher**: Seamless integration with Kotlin Coroutines on the Minecraft main thread.
 - **Version Management**: Robust version comparison to handle multi-version compatibility.
 - **Internal API Tools**: Dedicated annotations for internal-only features.
 - **Error Handling Utilities**: Functional interfaces for safer execution.

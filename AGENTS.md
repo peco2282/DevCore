@@ -36,7 +36,7 @@ DevCore is a multi-module Kotlin library for building **Paper Minecraft plugins*
 root
 ├── bom/              # Bill of Materials — version alignment only, not published as code
 ├── core/             # Umbrella artifact re-exporting key modules
-├── util/             # Coroutines helpers, version detection, casting
+├── util/             # Version detection, casting, small helpers (coroutines live in scheduler)
 ├── command/          # Brigadier command DSL + Paper argument types
 │   ├── v1_20_6/      # Version-specific NMS argument implementations
 │   └── v1_21_1/
@@ -57,7 +57,7 @@ root
 ├── world/            # Block/world editing DSL
 ├── cooldown/         # Generic cooldown/debounce utility
 ├── task-sequence/    # Coroutine-based event sequencing
-├── effect/           # Particle/visual effects
+├── effect/           # Particle/sound effects: shapes, Effect DSL, repeating/following playback
 ├── i18n/             # Internationalization
 ├── database/         # Multi-backend DB (api, jdbc, hikari, redis, mongodb, mysql, sqlite)
 └── TestPlugin/       # Example plugin used to test all modules (not published)

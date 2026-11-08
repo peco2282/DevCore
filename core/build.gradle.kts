@@ -8,6 +8,7 @@ dependencies {
   api(project(":task-sequence"))
   api(project(":event"))
   api(project(":cooldown"))
+  api(project(":effect"))
   api(project(":gui"))
   api(project(":scoreboard:scoreboard-lite"))
 }
