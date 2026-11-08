@@ -58,7 +58,10 @@ root
 ├── cooldown/         # Generic cooldown/debounce utility
 ├── task-sequence/    # Coroutine-based event sequencing
 ├── effect/           # Particle/sound effects: shapes, Effect DSL, repeating/following playback
-├── i18n/             # Internationalization
+├── i18n/             # Internationalization (locale files, MiniMessage placeholders)
+├── pdc/              # Typed PersistentDataContainer access, persisted property delegates
+├── item/             # Custom items: hidden id, behavior handlers, recipes (uses pdc, util)
+├── storage/          # Async per-player data (YAML via config), autosave, atomic writes
 ├── database/         # Multi-backend DB (api, jdbc, hikari, redis, mongodb, mysql, sqlite)
 └── TestPlugin/       # Example plugin used to test all modules (not published)
 ```
