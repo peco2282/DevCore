@@ -71,7 +71,9 @@ abstract class Gui(val rows: Int) {
    * The underlying Bukkit inventory managed by this GUI.
    */
   lateinit var inventory: Inventory
-    private set
+
+  /** Title of the inventory currently shown, used to detect title changes without touching InventoryView. */
+  private var renderedTitle: Component? = null
 
   init {
     require(rows in 1..6) { "rows must be between 1 and 6" }
@@ -99,10 +101,11 @@ abstract class Gui(val rows: Int) {
     val viewers = holder.getViewers().toList()
 
     if (::inventory.isInitialized && viewers.isNotEmpty()) {
-      val firstViewer = viewers.first()
       // タイトルが変わった場合はインベントリを再作成
-      if (creator.title != firstViewer.openInventory.title()) {
+      // (Player.openInventory は InventoryView を返し 1.21 でバイナリ互換が壊れるため、描画済みタイトルを保持して比較する)
+      if (creator.title != renderedTitle) {
         inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
+        renderedTitle = creator.title
         holder.setInventory(inventory)
         // インベントリの中身を全て設定
         newSlots.forEach { (slot, slotCreator) ->
@@ -116,6 +119,7 @@ abstract class Gui(val rows: Int) {
 
     if (!::inventory.isInitialized) {
       inventory = Bukkit.createInventory(holder, rows * 9, creator.title)
+      renderedTitle = creator.title
       holder.setInventory(inventory)
       newSlots.forEach { (slot, slotCreator) ->
         inventory.setItem(slot, slotCreator.item)
@@ -296,7 +300,9 @@ object GuiListener : Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   fun onInventoryClick(event: InventoryClickEvent) {
-    val topInventory = event.view.topInventory
+    // Not event.view: InventoryView changed from class to interface in 1.21, so calling it
+    // from code compiled against 1.20.x fails at runtime. InventoryEvent.inventory is the top inventory.
+    val topInventory = event.inventory
     val holder = topInventory.holder as? GuiHolder ?: return
     val gui = holder.gui
     val player = event.whoClicked as? Player ?: return
@@ -338,7 +344,9 @@ object GuiListener : Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   fun onInventoryDrag(event: InventoryDragEvent) {
-    val topInventory = event.view.topInventory
+    // Not event.view: InventoryView changed from class to interface in 1.21, so calling it
+    // from code compiled against 1.20.x fails at runtime. InventoryEvent.inventory is the top inventory.
+    val topInventory = event.inventory
     val holder = topInventory.holder as? GuiHolder ?: return
     val gui = holder.gui
     val topSize = gui.rows * 9
