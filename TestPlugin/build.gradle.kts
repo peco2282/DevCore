@@ -39,6 +39,10 @@ dependencies {
   implementation(project(":pdc"))
   implementation(project(":item"))
   implementation(project(":storage"))
+  implementation(project(":display"))
+  implementation(project(":region"))
+  implementation(project(":teleport"))
+  implementation(project(":game"))
 }
 
 tasks {

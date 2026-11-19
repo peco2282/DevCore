@@ -49,6 +49,7 @@ class TestPlugin : JavaPlugin() {
 
     Packets.init(this)
     NewModules.install(this)
+    ChapterModules.install(this)
     server.pluginManager.registerEvents(object : Listener {
       @EventHandler
       fun onJoin(e: PlayerJoinEvent) = NewModules.onJoin(e.player)
