@@ -54,3 +54,8 @@ include("display")
 include("region")
 include("teleport")
 include("game")
+include("loot")
+include("merchant")
+include("nametag")
+
+include("update-checker")

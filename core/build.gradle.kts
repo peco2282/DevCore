@@ -15,4 +15,7 @@ dependencies {
   api(project(":region"))
   api(project(":teleport"))
   api(project(":game"))
+  api(project(":loot"))
+  api(project(":merchant"))
+  api(project(":nametag"))
 }
