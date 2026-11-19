@@ -11,4 +11,8 @@ dependencies {
   api(project(":effect"))
   api(project(":gui"))
   api(project(":scoreboard:scoreboard-lite"))
+  api(project(":display"))
+  api(project(":region"))
+  api(project(":teleport"))
+  api(project(":game"))
 }
