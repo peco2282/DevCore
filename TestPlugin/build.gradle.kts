@@ -46,6 +46,17 @@ dependencies {
   implementation(project(":loot"))
   implementation(project(":merchant"))
   implementation(project(":nametag"))
+  implementation(project(":kit"))
+  implementation(project(":worldpool"))
+  implementation(project(":cache"))
+  implementation(project(":permission"))
+  implementation(project(":debug"))
+  implementation(project(":ranking"))
+  implementation(project(":persistent-cooldown"))
+  implementation(project(":update-checker"))
+  implementation(project(":anvil-input"))
+  runtimeOnly(project(":anvil-input:v1_20_6"))
+  runtimeOnly(project(":anvil-input:v1_21_4"))
 }
 
 tasks {

@@ -51,11 +51,14 @@ class TestPlugin : JavaPlugin() {
     NewModules.install(this)
     ChapterModules.install(this)
     AdvancedModules.install(this)
+    ServerFeatures.install(this)
+    PlayerExperiences.install(this, updateChecksEnabled = config.getBoolean("update-checker.enabled", false))
     server.pluginManager.registerEvents(object : Listener {
       @EventHandler
       fun onJoin(e: PlayerJoinEvent) {
         NewModules.onJoin(e.player)
         AdvancedModules.onJoin(this@TestPlugin, e.player)
+        ServerFeatures.onJoin(this@TestPlugin, e.player)
       }
     }, this)
     GuiListener.register(this)
