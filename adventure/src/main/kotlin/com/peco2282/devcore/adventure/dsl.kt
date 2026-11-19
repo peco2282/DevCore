@@ -269,7 +269,19 @@ fun component(isCompact: Boolean, consumer: ComponentBuilder.() -> Unit) =
  * ```
  */
 fun component(isCompact: Boolean, parentStyle: Style, consumer: ComponentBuilder.() -> Unit) =
-  ComponentBuilderImpl().apply(consumer).join().let { if (isCompact) it.compact(parentStyle) else it }
+  ComponentBuilderImpl().apply(consumer).join().let { if (isCompact) it.compactUnder(parentStyle) else it }
+
+/**
+ * Equivalent of `Component.compact(parentStyle)` (Adventure 4.18+) built only from 4.17 APIs,
+ * so it runs on servers that bundle 4.17 (Paper 1.20.6).
+ *
+ * Wraps the component in a parent carrying [parentStyle], compacts it, then removes from the root
+ * whatever the parent already provides. `style(parentStyle).compact()` is not equivalent: it
+ * replaces the root's own style, so a single red component under a yellow parent turns yellow.
+ */
+private fun Component.compactUnder(parentStyle: Style): Component =
+  Component.text().style(parentStyle).append(this).build().compact()
+    .let { it.style(it.style().unmerge(parentStyle)) }
 
 /**
  * Creates a text style using a DSL builder pattern.

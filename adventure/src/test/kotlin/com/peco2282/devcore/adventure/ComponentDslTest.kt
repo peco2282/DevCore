@@ -7,6 +7,7 @@ import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -264,5 +265,24 @@ class ComponentDslTest {
     assertEquals(" and ", (children[2] as TextComponent).content())
     assertEquals("(Adventure)", (children[3] as TextComponent).content())
     assertEquals(NamedTextColor.RED, children[3].color())
+  }
+
+  @Test
+  fun `compact with parent style keeps a single child's own style`() {
+    val parent = Style.style(NamedTextColor.YELLOW)
+    val actual = component(isCompact = true, parentStyle = parent) {
+      text("red") { color(NamedTextColor.RED) }
+    }
+    assertEquals(NamedTextColor.RED, actual.color())
+  }
+
+  @Test
+  fun `compact with parent style drops styles the parent already provides`() {
+    val parent = Style.style(NamedTextColor.YELLOW)
+    val actual = component(isCompact = true, parentStyle = parent) {
+      text("a") { color(NamedTextColor.YELLOW) }
+      text("b") { color(NamedTextColor.RED) }
+    }
+    assertEquals("a<red>b", MiniMessage.miniMessage().serialize(actual))
   }
 }
