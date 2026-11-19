@@ -18,4 +18,11 @@ dependencies {
   api(project(":loot"))
   api(project(":merchant"))
   api(project(":nametag"))
+  api(project(":kit"))
+  api(project(":worldpool"))
+  api(project(":cache"))
+  api(project(":permission"))
+  api(project(":debug"))
+  api(project(":ranking"))
+  api(project(":persistent-cooldown"))
 }
