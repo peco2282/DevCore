@@ -14,6 +14,6 @@ dependencies {
   compileOnly(libs.paper.api)
   testImplementation(libs.paper.api)
   testImplementation(libs.kotlin.test)
-  testRuntimeOnly("org.xerial:sqlite-jdbc:3.49.1.0") // provided by Paper at runtime
+  testRuntimeOnly("org.xerial:sqlite-jdbc:3.54.1.0") // provided by Paper at runtime
   implementation(libs.kotlinx.coroutines)
 }
