@@ -8,6 +8,27 @@ import java.io.File
 import javax.imageio.ImageIO
 import org.bukkit.util.Vector
 
+/**
+ * Rasterizes [text] into a reusable particle [Shape].
+ *
+ * Rendering uses an in-memory ARGB image and therefore works with `java.awt.headless=true`.
+ * Every [sampleStep] pixels, an alpha value at or above [alphaThreshold] becomes one point in the
+ * XY plane. Coordinates are multiplied by [scale], the image Y axis is flipped so text is upright,
+ * and generation stops at [maxPoints]. Increase [sampleStep] or reduce the font to lower cost.
+ *
+ * ```kotlin
+ * val logo = textShape(
+ *   "DevCore",
+ *   scale = 0.06,
+ *   font = Font(Font.SANS_SERIF, Font.BOLD, 32),
+ *   sampleStep = 3,
+ *   maxPoints = 300
+ * )
+ * effect { particle(Particle.DUST, logo, data = dust(Color.AQUA)) }
+ * ```
+ *
+ * The returned shape stores geometry, not color. Use particle data to choose color at playback.
+ */
 fun textShape(
   text: String,
   scale: Double = 0.1,
@@ -29,6 +50,15 @@ fun textShape(
   return imageShape(image, image.width, scale, sampleStep, alphaThreshold, maxPoints)
 }
 
+/**
+ * Reads [file] with [ImageIO] and converts visible pixels into points.
+ *
+ * [width] is the sampled output width, while height is derived from the source aspect ratio.
+ * [pixelSize] controls the distance between adjacent output pixels in blocks. See the
+ * [BufferedImage overload][imageShape] for sampling and alpha semantics.
+ *
+ * @throws IllegalArgumentException when the file format is unsupported or an option is invalid.
+ */
 fun imageShape(
   file: File,
   width: Int = 20,
@@ -38,6 +68,18 @@ fun imageShape(
   maxPoints: Int = 5_000
 ): Shape = imageShape(requireNotNull(ImageIO.read(file)) { "Unsupported image: $file" }, width, pixelSize, sampleStep, alphaThreshold, maxPoints)
 
+/**
+ * Converts visible pixels of [image] into points in the XY plane.
+ *
+ * The image is sampled at an aspect-ratio-preserving size. [sampleStep] skips output pixels in
+ * both axes, [alphaThreshold] ignores transparent pixels, and [maxPoints] is a hard safety limit.
+ * Calls to `points()` return cloned vectors, so callers may transform them safely.
+ *
+ * ```kotlin
+ * val icon = imageShape(image, width = 32, pixelSize = 0.05, sampleStep = 2, maxPoints = 500)
+ * val centered = icon.offset(x = -0.8, y = 1.0)
+ * ```
+ */
 fun imageShape(
   image: BufferedImage,
   width: Int = image.width,

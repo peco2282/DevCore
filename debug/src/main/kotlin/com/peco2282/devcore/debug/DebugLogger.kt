@@ -4,6 +4,17 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import java.util.WeakHashMap
 
+/**
+ * Runtime switchboard for named debug categories.
+ *
+ * Categories are case-insensitive and accept letters, digits, `.`, `_` and `-`. Enabling a
+ * category affects existing loggers immediately. [categories] returns a defensive snapshot.
+ *
+ * ```kotlin
+ * plugin.debugController().enable("storage")
+ * plugin.debugLogger("storage").debug { "Loaded $count profiles" }
+ * ```
+ */
 class DebugController internal constructor(private val sink: (String) -> Unit) {
   private val enabled = mutableSetOf<String>()
   @Synchronized fun enable(category: String) { enabled += normalized(category) }
@@ -17,6 +28,13 @@ class DebugController internal constructor(private val sink: (String) -> Unit) {
   }
 }
 
+/**
+ * Lazily emits messages for one category and measures synchronous blocks.
+ *
+ * [debug] does not evaluate its message while disabled. [timed] always executes its block, returns
+ * its result, logs elapsed milliseconds when enabled, and rethrows any exception unchanged.
+ * [tps] exposes Paper's one-, five- and fifteen-minute TPS values.
+ */
 class DebugLogger internal constructor(
   private val category: String,
   private val controller: DebugController,
@@ -32,9 +50,11 @@ class DebugLogger internal constructor(
 }
 
 private val controllers = WeakHashMap<Plugin, DebugController>()
+/** Returns this plugin's shared controller; messages use the plugin logger at INFO level. */
 fun Plugin.debugController(): DebugController = synchronized(controllers) {
   controllers.getOrPut(this) { DebugController { logger.info(it) } }
 }
+/** Creates a lightweight category logger backed by this plugin's shared controller. */
 fun Plugin.debugLogger(category: String): DebugLogger = debugController().logger(category)
 
 /** Creates a controller with a custom sink, useful for tests and embedded tooling. */

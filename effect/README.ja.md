@@ -79,6 +79,22 @@ plugin.playEffect(spinner, player, every = 1.ticks, duration = 5.seconds)
 
 動かないエフェクトは `effect { }` を使ってください。形状は一度だけ計算されます。`animatedEffect` は毎フレーム計算し直します。
 
+## 文字・画像のパーティクルアート
+
+`textShape` はJava AWTフォントを画像化し、`imageShape` は透明でない画素を点へ変換します。
+通常の `Shape` を返すため、移動・回転・拡大・結合とすべての再生APIをそのまま使えます。
+
+```kotlin
+val text = textShape("DevCore", scale = 0.06, sampleStep = 3, maxPoints = 300)
+val logo = imageShape(File("logo.png"), width = 32, pixelSize = 0.05,
+  sampleStep = 2, alphaThreshold = 32, maxPoints = 500)
+effect { particle(Particle.DUST, text, data = dust(Color.AQUA)) }
+  .play(player.location.add(0.0, 2.5, 0.0), listOf(player))
+```
+
+負荷制限として `sampleStep` と `maxPoints` を必ず調整してください。画像は縦横比を維持し、
+透明画素を除外します。ディスプレイのないヘッドレスサーバーJVMでも動作します。
+
 ## 補足
 
 - `particle(count = 0, offset = ...)` では、Bukkit API と同じく `offset` を方向として扱います。

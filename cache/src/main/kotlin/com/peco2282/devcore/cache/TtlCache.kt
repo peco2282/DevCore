@@ -4,7 +4,19 @@ import com.peco2282.devcore.cooldown.SystemTimeSource
 import com.peco2282.devcore.cooldown.TimeSource
 import kotlin.time.Duration
 
-/** Thread-safe, access-ordered cache with lazy expiry and a fixed maximum size. */
+/**
+ * A small thread-safe cache whose entries expire after the configured TTL from insertion.
+ *
+ * Expiry and maximum-size eviction happen lazily during cache operations. [getOrPut] does not hold
+ * the cache lock while computing, so concurrent misses may invoke the producer more than once; use
+ * an idempotent producer. Values are never persisted.
+ *
+ * ```kotlin
+ * val profiles = TtlCache<UUID, Profile>(5.minutes, maxSize = 500)
+ * val profile = profiles.getOrPut(id) { repository.load(id) }
+ * profiles.invalidate(id)
+ * ```
+ */
 class TtlCache<K : Any, V : Any>(
   private val expireAfter: Duration,
   private val maxSize: Int,
@@ -47,6 +59,7 @@ class TtlCache<K : Any, V : Any>(
   }
 }
 
+/** Creates a [TtlCache] using monotonic time by default, which is safe from wall-clock changes. */
 fun <K : Any, V : Any> ttlCache(
   expireAfter: Duration,
   maxSize: Int = Int.MAX_VALUE,

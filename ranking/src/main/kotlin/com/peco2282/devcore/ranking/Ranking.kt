@@ -5,8 +5,15 @@ import org.bukkit.scheduler.BukkitTask
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 
+/** One immutable ranking row; [rank] is one-based. */
 data class RankedEntry<K>(val rank: Int, val id: K, val score: Long)
 
+/**
+ * Atomically published ranking snapshots sorted by descending score.
+ *
+ * Readers never observe a half-built refresh. Equal scores keep the iteration order of the source
+ * map. Use [top] for a leaderboard and [find] for a participant's current position.
+ */
 class Ranking<K : Any> internal constructor() {
   private val snapshot = AtomicReference<List<RankedEntry<K>>>(emptyList())
 
@@ -31,6 +38,12 @@ class RankingHandle<K : Any> internal constructor(val ranking: Ranking<K>, priva
   fun close() = task.cancel()
 }
 
+/**
+ * Creates a ranking and refreshes it immediately and then every [refresh].
+ *
+ * [source] executes on the Bukkit scheduler and must not block. Fetch remote/database values ahead
+ * of time or maintain an in-memory snapshot. Cancel the returned handle when no longer required.
+ */
 fun <K : Any> Plugin.ranking(refresh: Duration, source: () -> Map<K, Long>): RankingHandle<K> {
   require(refresh.isPositive())
   val ranking = Ranking<K>()

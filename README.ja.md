@@ -15,6 +15,7 @@ DevCoreプロジェクトのためのコアライブラリです。
 ## 必要要件
 
 - JDK 21+
+- Paper 1.20.6以降（バージョン別モジュールの対応範囲は各READMEを参照）
 
 ## ビルド
 
@@ -171,6 +172,22 @@ plugin.command("greet") {
 | `gui` | インベントリのクリック処理と再描画 | ✅ |
 | `scoreboard` | サイドバーとボスバー(`core` には `scoreboard-lite` のみ) | ✅ (lite) |
 | `effect` | パーティクル形状の計算、繰り返し・追従再生 | ✅ |
+| `display` | Displayエンティティとホログラム | – |
+| `region` | 幾何領域と進入・退出追跡 | – |
+| `teleport` | 安全地点と中止可能な待機テレポート | – |
+| `game` | ミニゲームの状態・参加者管理 | – |
+| `loot` | 重み・条件付き抽選表 | – |
+| `merchant` | Merchant取引DSL | – |
+| `nametag` | Team名札とタブリスト | – |
+| `kit` | 権限・クールダウン付きキット | – |
+| `worldpool` | テンプレートから作る破棄可能ワールド | – |
+| `cache` | スレッドセーフなTTLキャッシュ | – |
+| `permission` | 型付き権限宣言 | – |
+| `debug` | デバッグカテゴリと処理時間計測 | – |
+| `ranking` | 定期更新ランキング | – |
+| `persistent-cooldown` | 再起動後も残るクールダウン | – |
+| `update-checker` | オプトイン方式の非同期更新確認 | – |
+| `anvil-input` | バージョン適応型の金床文字入力 | – |
 | `packet` | PacketEvents 経由の偽エンティティ/ブロック | – |
 | `entity` | スポーン、AI ゴール、ライフサイクルフック | – |
 | `world` | ブロック/チャンク/プレイヤーの編集 | – |
@@ -182,6 +199,16 @@ plugin.command("greet") {
 | `util` | キャスト、バージョンチェック、小さなヘルパー | – |
 
 「–」のモジュールは `core` に含まれません。個別に追加してください(バージョンは BOM で揃います)。
+
+追加ガイド: [display](display/README.ja.md)、[region](region/README.ja.md)、
+[teleport](teleport/README.ja.md)、[game](game/README.ja.md)、[loot](loot/README.ja.md)、
+[merchant](merchant/README.ja.md)、[nametag](nametag/README.ja.md)、[kit](kit/README.ja.md)、
+[worldpool](worldpool/README.ja.md)、[cache](cache/README.ja.md)、[permission](permission/README.ja.md)、
+[debug](debug/README.ja.md)、[ranking](ranking/README.ja.md)、
+[persistent-cooldown](persistent-cooldown/README.ja.md)、[update-checker](update-checker/README.ja.md)、
+[anvil-input](anvil-input/README.ja.md)。
+
+現在の正式対象はPaperです。Folia互換は保留しており、現時点では保証しません。
 
 ## 使用方法 (Gradle)
 

@@ -11,6 +11,7 @@ Core library for the DevCore project.
 ## Requirements
 
 - JDK 21+
+- Paper 1.20.6+ (version-specific modules document their supported releases)
 
 ## Build
 
@@ -167,6 +168,22 @@ plugin.command("greet") {
 | `gui` | Inventory click handling and re-rendering | ✅ |
 | `scoreboard` | Sidebars and boss bars (`scoreboard-lite` is in `core`) | ✅ (lite) |
 | `effect` | Particle shape math, repeated/following playback | ✅ |
+| `display` | Text/item/block displays and managed holograms | – |
+| `region` | Geometric regions and enter/leave tracking | – |
+| `teleport` | Safe destinations and cancellable warmups | – |
+| `game` | Minigame state and participant lifecycle | – |
+| `loot` | Weighted and conditional reward tables | – |
+| `merchant` | Merchant trade DSL | – |
+| `nametag` | Team nametags and tab-list content | – |
+| `kit` | Permission/cooldown-aware item kits | – |
+| `worldpool` | Disposable worlds copied from templates | – |
+| `cache` | Thread-safe TTL caches | – |
+| `permission` | Typed permission declarations | – |
+| `debug` | Runtime debug categories and timing | – |
+| `ranking` | Refreshed ranking snapshots | – |
+| `persistent-cooldown` | Restart-resistant player cooldowns | – |
+| `update-checker` | Opt-in asynchronous release checks | – |
+| `anvil-input` | Version-adapted anvil text prompts | – |
 | `packet` | Fake entities / blocks through PacketEvents | – |
 | `entity` | Spawning, AI goals, lifecycle hooks | – |
 | `world` | Block / chunk / player editing | – |
@@ -178,6 +195,15 @@ plugin.command("greet") {
 | `util` | Casting, version checks, small helpers | – |
 
 Modules marked "–" are not pulled in by `core`; add them individually (versions are aligned by the BOM).
+
+Module guides: [display](display/README.md), [region](region/README.md), [teleport](teleport/README.md),
+[game](game/README.md), [loot](loot/README.md), [merchant](merchant/README.md), [nametag](nametag/README.md),
+[kit](kit/README.md), [worldpool](worldpool/README.md), [cache](cache/README.md),
+[permission](permission/README.md), [debug](debug/README.md), [ranking](ranking/README.md),
+[persistent-cooldown](persistent-cooldown/README.md), [update-checker](update-checker/README.md), and
+[anvil-input](anvil-input/README.md).
+
+DevCore currently targets Paper. Folia compatibility is intentionally deferred and is not guaranteed.
 
 ## Usage (Gradle)
 

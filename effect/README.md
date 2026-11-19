@@ -79,6 +79,23 @@ plugin.playEffect(spinner, player, every = 1.ticks, duration = 5.seconds)
 
 Prefer `effect { }` for static effects: its shapes are computed once, while `animatedEffect` recomputes them every frame.
 
+## Text and image particle art
+
+`textShape` rasterizes a Java AWT font and `imageShape` samples non-transparent image pixels. Both
+produce ordinary shapes, so every transform and playback API above remains available.
+
+```kotlin
+val text = textShape("DevCore", scale = 0.06, sampleStep = 3, maxPoints = 300)
+val logo = imageShape(File("logo.png"), width = 32, pixelSize = 0.05,
+  sampleStep = 2, alphaThreshold = 32, maxPoints = 500)
+
+val art = effect { particle(Particle.DUST, text, data = dust(Color.AQUA)) }
+art.play(player.location.add(0.0, 2.5, 0.0), listOf(player))
+```
+
+Use `sampleStep` and `maxPoints` as hard performance controls. Images preserve aspect ratio;
+transparent pixels are skipped. Rendering is compatible with headless server JVMs.
+
 ## Notes
 
 - `particle(count = 0, offset = ...)` treats `offset` as a direction, as in the Bukkit API.

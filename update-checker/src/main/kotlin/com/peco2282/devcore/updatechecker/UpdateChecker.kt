@@ -8,6 +8,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import org.bukkit.plugin.Plugin
 
+/** Result of comparing the plugin's installed version with a remote release. */
 data class UpdateResult(
   val current: String,
   val latest: String,
@@ -15,12 +16,33 @@ data class UpdateResult(
   val isNewer: Boolean
 )
 
+/**
+ * A provider of the newest available release.
+ *
+ * Implementations must return immediately and perform I/O through the supplied asynchronous
+ * [HttpClient]. Complete the future exceptionally for transport, status or parsing failures;
+ * [checkForUpdates] converts those failures to a harmless `null` result.
+ */
 fun interface UpdateSource {
   fun request(client: HttpClient): CompletableFuture<Release>
 }
 
+/** A version string and the human-facing page where that release can be obtained. */
 data class Release(val version: String, val url: String)
 
+/**
+ * Reads the latest published release from GitHub's REST API.
+ *
+ * [repository] must be an `owner/name` pair. Tags may start with `v`; that prefix is removed
+ * before comparison. Draft-only repositories or projects without a published release result in
+ * a failed request, which [checkForUpdates] deliberately treats as non-fatal.
+ *
+ * ```kotlin
+ * plugin.checkForUpdates(Github("peco2282/DevCore"), enabled = true) { result ->
+ *   if (result.isNewer) logger.info("Update: ${result.url}")
+ * }
+ * ```
+ */
 class Github(private val repository: String) : UpdateSource {
   init { require(repository.matches(Regex("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"))) { "repository must be owner/name" } }
 
@@ -46,8 +68,27 @@ class Github(private val repository: String) : UpdateSource {
 }
 
 /**
- * Checks once, asynchronously. Network access is opt-in; with [enabled] false no request is made.
- * Failures are logged at FINE and complete with null, so startup is never blocked or failed.
+ * Checks [source] once without blocking the server thread.
+ *
+ * Network access is explicitly opt-in: when [enabled] is false this function does not construct
+ * or send an HTTP request and returns an already completed future containing `null`. When enabled,
+ * [callback] runs on the `HttpClient` completion thread, not the Bukkit main thread. Schedule back
+ * onto Bukkit before reading or mutating world, entity, inventory, or other server state.
+ *
+ * Version comparison is numeric per dot-separated component (`1.21.10` is newer than `1.21.4`).
+ * A leading `v` and a pre-release suffix are ignored. Network, HTTP and parsing errors are logged
+ * at `FINE`, complete as `null`, and never disable the plugin.
+ *
+ * ```kotlin
+ * plugin.checkForUpdates(
+ *   Github("owner/plugin"),
+ *   enabled = config.getBoolean("update-checker.enabled", false)
+ * ) { result ->
+ *   if (result.isNewer) logger.info("${result.latest}: ${result.url}")
+ * }
+ * ```
+ *
+ * @return a future containing the comparison, or `null` when disabled or unsuccessful.
  */
 fun Plugin.checkForUpdates(
   source: UpdateSource,
