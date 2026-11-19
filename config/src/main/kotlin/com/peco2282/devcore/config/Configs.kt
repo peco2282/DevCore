@@ -2,6 +2,8 @@ package com.peco2282.devcore.config
 
 import com.peco2282.devcore.config.Configs.load
 import com.peco2282.devcore.config.reflection.ClassMapper
+import com.peco2282.devcore.config.migration.ConfigLoadBuilder
+import com.peco2282.devcore.config.migration.loadMigrated
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
@@ -71,6 +73,14 @@ object Configs {
   inline fun <reified T : Any> load(file: File): T {
     return ConfigReader(file).read()
   }
+
+  /** Loads [file] after applying schema migrations declared in [block]. */
+  inline fun <reified T : Any> load(file: File, noinline block: ConfigLoadBuilder<T>.() -> Unit): T =
+    loadMigrated(file, T::class, block)
+
+  /** Loads the plugin config after applying schema migrations declared in [block]. */
+  inline fun <reified T : Any> load(plugin: Plugin, noinline block: ConfigLoadBuilder<T>.() -> Unit): T =
+    load(File(plugin.dataFolder, "config.yml"), block)
 
   /**
    * Loads the configuration of type [T] for the [plugin].
