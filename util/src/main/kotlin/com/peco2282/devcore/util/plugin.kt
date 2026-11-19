@@ -62,6 +62,7 @@ import org.bukkit.scheduler.BukkitTask
  * @see org.bukkit.event.EventPriority
  * @see org.bukkit.plugin.PluginManager.registerEvent
  */
+@Deprecated("Use `plugin.on<T> { handle { ... } }` from the `event` module, which also supports filter, once, take and unregister. Having both imported makes `on` ambiguous.")
 inline fun <reified T : Event> Plugin.on(
   noinline handler: (T) -> Unit
 ) {
@@ -146,6 +147,7 @@ inline fun <reified T : Event> Plugin.on(
  * @see BukkitTask
  * @see org.bukkit.scheduler.BukkitScheduler.runTaskLater
  */
+@Deprecated("Use `plugin.taskCreate after 5.seconds run { }` from the `scheduler` module, which tracks and cancels tasks with the plugin.")
 inline fun Plugin.runTaskLater(
   delay: Double,
   crossinline task: BukkitRunnable.() -> Unit
@@ -257,6 +259,7 @@ inline fun Plugin.runTaskLater(
  * @see BukkitTask
  * @see org.bukkit.scheduler.BukkitScheduler.runTaskTimer
  */
+@Deprecated("Use `plugin.taskCreate after 0.ticks every 20.ticks run { }` from the `scheduler` module, which tracks and cancels tasks with the plugin.")
 inline fun Plugin.runTaskTimer(
   delay: Double,
   period: Double,

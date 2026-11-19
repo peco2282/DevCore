@@ -6,6 +6,7 @@ dependencies {
   implementation(project(":scoreboard:scoreboard-api"))
   implementation(project(":adventure"))
   implementation(project(":scheduler"))
+  implementation(project(":util"))
   compileOnly(libs.paper.api)
 
   // NMS実装はリフレクションで動的にロードされるため、コンパイル時のプロジェクト依存は不要。

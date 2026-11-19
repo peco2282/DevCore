@@ -36,7 +36,7 @@ DevCore is a multi-module Kotlin library for building **Paper Minecraft plugins*
 root
 ├── bom/              # Bill of Materials — version alignment only, not published as code
 ├── core/             # Umbrella artifact re-exporting key modules
-├── util/             # Coroutines helpers, version detection, casting
+├── util/             # Version detection, casting, small helpers (coroutines live in scheduler)
 ├── command/          # Brigadier command DSL + Paper argument types
 │   ├── v1_20_6/      # Version-specific NMS argument implementations
 │   └── v1_21_1/
@@ -57,8 +57,11 @@ root
 ├── world/            # Block/world editing DSL
 ├── cooldown/         # Generic cooldown/debounce utility
 ├── task-sequence/    # Coroutine-based event sequencing
-├── effect/           # Particle/visual effects
-├── i18n/             # Internationalization
+├── effect/           # Particle/sound effects: shapes, Effect DSL, repeating/following playback
+├── i18n/             # Internationalization (locale files, MiniMessage placeholders)
+├── pdc/              # Typed PersistentDataContainer access, persisted property delegates
+├── item/             # Custom items: hidden id, behavior handlers, recipes (uses pdc, util)
+├── storage/          # Async per-player data (YAML via config), autosave, atomic writes
 ├── database/         # Multi-backend DB (api, jdbc, hikari, redis, mongodb, mysql, sqlite)
 └── TestPlugin/       # Example plugin used to test all modules (not published)
 ```
@@ -68,6 +71,15 @@ root
 Each module has its own version tracked in `gradle.properties` (e.g., `devcore.command.version=1.2.0`). Bump only the affected module's version on change. `devcore.dev=true` in `gradle.properties` indicates development/snapshot mode.
 
 NMS-dependent modules split into a stable API module and per-Minecraft-version submodules (`v1_XX_X/`). The API module detects the server version at runtime and delegates accordingly.
+
+### Supporting multiple Minecraft versions
+
+Prefer, in this order:
+
+1. **A version-neutral API.** Avoid types whose binary shape changed between releases, because code compiled against one Paper API fails at runtime on another. Known case: `InventoryView` became an interface in 1.21, so use `InventoryEvent.inventory` instead of `event.view.topInventory`, and keep your own state instead of `player.openInventory.title()`.
+2. **Per-version submodules** (`v1_XX_X/`) for NMS or genuinely different APIs. Select them with `versioned<T>("feature") { since("1.21.4", "...Impl") }` from `util`, never with string comparison (`"1.21.10" < "1.21.4"` is true) or `startsWith`.
+
+`packet` predates `versioned` and still has its own `Version` class; new code should use `MinecraftVersion` from `util`.
 
 ### Convention Plugins (`buildSrc/`)
 

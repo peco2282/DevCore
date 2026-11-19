@@ -12,7 +12,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.peco2282.devcore.adventure.builder.ComponentBuilder
 import com.peco2282.devcore.adventure.component
 import com.peco2282.devcore.command.argument.DevCoreArgumentTypes
-import com.peco2282.devcore.util.launch
+import com.peco2282.devcore.scheduler.coroutines.scope
+import kotlinx.coroutines.launch
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import net.kyori.adventure.text.Component
@@ -698,7 +699,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
   infix fun executesSuspend(block: suspend (CommandContext<CommandSourceStack>) -> Int) =
     apply {
       builder = builder.executes { context ->
-        plugin?.launch {
+        plugin?.scope?.launch {
           block(context)
         }
         Command.SINGLE_SUCCESS
@@ -742,7 +743,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
           context.sendError { text("このコマンドはプレイヤーのみ実行可能です。") }
           NOT_PLAYER
         } else {
-          plugin?.launch {
+          plugin?.scope?.launch {
             block(player, context)
           }
           Command.SINGLE_SUCCESS
@@ -778,7 +779,7 @@ class CommandCreator<T : ArgumentBuilder<CommandSourceStack, T>>(
           NOT_CONSOLER
         } else {
           var result = SINGLE_SUCCESS
-          plugin?.launch {
+          plugin?.scope?.launch {
             result = block(console, context)
           }
           result

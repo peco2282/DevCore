@@ -31,6 +31,158 @@ Gradle プロパティまたは環境変数を設定し、`./gradlew publish` �
 - 環境変数: `DEVCORE_PUBLISH_RELEASE_URL`, `DEVCORE_PUBLISH_SNAPSHOT_URL`, `DEVCORE_PUBLISH_USER`,
   `DEVCORE_PUBLISH_PASSWORD`
 
+## Before / After
+
+DevCore は、Paper/Bukkit で繰り返し書くコードを短い DSL に置き換えます。同じ動作を両方で書くとこうなります(以下4例の合計で 52 行 → 18 行):
+
+### イベント(3回だけ、OPのみ処理)
+
+**Before** — Paper / Bukkit API のみ(11 行)
+
+```kotlin
+class JoinListener : Listener {
+  private var count = 0
+
+  @EventHandler
+  fun onJoin(event: PlayerJoinEvent) {
+    if (!event.player.isOp) return
+    event.player.sendMessage("Welcome, operator!")
+    if (++count >= 3) HandlerList.unregisterAll(this)
+  }
+}
+
+// onEnable
+server.pluginManager.registerEvents(JoinListener(), this)
+```
+
+**After** — DevCore(5 行)
+
+```kotlin
+plugin.on<PlayerJoinEvent> {
+  filter { player.isOp }
+  take(3)
+  handle { player.sendMessage("Welcome, operator!") }
+}
+```
+
+### プレイヤーに紐づく繰り返しタスク(ログアウトで停止)
+
+**Before** — Paper / Bukkit API のみ(11 行)
+
+```kotlin
+val task = object : BukkitRunnable() {
+  override fun run() {
+    player.sendActionBar(Component.text("tick"))
+  }
+}.runTaskTimer(plugin, 0L, 20L)
+
+server.pluginManager.registerEvents(object : Listener {
+  @EventHandler
+  fun onQuit(e: PlayerQuitEvent) {
+    if (e.player == player) task.cancel()
+  }
+}, plugin)
+```
+
+**After** — DevCore(3 行)
+
+```kotlin
+player.taskTimer(plugin, 0.ticks, 20.ticks) {
+  player.sendActionBar(Component.text("tick"))
+}
+```
+
+### プレイヤーを5秒間追従するリング状パーティクル
+
+**Before** — Paper / Bukkit API のみ(16 行)
+
+```kotlin
+object : BukkitRunnable() {
+  var elapsed = 0
+
+  override fun run() {
+    if (!player.isValid || elapsed >= 100) {
+      cancel()
+      return
+    }
+    val center = player.location.add(0.0, 1.0, 0.0)
+    for (i in 0 until 36) {
+      val angle = 2 * Math.PI * i / 36
+      val at = center.clone().add(cos(angle) * 1.5, 0.0, sin(angle) * 1.5)
+      player.world.spawnParticle(Particle.END_ROD, at, 1)
+    }
+    elapsed += 2
+  }
+}.runTaskTimer(plugin, 0L, 2L)
+```
+
+**After** — DevCore(2 行)
+
+```kotlin
+val ring = effect { particle(Particle.END_ROD, circle(1.5).offset(y = 1.0)) }
+plugin.playEffect(ring, player, every = 2.ticks, duration = 5.seconds)
+```
+
+### コマンド(プレイヤー引数つき)
+
+**Before** — Paper / Bukkit API のみ(14 行)
+
+```kotlin
+lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { event ->
+  event.registrar().register(
+    Commands.literal("greet")
+      .then(
+        Commands.argument("target", ArgumentTypes.player())
+          .executes { ctx ->
+            val target = ctx.getArgument("target", PlayerSelectorArgumentResolver::class.java)
+              .resolve(ctx.source).first()
+            ctx.source.sender.sendMessage("Hello, ${target.name}")
+            Command.SINGLE_SUCCESS
+          }
+      ).build()
+  )
+}
+```
+
+**After** — DevCore(8 行)
+
+```kotlin
+plugin.command("greet") {
+  player("target") {
+    executes { ctx ->
+      ctx.sendSuccess { text("Hello, ${ctx.getPlayer("target")?.name}") }
+      1
+    }
+  }
+}
+```
+
+## どのモジュールが必要?
+
+| モジュール | 省けるボイラープレート | `core` に含まれる |
+|---|---|:---:|
+| `adventure` | Adventure コンポーネントの組み立てとスタイル指定 | ✅ |
+| `command` | Brigadier のコマンドツリー・引数・suspend ハンドラ | ✅ |
+| `config` | YAML ↔ data class のマッピング・検証・コメント | ✅ |
+| `scheduler` | `BukkitRunnable`、ライフサイクル連動タスク、コルーチン Dispatcher | ✅ |
+| `task-sequence` | 「待って、次にこれ」を連ねるタイムライン | ✅ |
+| `event` | `Listener` クラス、`@EventHandler`、手動の登録解除 | ✅ |
+| `cooldown` | プレイヤーごとのクールダウン/デバウンス管理 | ✅ |
+| `gui` | インベントリのクリック処理と再描画 | ✅ |
+| `scoreboard` | サイドバーとボスバー(`core` には `scoreboard-lite` のみ) | ✅ (lite) |
+| `effect` | パーティクル形状の計算、繰り返し・追従再生 | ✅ |
+| `packet` | PacketEvents 経由の偽エンティティ/ブロック | – |
+| `entity` | スポーン、AI ゴール、ライフサイクルフック | – |
+| `world` | ブロック/チャンク/プレイヤーの編集 | – |
+| `database` | 接続設定、マイグレーション、リポジトリ | – |
+| `i18n` | 言語ファイル、フォールバック、MiniMessage プレースホルダ | – |
+| `pdc` | `NamespacedKey` と `PersistentDataType` の組、メタの取得・再設定の往復 | – |
+| `item` | カスタムアイテムの ID、リスナー、レシピ | – |
+| `storage` | プレイヤーデータの非同期読み書き、オートセーブ、安全な書き込み | – |
+| `util` | キャスト、バージョンチェック、小さなヘルパー | – |
+
+「–」のモジュールは `core` に含まれません。個別に追加してください(バージョンは BOM で揃います)。
+
 ## 使用方法 (Gradle)
 
 リポジトリ:
@@ -45,7 +197,7 @@ repositories {
 
 ```kotlin
 dependencies {
-  implementation("com.peco2282.devcore:core:1.1.0")
+  implementation("com.peco2282.devcore:core:1.2.0")
 }
 ```
 
@@ -53,7 +205,7 @@ BOMを使用してモジュールを選択する場合:
 
 ```kotlin
 dependencies {
-  implementation(platform("com.peco2282.devcore:devcore-bom:1.1.3"))
+  implementation(platform("com.peco2282.devcore:devcore-bom:1.2.0"))
   implementation("com.peco2282.devcore:command")
   implementation("com.peco2282.devcore:config")
 }
@@ -127,7 +279,7 @@ player.taskTimer(plugin, 0.ticks, 20.ticks) {
 plugin.sequence {
   player.playSound(location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
   wait(10.ticks)
-  location.spawnParticle(Particle.EXPLOSION_NORMAL, 10, 0.5, 0.5, 0.5)
+  location.spawnParticle(Particle.EXPLOSION, 10, 0.5, 0.5, 0.5)
   wait(5.ticks)
   location.createExplosion(2f)
 }
@@ -231,22 +383,57 @@ on<PlayerJoinEvent> {
 
 ### effect
 
-パーティクルエフェクトや視覚的な強化のためのユーティリティ。
+形状ジェネレータ(円・球・らせん・線)を備えた、再利用可能なパーティクル/サウンドエフェクトと、繰り返し・追従再生。
 [詳細ドキュメント](effect/README.ja.md)
 
 ```kotlin
-Effects.spawnCloud(location)
+val ring = effect {
+  particle(Particle.END_ROD, circle(1.5).offset(y = 1.0))
+  sound(Sound.ENTITY_PLAYER_LEVELUP)
+}
+plugin.playEffect(ring, player, every = 2.ticks, duration = 5.seconds)
+```
+
+### pdc
+
+プレイヤー・エンティティ・アイテム・ブロックの `PersistentDataContainer` を型安全に扱い、自動保存されるプロパティも提供します。
+[詳細ドキュメント](pdc/README.ja.md)
+
+```kotlin
+var Player.kills: Int by pdc(plugin, "kills", default = 0)
+player.kills++      // 永続化されます
+```
+
+### item
+
+見た目・振る舞い・レシピを一箇所にまとめたカスタムアイテム。
+[詳細ドキュメント](item/README.ja.md)
+
+```kotlin
+items.register("ruby_sword", Material.DIAMOND_SWORD) {
+  appearance { displayName = Component.text("ルビーの剣") }
+  onAttack { it.damage *= 1.5 }
+}
+```
+
+### storage
+
+参加前に読み込み、非同期で保存するプレイヤーデータ。オートセーブとクラッシュに強い書き込みつき。
+[詳細ドキュメント](storage/README.ja.md)
+
+```kotlin
+val stats = plugin.playerData<Stats>()
+stats[player].coins += 10
 ```
 
 ### util
 
-コルーチンサポート、バージョンチェック、および一般的なヘルパーを提供する汎用ユーティリティ。
+バージョンチェック、安全なキャスト、一般的なヘルパーを提供する汎用ユーティリティ。(コルーチン対応は `scheduler` にあります。)
 [詳細ドキュメント](util/README.ja.md)
 
 ```kotlin
-plugin.launch {
-  val data = fetchData()
-}
+checkVersion("1.21.1") // throws UnsupportedVersionException if older
+val player = sender.asNullable<Player>()
 ```
 
 ### core

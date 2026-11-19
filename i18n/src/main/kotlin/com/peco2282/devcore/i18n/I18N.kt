@@ -1,5 +1,10 @@
 package com.peco2282.devcore.i18n
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
+import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -23,7 +28,8 @@ class I18N(
   val dir: File,
   val fileValidator: (File) -> Boolean = { it.extension == "yml" || it.extension == "yaml" }
 ) {
-  private val locales = mutableMapOf<Locale, Properties>()
+  @Volatile
+  private var locales: Map<Locale, Properties> = emptyMap()
 
   /**
    * The default locale to use when a translation is not found in the requested locale.
@@ -64,10 +70,10 @@ class I18N(
    * File names (without extension) are used to determine the locale.
    */
   fun loadLocales() {
-    locales.clear()
+    val loaded = mutableMapOf<Locale, Properties>()
     dir.listFiles(fileValidator)?.forEach { file ->
       val locale = asLocale(file.nameWithoutExtension)
-      val properties = locales.getOrPut(locale) { Properties() }
+      val properties = loaded.getOrPut(locale) { Properties() }
       val yml = YamlConfiguration.loadConfiguration(file)
       yml.getKeys(true).forEach { key ->
         val value = yml.get(key) ?: return@forEach
@@ -76,6 +82,56 @@ class I18N(
         }
       }
     }
+    // Swap atomically so concurrent readers never observe a half-loaded state.
+    locales = loaded
+  }
+
+  /** Locales currently loaded. */
+  val availableLocales: Set<Locale> get() = locales.keys
+
+  /**
+   * Resolves the raw message for [key] using the fallback chain:
+   * exact locale, language only (`ja_JP` -> `ja`), default locale, default language.
+   * Unlike a single-locale lookup, a locale that exists but lacks the key still falls back.
+   */
+  fun raw(locale: Locale, key: String): String? {
+    val snapshot = locales
+    val candidates = listOf(
+      locale,
+      Locale.of(locale.language),
+      defaultLocale,
+      Locale.of(defaultLocale.language)
+    ).distinct()
+    for (candidate in candidates) {
+      snapshot[candidate]?.getProperty(key)?.let { return it }
+    }
+    return null
+  }
+
+  /** Whether [key] can be resolved for [locale] (including fallbacks). */
+  fun has(locale: Locale, key: String): Boolean = raw(locale, key) != null
+
+  /**
+   * Translates [key] into an Adventure [Component] parsed with MiniMessage.
+   *
+   * [placeholders] are inserted as unparsed text via `<name>` tags, so player-supplied values
+   * cannot inject formatting. Positional `{0}` arguments are not used here.
+   * A missing key yields a plain-text component of the key itself, so gaps are visible rather than silent.
+   */
+  fun component(locale: Locale, key: String, vararg placeholders: Pair<String, Any?>): Component {
+    val message = raw(locale, key) ?: return Component.text(key)
+    val resolvers = placeholders.map { (name, value) -> Placeholder.unparsed(name, value.toString()) }
+    return MiniMessage.miniMessage().deserialize(message, TagResolver.resolver(resolvers))
+  }
+
+  /** [component] using the player's client locale. */
+  fun component(player: Player, key: String, vararg placeholders: Pair<String, Any?>): Component =
+    component(player.locale(), key, *placeholders)
+
+  /** Sends the translated [key] to [sender], using the sender's locale if it is a [Player]. */
+  fun send(sender: CommandSender, key: String, vararg placeholders: Pair<String, Any?>) {
+    val locale = (sender as? Player)?.locale() ?: defaultLocale
+    sender.sendMessage(component(locale, key, *placeholders))
   }
 
   /**
@@ -90,8 +146,7 @@ class I18N(
    * @return The translated message, or null if the key is not found
    */
   fun translate(locale: Locale, key: String, vararg args: Any): String? {
-    val properties = locales[locale] ?: locales[defaultLocale] ?: return null
-    val message = properties.getProperty(key) ?: return null
+    val message = raw(locale, key) ?: return null
     if (args.isEmpty()) return message
     return try {
       MessageFormat.format(message, *args)

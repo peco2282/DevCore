@@ -1,16 +1,17 @@
 # util
 
-コルーチンサポート、バージョンチェック、および一般的なヘルパーを提供する汎用ユーティリティモジュールです。
+バージョンチェック、安全なキャスト、および一般的なヘルパーを提供する汎用ユーティリティモジュールです。
 
 ## 使用方法
 
 ### コルーチン
-Bukkit スレッドに対応したコルーチンへのアクセスを簡素化します。
+> **非推奨です。** `util` の `Plugin.launch`・`Plugin.scope`・`Plugin.coroutine` は非推奨になりました。
+> 代わりに `scheduler` モジュール(`com.peco2282.devcore.scheduler.coroutines`)を使ってください。
+> `scheduler` 版のスコープはプラグイン無効化時に自動でキャンセルされますが、`util` 版はされません。
 
 ```kotlin
-plugin.launch {
-    // デフォルトで Bukkit メインスレッドで実行されます
-    val data = fetchDataAsync() // suspend 関数
+plugin.scheduler.launch {
+    val data = fetchData()      // suspend 関数
     player.sendMessage("データを取得しました！")
 }
 ```
@@ -31,7 +32,6 @@ val entity = something.asNotNullable<LivingEntity>()
 ```
 
 ## 特徴
-- **Bukkit コルーチンディスパッチャ**: Minecraft メインスレッド上での Kotlin コルーチンとのシームレスな統合。
 - **バージョン管理**: マルチバージョン互換性を処理するための堅牢なバージョン比較。
 - **内部 API ツール**: 内部限定機能のための専用アノテーション。
 - **例外処理ユーティリティ**: より安全な実行のための関数型インターフェース。

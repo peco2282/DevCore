@@ -8,6 +8,7 @@ import com.peco2282.devcore.config.getConfigInstance
 import com.peco2282.devcore.config.reflection.TypeSerializers
 import com.peco2282.devcore.config.serializers.ComponentSerializer
 import com.peco2282.devcore.cooldown.Cooldowns
+import com.peco2282.devcore.effect.*
 import com.peco2282.devcore.entity.*
 import com.peco2282.devcore.gui.GuiListener
 import com.peco2282.devcore.gui.fill
@@ -16,6 +17,7 @@ import com.peco2282.devcore.packet.EntityAnimation
 import com.peco2282.devcore.packet.Packets
 import com.peco2282.devcore.packet.onPacket
 import com.peco2282.devcore.packet.packet
+import com.peco2282.devcore.scheduler.seconds as tickSeconds
 import com.peco2282.devcore.scheduler.ticks
 import com.peco2282.devcore.world.edit
 import net.kyori.adventure.text.Component
@@ -25,6 +27,9 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Zombie
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
@@ -43,6 +48,11 @@ class TestPlugin : JavaPlugin() {
     // Plugin startup logic
 
     Packets.init(this)
+    NewModules.install(this)
+    server.pluginManager.registerEvents(object : Listener {
+      @EventHandler
+      fun onJoin(e: PlayerJoinEvent) = NewModules.onJoin(e.player)
+    }, this)
     GuiListener.register(this)
     TypeSerializers.register(Component::class, ComponentSerializer())
 
@@ -83,6 +93,34 @@ class TestPlugin : JavaPlugin() {
             val remaining = cooldowns.remainingMillis(player.name) / 1000.0
             player.sendMessage(Component.text("Please wait %.1f seconds.".format(remaining)))
           }
+          1
+        }
+      }
+      literal("effect") {
+        requireOp()
+        executesPlayer { player, _ ->
+          // A fixed effect: shapes are computed once and reused.
+          val burst = effect {
+            particle(Particle.END_ROD, circle(1.5).offset(y = 1.0))
+            particle(Particle.DUST, sphere(0.6, points = 40).offset(y = 1.0), data = dust(org.bukkit.Color.AQUA, 1.2f))
+            sound(Sound.ENTITY_PLAYER_LEVELUP)
+          }
+          burst.play(player.location)
+
+          // An animated effect that follows the player for 5 seconds.
+          val spinner = animatedEffect { frame ->
+            particle(Particle.FLAME, circle(1.0, points = 6).rotateY(frame * 0.3).offset(y = 0.2))
+            particle(Particle.SOUL_FIRE_FLAME, helix(0.5, 2.0, turns = 2.0, points = 24).rotateY(-frame * 0.2))
+          }
+          playEffect(spinner, player, every = 1.ticks, duration = 5.tickSeconds)
+          1
+        }
+      }
+      literal("newmodules") {
+        requireOp()
+        executesPlayer { player, _ ->
+          NewModules.items["ruby_sword"]?.give(player)
+          player.sendMessage(NewModules.describe(player))
           1
         }
       }
