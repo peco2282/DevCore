@@ -50,9 +50,13 @@ class TestPlugin : JavaPlugin() {
     Packets.init(this)
     NewModules.install(this)
     ChapterModules.install(this)
+    AdvancedModules.install(this)
     server.pluginManager.registerEvents(object : Listener {
       @EventHandler
-      fun onJoin(e: PlayerJoinEvent) = NewModules.onJoin(e.player)
+      fun onJoin(e: PlayerJoinEvent) {
+        NewModules.onJoin(e.player)
+        AdvancedModules.onJoin(this@TestPlugin, e.player)
+      }
     }, this)
     GuiListener.register(this)
     TypeSerializers.register(Component::class, ComponentSerializer())

@@ -43,6 +43,9 @@ dependencies {
   implementation(project(":region"))
   implementation(project(":teleport"))
   implementation(project(":game"))
+  implementation(project(":loot"))
+  implementation(project(":merchant"))
+  implementation(project(":nametag"))
 }
 
 tasks {
